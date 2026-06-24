@@ -526,6 +526,19 @@ body{
 .dash-approval-t{display:block;font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;}
 .dash-approval-s{display:block;font-size:11.5px;font-weight:500;color:var(--ink-2);margin-top:2px;line-height:1.35;}
 
+/* Maker-checker banner (beat plan) */
+.mc-today{display:flex;align-items:center;gap:9px;padding:4px 2px 2px;}
+.mc-today-l{font-size:var(--f-sub);font-weight:700;color:var(--ink);}
+.mc-today-src{font-size:var(--f-cap);font-weight:600;color:var(--ink-3);margin-left:auto;}
+.mc-pending{display:flex;align-items:center;gap:11px;margin-top:8px;background:var(--amber-tint);border:1px solid var(--amber);border-radius:13px;padding:11px 13px;cursor:pointer;}
+.mc-pending:active{filter:brightness(.98);}
+.mc-pending-ic{width:28px;height:28px;border-radius:8px;background:var(--surface);color:var(--amber);display:flex;align-items:center;justify-content:center;flex:0 0 28px;}
+.mc-pending-body{flex:1;min-width:0;}
+.mc-pending-t{display:block;font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+.mc-pending-s{display:block;font-size:11px;font-weight:500;color:var(--ink-2);margin-top:2px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mc-note{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:11.5px;font-weight:600;color:var(--green);background:var(--green-tint);border-radius:10px;padding:9px 12px;}
+.mc-note.rej{color:var(--red);background:var(--red-tint);}
+
 /* Stats grid — icon-led, single value + label */
 .dash-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .dash-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 14px;box-shadow:var(--shadow-card);display:flex;align-items:center;gap:12px;}

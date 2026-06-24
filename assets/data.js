@@ -399,6 +399,58 @@ const CONTACTS=ACCOUNTS.flatMap(a=>(a.contacts||[]).map((c,i)=>({
 })));
 function findContactBySlug(slug){return CONTACTS.find(c=>slugify(c.n)===slug);}
 
+/* ════════════════════════════════════════
+   BEAT PLAN — account-based visits across the
+   3 types, with maker-checker approval state.
+   Visit history is the same model (done visits
+   on past days) — Beat Plan + Visits merged.
+   ════════════════════════════════════════ */
+
+/* Per-type visit purpose options + outcome wording */
+const VISIT_PURPOSE={
+  referral:["Referral discussion","Relationship visit","Referral review","New tie-up"],
+  venue:["Camp recce","Camp planning","Camp execution","Post-camp review"],
+  corporate:["Intro meeting","MOU follow-up","Package proposal","Renewal discussion"],
+};
+
+/* Today's beat plan — mixed account types.
+   status: up | active | waiting | done | miss */
+const PLAN_VISITS=[
+  {id:"V-1",time:"09:08",ap:"AM",dur:"12 min",accountSlug:"aradhya-clinics",accountName:"Aradhya Clinics",accountSub:"Polyclinic",type:"referral",tier:1,purpose:"Referral review",contact:"Dr. Ananya Devika Sharma",vt:"In person",status:"done",outcome:"Positive",mx:46,my:18},
+  {id:"V-2",time:"10:23",ap:"AM",dur:"22 min",accountSlug:"infosys-ltd",accountName:"Infosys Ltd",accountSub:"IT / ITES",type:"corporate",purpose:"MOU follow-up",contact:"Ms. Kavita Reddy",vt:"In person",status:"done",outcome:"Positive",mx:78,my:34},
+  {id:"V-3",time:"11:42",ap:"AM",accountSlug:"prestige-lakeside-habitat",accountName:"Prestige Lakeside Habitat",accountSub:"Housing Society",type:"venue",purpose:"Camp recce",contact:"Mr. Ramesh Gowda",vt:"In person",status:"miss",mx:64,my:48},
+  {id:"V-4",time:"02:14",ap:"PM",accountSlug:"jain-s-nursing-home",accountName:"Dr. Jain's Nursing Home",accountSub:"Nursing Home",type:"referral",tier:1,purpose:"Referral discussion",contact:"Dr. Apurv Jain",vt:"In person",status:"active",waitMins:7,reachedAt:"02:07 PM",mx:42,my:62},
+  {id:"V-5",time:"03:37",ap:"PM",accountSlug:"delhi-public-school-whitefield",accountName:"Delhi Public School, Whitefield",accountSub:"School",type:"venue",purpose:"Camp planning",contact:"Mrs. Anita Rao",vt:"In person",status:"up",mx:60,my:28},
+  {id:"V-6",time:"05:18",ap:"PM",accountSlug:"wipro-technologies",accountName:"Wipro Technologies",accountSub:"IT / ITES",type:"corporate",purpose:"Package proposal",contact:"Mr. Arjun Pillai",vt:"Video call",status:"up",mx:52,my:86},
+];
+
+/* Visit history — completed visits on earlier days (merged Visits Tracking) */
+const VISIT_HISTORY=[
+  {id:"H-1",date:"13 Jun '26",time:"10:48 AM",accountSlug:"aradhya-clinics",accountName:"Aradhya Clinics",type:"referral",purpose:"Referral discussion",contact:"Dr. Ananya Devika Sharma",outcome:"Positive",detail:"Agreed to refer cardiac cases; shared coordinator line."},
+  {id:"H-2",date:"12 Jun '26",time:"03:30 PM",accountSlug:"aravali-power-company-pvt-ltd",accountName:"Aravali Power Company Pvt Ltd",type:"corporate",purpose:"MOU follow-up",contact:"Mr. Rohit Deshmukh",outcome:"Neutral",detail:"Reviewed IPD package; awaiting board sign-off."},
+  {id:"H-3",date:"11 Jun '26",time:"09:15 AM",accountSlug:"brigade-gateway-rwa",accountName:"Brigade Gateway RWA",type:"venue",purpose:"Camp execution",contact:"Mr. Suresh Menon",outcome:"Positive",detail:"Camp done · 180 footfall · 22 leads captured."},
+  {id:"H-4",date:"10 Jun '26",time:"05:02 PM",accountSlug:"sunrise-multispecialty-clinic",accountName:"Sunrise Multispecialty Clinic",type:"referral",purpose:"Relationship visit",contact:"Dr. Rohit Deshmukh",outcome:"Neutral",detail:"Brief OPD visit; left referral pads."},
+  {id:"H-5",date:"9 Jun '26",time:"11:20 AM",accountSlug:"infosys-ltd",accountName:"Infosys Ltd",type:"corporate",purpose:"Package proposal",contact:"Ms. Kavita Reddy",outcome:"Positive",detail:"Premium OPD+IPD tier accepted in principle."},
+];
+
+/* Maker-checker — current beat plan approval state.
+   status: approved | pending | rejected | draft
+   source: auto | manual */
+const BEAT_PLAN_STATE={
+  today:{date:"Tue, 16 Jun 2026",source:"auto",status:"approved",submittedBy:"Raj Hussain",reviewedBy:"Priya Sundaram (Manager)",reviewedAt:"15 Jun, 6:40 PM"},
+  /* a pending edit for tomorrow, surfaced as the maker-checker example */
+  pending:{date:"Wed, 17 Jun 2026",source:"manual",status:"pending",submittedBy:"Raj Hussain",submittedAt:"16 Jun, 1:10 PM",note:"Added 2 corporate visits, dropped 1 low-priority referral",visitCount:7},
+};
+
+const PLAN_STATUS_META={
+  approved:{label:"Approved",cls:"done"},
+  pending:{label:"Pending approval",cls:"wait"},
+  rejected:{label:"Rejected",cls:"miss"},
+  draft:{label:"Draft",cls:"up"},
+};
+
+function findPlanVisit(id){return PLAN_VISITS.find(v=>v.id===id);}
+
 /* Provider message templates — channel + account-type aware.
    {name} → contact short name. */
 const PROVIDER_MSG_TEMPLATES={
