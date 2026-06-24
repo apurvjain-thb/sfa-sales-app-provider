@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Deals · Sakra Sales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <!-- LIST -->
+    <div class="screen-view" id="view-list">
+      <div class="appheader">
+        <div class="header-row">
+          <h1 class="page-title">Deals</h1>
+          <div class="avatar" onclick="location.href='/profile'">RH</div>
+        </div>
+      </div>
+      <div class="chiprow" id="deal-chips"></div>
+      <div class="searchwrap"><div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="deal-search" placeholder="Search by deal, account" oninput="renderDeals()">
+      </div></div>
+      <div class="toolsrow"><span class="count" id="deal-count">— deals</span><span class="count" id="deal-value" style="color:var(--teal-press);"></span></div>
+      <div class="screen"><div class="pad" id="deal-list" style="padding-top:0;"></div></div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="screen-view" id="view-detail">
+      <div class="vd-topbar">
+        <a class="vd-back" href="/deals" onclick="event.preventDefault();bucketGo('/deals');">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="vd-topbar-title">
+          <div class="vd-visit-id" id="dd-id">Deal</div>
+          <div class="vd-follow-up" id="dd-status"></div>
+        </div>
+        <span style="width:36px;"></span>
+      </div>
+      <div class="screen"><div style="padding:14px 18px 110px;" id="dd-content"></div></div>
+      <div class="vd-footer">
+        <button class="btn secondary" style="flex:0 0 auto;padding:14px 18px;" onclick="bucketGo('/deals')">Back</button>
+        <button class="btn btn-primary" id="dd-advance" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="advanceDeal()"></button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/shell.js"></script>
+<script>
+initShell('');
+
+const ds={tab:"All"};
+function typeClass(t){return t==='referral'?'up':t==='venue'?'wait':'done';}
+const DEAL_TABS=["All","Open","Won","Lost"];
+
+function renderChips(){
+  document.getElementById('deal-chips').innerHTML=DEAL_TABS.map(c=>`<button class="chip ${ds.tab===c?'active':''}" onclick="setTab('${c}')">${c}</button>`).join('');
+}
+function setTab(t){ds.tab=t;renderChips();renderDeals();}
+
+function renderDeals(){
+  const q=(document.getElementById('deal-search').value||'').toLowerCase();
+  let rows=DEALS.filter(d=>{
+    const tabOk=ds.tab==='All'||d.status===ds.tab;
+    const qOk=!q||d.name.toLowerCase().includes(q)||d.accountName.toLowerCase().includes(q);
+    return tabOk&&qOk;
+  });
+  rows=[...rows].sort((a,b)=>a.created-b.created);
+  const openVal=rows.filter(d=>d.status==='Open').reduce((s,d)=>s+d.value,0);
+  document.getElementById('deal-count').textContent=`${rows.length} deal${rows.length!==1?'s':''}`;
+  document.getElementById('deal-value').textContent=openVal?`${fmtINR(openVal)} in pipeline`:'';
+  const list=document.getElementById('deal-list');
+  if(!rows.length){list.innerHTML='<div class="empty"><div class="et">No deals found</div><div class="ed">Try a different filter or search.</div></div>';return;}
+  list.innerHTML=rows.map(d=>{
+    const meta=ACCOUNT_TYPE_META[d.type];
+    return `<div class="card" onclick="bucketGo('/deals/${d.id}')">
+      <div class="card-top">
+        <span class="card-title">${d.accountName}</span>
+        <span class="pill ${DEAL_STATUS_CLASS[d.status]}">${d.status}</span>
+      </div>
+      <div class="inner">
+        <div class="line"><span style="color:var(--ink-2)">Deal:</span> ${d.name}</div>
+        <div class="line sub">${d.dealType} · ${meta.chip} · Stage: ${d.stage}</div>
+      </div>
+      <div class="card-foot">
+        <span class="foot-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Close ${d.close}</span>
+        <span style="display:inline-flex;gap:8px;align-items:center;">
+          <span style="font-size:var(--f-cap);color:var(--ink-3);font-weight:600;">P ${Math.round(d.prob*100)}%</span>
+          <span class="card-title" style="font-size:var(--f-sub);color:var(--teal-press);">${fmtINR(d.value)}</span>
+        </span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let ddCurrent=null;
+function vRow(label,val){return `<div class="vd-row"><span class="vd-row-label">${label}</span><span class="vd-row-value">${val||'—'}</span></div>`;}
+function renderDetail(id){
+  const d=findDealById(id); ddCurrent=d;
+  const content=document.getElementById('dd-content');
+  const adv=document.getElementById('dd-advance');
+  if(!d){
+    document.getElementById('dd-id').textContent='Deal not found';
+    document.getElementById('dd-status').textContent='';
+    content.innerHTML='<div class="empty" style="margin-top:24px;"><div class="et">Deal not found</div></div>';
+    adv.style.display='none';
+    return;
+  }
+  const meta=ACCOUNT_TYPE_META[d.type];
+  const stages=DEAL_STAGES_BY_TYPE[d.type]||[];
+  const idx=stages.indexOf(d.stage);
+  document.getElementById('dd-id').textContent='Deal';
+  document.getElementById('dd-status').textContent=d.status;
+  /* stage stepper */
+  const stepper=stages.map((s,i)=>`<div class="ld-step ${i<=idx?'on':''}"><span class="ld-step-dot"></span><span class="ld-step-l">${s}</span></div>`).join('<span class="ld-step-line"></span>');
+  content.innerHTML=`
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-top"><span class="card-title">${d.accountName}</span><span class="pill ${DEAL_STATUS_CLASS[d.status]}">${d.status}</span></div>
+      <div class="inner"><div class="line">${d.name}</div></div>
+      <div class="card-foot" style="border:none;padding-top:8px;">
+        <span class="pill ${typeClass(d.type)}">${meta.chip}</span>
+        <span class="card-title" style="font-size:var(--f-h1);color:var(--teal-press);">${fmtINR(d.value)}</span>
+      </div>
+    </div>
+    <div class="ld-stepper">${stepper}</div>
+    <div class="acc open" style="margin-top:14px;"><div class="acc-head">
+      <div class="acc-icon">${meta.icon}</div>
+      <div class="acc-title"><div class="acc-name">Deal details</div><div class="acc-sub">${meta.label}</div></div>
+    </div><div class="acc-body">
+      ${vRow('Deal type',d.dealType)}
+      ${vRow('Value',fmtINR(d.value))}
+      ${vRow('Current stage',d.stage)}
+      ${vRow('Probability',Math.round(d.prob*100)+'%')}
+      ${vRow('Expected close',d.close)}
+      ${vRow('Status',d.status)}
+    </div></div>
+    <div class="card" style="margin-top:14px;" onclick="bucketGo('/accounts/${d.accountSlug}')">
+      <div class="card-top"><span class="card-title" style="font-size:var(--f-sub);">Linked account</span><span class="pill ${typeClass(d.type)}">${meta.chip}</span></div>
+      <div class="inner"><div class="line sub">View account ›</div></div>
+    </div>`;
+  if(d.status!=='Open'||idx>=stages.length-1){ adv.textContent=d.status==='Open'?'Mark as Won':'Closed'; adv.disabled=d.status!=='Open'; adv.style.opacity=d.status!=='Open'?'.55':'1'; }
+  else { adv.textContent=`Move to ${stages[idx+1]}`; adv.disabled=false; adv.style.opacity='1'; }
+}
+function advanceDeal(){
+  if(!ddCurrent||ddCurrent.status!=='Open') return;
+  const stages=DEAL_STAGES_BY_TYPE[ddCurrent.type]||[];
+  const idx=stages.indexOf(ddCurrent.stage);
+  if(idx<stages.length-1){
+    ddCurrent.stage=stages[idx+1];
+    if(idx+1===stages.length-1){ ddCurrent.status='Won'; ddCurrent.prob=1.0; }
+    renderDetail(ddCurrent.id);
+    snack(`Deal moved to ${ddCurrent.stage}`);
+  }
+}
+
+function showView(name){
+  document.getElementById('view-list').classList.toggle('active',name==='list');
+  document.getElementById('view-detail').classList.toggle('active',name==='detail');
+}
+bucketRoute('/deals',{
+  list(){ showView('list'); renderChips(); renderDeals(); },
+  detail(id){ showView('detail'); renderDetail(id); },
+});
+</script>
+</body>
+</html>

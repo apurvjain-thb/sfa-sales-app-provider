@@ -7,8 +7,6 @@ Tied to [UPGRADE_PLAN.md](UPGRADE_PLAN.md). Last updated: 2026-06-24.
 
 ## 🔭 Remaining Phases (not started)
 
-- [ ] **Phase 3 — Leads** (port from B2B): 4-stage pipeline (New/Contacted/Qualified/Converted), source tracking (Manual/HIS/Website/Activity), use-case lead types (referral tie-up / activity opportunity / corporate enquiry), priority + due dates, date-range filter. Activity-generated leads should flow back here.
-- [ ] **Phase 3 — Deals** (port from B2B): pipeline with INR value + probability + expected close; per-type stage sets (Corporate MOU: Intro→Proposal→Negotiation→Legal→Signed; Referral: Discussion→Agreement→First referral→Active); renewal tracking for corporates.
 - [ ] **Phase 4 — Activity module** (camps/events, net-new): create activity (venue, date, services, staff, logistics checklist), **maker-checker approval flow**, live activity mode (footfall + on-the-spot leads), post-activity report (footfall/leads/conversions/ROI). Surface activities inside Beat Plan.
 - [ ] **Phase 5 — Tasks merge**: account-linked tasks + audit-trail/history timeline + AI summary banner; new task types (referral follow-up, activity execution, MOU follow-up); attachments, status/priority chips.
 - [ ] **Phase 5 — Evaluate Sales Reps**: change criteria to provider metrics (referrals generated, activities run, MOUs signed).
@@ -49,3 +47,10 @@ Tied to [UPGRADE_PLAN.md](UPGRADE_PLAN.md). Last updated: 2026-06-24.
 ## ✅ Done (for reference)
 - Phase 1 — Account-centric model, Accounts module, Contacts merge.
 - Phase 2 — Dashboard provider KPIs, Beat Plan provider conversion (3 types, type-aware check-out, merged history, maker-checker).
+- Phase 3 — Leads pipeline (4 stages, stage-advance) + Deals pipeline (per-type stage stepper, value/probability, Won/Lost). Accessed via Dashboard "Pipeline" tiles (not yet in bottom nav — see More-overflow item below).
+
+## 📌 New deferrals from Phase 3
+- [ ] **Leads/Deals not in bottom nav** — reachable via Dashboard quick tiles + direct URL only. Fold into "More" overflow when built.
+- [ ] **Account detail** should list its linked Leads, Deals, Tasks (cross-links exist lead→account / deal→account, not yet account→lead/deal).
+- [ ] **Leads:** source date-range filter, activity-generated leads auto-flow, create-lead form.
+- [ ] **Deals:** Lost-reason capture, edit value/close-date, create-deal form.

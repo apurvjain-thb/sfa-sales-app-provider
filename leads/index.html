@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Leads · Sakra Sales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <!-- LIST -->
+    <div class="screen-view" id="view-list">
+      <div class="appheader">
+        <div class="header-row">
+          <h1 class="page-title">Leads</h1>
+          <div class="avatar" onclick="location.href='/profile'">RH</div>
+        </div>
+      </div>
+      <div class="chiprow" id="lead-chips"></div>
+      <div class="searchwrap"><div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="lead-search" placeholder="Search by title, contact, source" oninput="renderLeads()">
+      </div></div>
+      <div class="toolsrow"><span class="count" id="lead-count">— leads</span></div>
+      <div class="screen"><div class="pad" id="lead-list" style="padding-top:0;"></div></div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="screen-view" id="view-detail">
+      <div class="vd-topbar">
+        <a class="vd-back" href="/leads" onclick="event.preventDefault();bucketGo('/leads');">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="vd-topbar-title">
+          <div class="vd-visit-id" id="ld-id">Lead</div>
+          <div class="vd-follow-up" id="ld-stage"></div>
+        </div>
+        <span style="width:36px;"></span>
+      </div>
+      <div class="screen"><div style="padding:14px 18px 110px;" id="ld-content"></div></div>
+      <div class="vd-footer">
+        <button class="btn secondary" id="ld-back2" style="flex:0 0 auto;padding:14px 18px;" onclick="bucketGo('/leads')">Back</button>
+        <button class="btn btn-primary" id="ld-advance" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="advanceLead()"></button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/shell.js"></script>
+<script>
+initShell('');
+
+const ls={stage:"All"};
+function typeClass(t){return t==='referral'?'up':t==='venue'?'wait':'done';}
+function prioClass(p){return p==='High'?'high':p==='Med'?'med':'low';}
+
+function renderChips(){
+  const chips=["All",...LEAD_STAGES];
+  document.getElementById('lead-chips').innerHTML=chips.map(c=>`<button class="chip ${ls.stage===c?'active':''}" onclick="setStage('${c}')">${c}</button>`).join('');
+}
+function setStage(s){ls.stage=s;renderChips();renderLeads();}
+
+function renderLeads(){
+  const q=(document.getElementById('lead-search').value||'').toLowerCase();
+  let rows=LEADS.filter(l=>{
+    const stageOk=ls.stage==='All'||l.stage===ls.stage;
+    const qOk=!q||l.title.toLowerCase().includes(q)||l.contact.toLowerCase().includes(q)||l.source.toLowerCase().includes(q);
+    return stageOk&&qOk;
+  });
+  rows=[...rows].sort((a,b)=>a.created-b.created);
+  document.getElementById('lead-count').textContent=`${rows.length} lead${rows.length!==1?'s':''}`;
+  const list=document.getElementById('lead-list');
+  if(!rows.length){list.innerHTML='<div class="empty"><div class="et">No leads found</div><div class="ed">Try a different stage or search.</div></div>';return;}
+  list.innerHTML=rows.map(l=>{
+    const meta=ACCOUNT_TYPE_META[l.type];
+    return `<div class="card" onclick="bucketGo('/leads/${l.id}')">
+      <div class="card-top">
+        <span class="card-title">${l.title}</span>
+        <span class="card-id">#${l.id}</span>
+      </div>
+      <div class="inner"><div class="line"><span style="color:var(--ink-2)">Contact:</span> ${l.contact}</div><div class="line sub">Source: ${l.source}</div></div>
+      <div class="card-foot">
+        <span class="foot-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Due ${l.due}</span>
+        <span style="display:inline-flex;gap:6px;align-items:center;">
+          <span class="tk-prio-pill ${prioClass(l.prio)}">${l.prio}</span>
+          <span class="pill ${LEAD_STAGE_CLASS[l.stage]}">${l.stage}</span>
+        </span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let ldCurrent=null;
+function vRow(label,val){return `<div class="vd-row"><span class="vd-row-label">${label}</span><span class="vd-row-value">${val||'—'}</span></div>`;}
+function renderDetail(id){
+  const l=findLeadById(id); ldCurrent=l;
+  const content=document.getElementById('ld-content');
+  const adv=document.getElementById('ld-advance');
+  if(!l){
+    document.getElementById('ld-id').textContent='Lead not found';
+    document.getElementById('ld-stage').textContent='';
+    content.innerHTML='<div class="empty" style="margin-top:24px;"><div class="et">Lead not found</div></div>';
+    adv.style.display='none';
+    return;
+  }
+  const meta=ACCOUNT_TYPE_META[l.type];
+  document.getElementById('ld-id').textContent=`Lead #${l.id}`;
+  document.getElementById('ld-stage').textContent=l.stage;
+  content.innerHTML=`
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-top"><span class="card-title" style="font-size:var(--f-h1);">${l.title}</span></div>
+      <div class="card-foot" style="border:none;padding-top:8px;">
+        <span class="pill ${typeClass(l.type)}">${meta.chip}</span>
+        <span class="pill ${LEAD_STAGE_CLASS[l.stage]}">${l.stage}</span>
+      </div>
+    </div>
+    <div class="acc open"><div class="acc-head">
+      <div class="acc-icon">${meta.icon}</div>
+      <div class="acc-title"><div class="acc-name">Lead details</div><div class="acc-sub">${meta.label}</div></div>
+    </div><div class="acc-body">
+      ${vRow('Stage',l.stage)}
+      ${vRow('Priority',l.prio)}
+      ${vRow('Contact',l.contact)}
+      ${vRow('Phone',l.phone)}
+      ${vRow('Source',l.source)}
+      ${vRow('Due',l.due)}
+    </div></div>
+    <div class="card" style="margin-top:14px;" onclick="bucketGo('/accounts/${l.accountSlug}')">
+      <div class="card-top"><span class="card-title" style="font-size:var(--f-sub);">Linked account</span><span class="pill ${typeClass(l.type)}">${meta.chip}</span></div>
+      <div class="inner"><div class="line sub">View account ›</div></div>
+    </div>`;
+  const idx=LEAD_STAGES.indexOf(l.stage);
+  if(idx>=LEAD_STAGES.length-1){ adv.textContent='Converted'; adv.disabled=true; adv.style.opacity='.55'; }
+  else { adv.textContent=`Move to ${LEAD_STAGES[idx+1]}`; adv.disabled=false; adv.style.opacity='1'; }
+}
+function advanceLead(){
+  if(!ldCurrent) return;
+  const idx=LEAD_STAGES.indexOf(ldCurrent.stage);
+  if(idx<LEAD_STAGES.length-1){
+    ldCurrent.stage=LEAD_STAGES[idx+1];
+    renderDetail(ldCurrent.id);
+    snack(`Lead moved to ${ldCurrent.stage}`);
+  }
+}
+
+function showView(name){
+  document.getElementById('view-list').classList.toggle('active',name==='list');
+  document.getElementById('view-detail').classList.toggle('active',name==='detail');
+}
+bucketRoute('/leads',{
+  list(){ showView('list'); renderChips(); renderLeads(); },
+  detail(id){ showView('detail'); renderDetail(id); },
+});
+</script>
+</body>
+</html>

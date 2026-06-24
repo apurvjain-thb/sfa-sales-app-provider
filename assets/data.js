@@ -451,6 +451,52 @@ const PLAN_STATUS_META={
 
 function findPlanVisit(id){return PLAN_VISITS.find(v=>v.id===id);}
 
+/* ════════════════════════════════════════
+   LEADS — provider pipeline (ported from B2B).
+   4 stages; typed by account type so the whole
+   app stays consistent.
+   ════════════════════════════════════════ */
+const LEAD_STAGES=["New","Contacted","Qualified","Converted"];
+const LEAD_STAGE_CLASS={New:"up",Contacted:"wait",Qualified:"wait",Converted:"done"};
+const LEADS=[
+  {id:1229,title:"Aradhya Clinics — referral tie-up",type:"referral",accountSlug:"aradhya-clinics",contact:"Dr. Ananya Devika Sharma",phone:"+91 97155 53311",source:"Manually Created",prio:"High",stage:"Qualified",due:"18 Jun, 10:45 AM",created:1},
+  {id:1230,title:"Prestige Lakeside — health camp",type:"venue",accountSlug:"prestige-lakeside-habitat",contact:"Mr. Ramesh Gowda",phone:"+91 98860 11223",source:"Website",prio:"Med",stage:"Contacted",due:"20 Jun, 11:00 AM",created:2},
+  {id:1231,title:"Wipro — corporate health tie-up",type:"corporate",accountSlug:"wipro-technologies",contact:"Mr. Arjun Pillai",phone:"+91 99000 22334",source:"Referral",prio:"High",stage:"New",due:"19 Jun, 02:00 PM",created:3},
+  {id:1232,title:"Phoenix Marketcity — weekend camp",type:"venue",accountSlug:"phoenix-marketcity",contact:"Ms. Priya Nair",phone:"+91 98860 22334",source:"Manually Created",prio:"Med",stage:"New",due:"24 Jun, 09:30 AM",created:4},
+  {id:1233,title:"Lotus Children's Clinic — referral",type:"referral",accountSlug:"lotus-children-s-clinic",contact:"Dr. Shubham Sharma",phone:"+91 97155 53112",source:"Activity",prio:"Low",stage:"Contacted",due:"16 Jun, 04:00 PM",created:5},
+  {id:1234,title:"Infosys — annual renewal",type:"corporate",accountSlug:"infosys-ltd",contact:"Ms. Kavita Reddy",phone:"+91 99000 11223",source:"HIS",prio:"High",stage:"Converted",due:"13 Jun, 10:00 AM",created:6},
+  {id:1235,title:"DPS Whitefield — student screening",type:"venue",accountSlug:"delhi-public-school-whitefield",contact:"Mrs. Anita Rao",phone:"+91 98860 33445",source:"Manually Created",prio:"Med",stage:"Qualified",due:"21 Jun, 03:15 PM",created:7},
+  {id:1236,title:"Sunrise Clinic — referral revival",type:"referral",accountSlug:"sunrise-multispecialty-clinic",contact:"Dr. Rohit Deshmukh",phone:"+91 97155 53345",source:"Manually Created",prio:"Low",stage:"New",due:"25 Jun, 01:00 PM",created:8},
+];
+function findLeadById(id){return LEADS.find(l=>String(l.id)===String(id));}
+
+/* ════════════════════════════════════════
+   DEALS — pipeline with value + stage.
+   Stage sets differ by type; status = Open/Won/Lost.
+   ════════════════════════════════════════ */
+const DEAL_STAGES_BY_TYPE={
+  corporate:["Intro","Proposal","Negotiation","Legal review","Signed"],
+  referral:["Discussion","Agreement","First referral","Active"],
+  venue:["Discussion","Date agreed","Confirmed","Executed"],
+};
+const DEAL_STATUS_CLASS={Open:"up",Won:"done",Lost:"miss"};
+const DEALS=[
+  {id:"D-1",name:"Infosys — employee health MOU",type:"corporate",accountSlug:"infosys-ltd",accountName:"Infosys Ltd",dealType:"New Contract",value:1800000,stage:"Signed",status:"Won",prob:1.0,close:"28 May '26",created:1},
+  {id:"D-2",name:"Aradhya Clinics — referral program",type:"referral",accountSlug:"aradhya-clinics",accountName:"Aradhya Clinics",dealType:"Partnership",value:700000,stage:"Active",status:"Won",prob:1.0,close:"02 Jun '26",created:2},
+  {id:"D-3",name:"Wipro — corporate tie-up",type:"corporate",accountSlug:"wipro-technologies",accountName:"Wipro Technologies",dealType:"New Contract",value:2200000,stage:"Negotiation",status:"Open",prob:0.6,close:"30 Jun '26",created:3},
+  {id:"D-4",name:"Aravali Power — IPD package",type:"corporate",accountSlug:"aravali-power-company-pvt-ltd",accountName:"Aravali Power Company Pvt Ltd",dealType:"Renewal",value:900000,stage:"Legal review",status:"Open",prob:0.7,close:"10 Jul '26",created:4},
+  {id:"D-5",name:"Prestige Lakeside — camp series",type:"venue",accountSlug:"prestige-lakeside-habitat",accountName:"Prestige Lakeside Habitat",dealType:"Activity",value:250000,stage:"Date agreed",status:"Open",prob:0.5,close:"05 Jul '26",created:5},
+  {id:"D-6",name:"Toyota Kirloskar — health package",type:"corporate",accountSlug:"toyota-kirloskar-motor",accountName:"Toyota Kirloskar Motor",dealType:"New Contract",value:1500000,stage:"Proposal",status:"Open",prob:0.4,close:"20 Jul '26",created:6},
+  {id:"D-7",name:"Sunrise Clinic — referral revival",type:"referral",accountSlug:"sunrise-multispecialty-clinic",accountName:"Sunrise Multispecialty Clinic",dealType:"Partnership",value:300000,stage:"Discussion",status:"Lost",prob:0,close:"08 Jun '26",created:7},
+];
+function findDealById(id){return DEALS.find(d=>d.id===id);}
+function fmtINR(v){
+  if(v>=10000000) return '₹'+(v/10000000).toFixed(v%10000000?1:0)+' Cr';
+  if(v>=100000) return '₹'+(v/100000).toFixed(v%100000?1:0)+' L';
+  if(v>=1000) return '₹'+(v/1000).toFixed(0)+'K';
+  return '₹'+v;
+}
+
 /* Provider message templates — channel + account-type aware.
    {name} → contact short name. */
 const PROVIDER_MSG_TEMPLATES={

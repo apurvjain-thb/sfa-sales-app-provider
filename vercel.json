@@ -6,6 +6,8 @@
     { "source": "/profile/:slug", "destination": "/profile" },
     { "source": "/beat-plan/:slug", "destination": "/beat-plan" },
     { "source": "/accounts/:slug", "destination": "/accounts" },
+    { "source": "/leads/:slug", "destination": "/leads" },
+    { "source": "/deals/:slug", "destination": "/deals" },
     { "source": "/contacts/:slug", "destination": "/contacts" },
     { "source": "/tasks/:slug", "destination": "/tasks" }
   ],
