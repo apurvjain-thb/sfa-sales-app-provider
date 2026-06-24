@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Activity · Sakra Sales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <!-- LIST -->
+    <div class="screen-view" id="view-list">
+      <div class="appheader">
+        <div class="header-row">
+          <h1 class="page-title">Activity</h1>
+          <div class="avatar" onclick="location.href='/profile'">RH</div>
+        </div>
+      </div>
+      <div class="plan-toolbar">
+        <span class="dash-stat-l" style="text-transform:none;font-size:var(--f-cap);color:var(--ink-2);">Health camps &amp; events</span>
+        <button class="plan-reopt-btn" onclick="openSheet('newact')" title="Plan a new activity">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          New activity
+        </button>
+      </div>
+      <div class="chiprow" id="act-chips"></div>
+      <div class="toolsrow"><span class="count" id="act-count">— activities</span></div>
+      <div class="screen"><div class="pad" id="act-list" style="padding-top:0;"></div></div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="screen-view" id="view-detail">
+      <div class="vd-topbar">
+        <a class="vd-back" href="/activity" onclick="event.preventDefault();bucketGo('/activity');">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="vd-topbar-title">
+          <div class="vd-visit-id" id="ad-id">Activity</div>
+          <div class="vd-follow-up" id="ad-when"></div>
+        </div>
+        <span style="width:36px;"></span>
+      </div>
+      <div class="screen"><div style="padding:14px 18px 110px;" id="ad-content"></div></div>
+      <div class="vd-footer" id="ad-footer"></div>
+    </div>
+
+  </div>
+
+  <!-- New activity sheet (maker) -->
+  <div class="sheet-backdrop" id="newact-backdrop" onclick="closeSheet('newact')"></div>
+  <div class="bottom-sheet" id="newact-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <span class="sheet-title">Plan a new activity</span>
+        <div class="msg-doctor-line">Submitted to your manager for approval</div>
+      </div>
+      <button class="sheet-close" onclick="closeSheet('newact')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Venue <span class="req" style="color:var(--red)">*</span></label>
+      <select class="tke-select" id="na-venue"></select>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Activity name</label>
+      <input class="tke-input" id="na-name" placeholder="e.g. Free Health Camp" style="font-size:16px;">
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Proposed date</label>
+      <input type="date" class="tke-input" id="na-date" style="font-size:16px;">
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Services to offer</label>
+      <div class="sf-chips" id="na-services"></div>
+    </div>
+    <div class="mc-note" style="margin:0 4px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      New activities go to your manager for approval before scheduling.
+    </div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('newact')">Cancel</button>
+      <button class="btn btn-primary" onclick="createActivity()">Send for approval</button>
+    </div>
+  </div>
+
+  <!-- Approval sheet (checker) -->
+  <div class="sheet-backdrop" id="aapprove-backdrop" onclick="closeSheet('aapprove')"></div>
+  <div class="bottom-sheet" id="aapprove-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <span class="sheet-title">Activity awaiting approval</span>
+        <div class="msg-doctor-line" id="aapprove-sub">—</div>
+      </div>
+      <button class="sheet-close" onclick="closeSheet('aapprove')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div id="aapprove-body" style="padding:0 4px;"></div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="reviewActivity('rejected')">Reject</button>
+      <button class="btn btn-primary" onclick="reviewActivity('approved')">Approve</button>
+    </div>
+  </div>
+
+  <!-- Post-activity report sheet -->
+  <div class="sheet-backdrop" id="report-backdrop" onclick="closeSheet('report')"></div>
+  <div class="bottom-sheet" id="report-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Post-activity report</span>
+      <button class="sheet-close" onclick="closeSheet('report')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Footfall</label>
+      <input type="number" class="tke-input" id="rp-footfall" placeholder="e.g. 180" style="font-size:16px;">
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Leads captured</label>
+      <input type="number" class="tke-input" id="rp-leads" placeholder="e.g. 22" style="font-size:16px;">
+    </div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('report')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitReport()">Mark completed</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/shell.js"></script>
+<script>
+initShell('');
+
+const ALL_SERVICES=["BP","Sugar","BMI","ECG","Vision","Dental","Specialist OPD","Diet counselling"];
+const at={filter:"All",current:null,naServices:[]};
+
+const AT_TABS=[
+  {k:"All",m:a=>true},
+  {k:"Pending",m:a=>a.approval==='pending'},
+  {k:"Approved",m:a=>a.approval==='approved'&&a.exec==='planned'},
+  {k:"Completed",m:a=>a.exec==='completed'},
+];
+
+function renderChips(){
+  document.getElementById('act-chips').innerHTML=AT_TABS.map(t=>`<button class="chip ${at.filter===t.k?'active':''}" onclick="setFilter('${t.k}')">${t.k}</button>`).join('');
+}
+function setFilter(k){at.filter=k;renderChips();renderList();}
+
+function statusPill(a){
+  if(a.exec==='completed') return `<span class="pill done">Completed</span>`;
+  return `<span class="pill ${ACTIVITY_APPROVAL_CLASS[a.approval]}">${a.approval==='approved'?'Approved':a.approval==='pending'?'Pending approval':'Rejected'}</span>`;
+}
+
+function renderList(){
+  const tab=AT_TABS.find(t=>t.k===at.filter);
+  const rows=ACTIVITIES.filter(tab.m).sort((a,b)=>a.created-b.created);
+  document.getElementById('act-count').textContent=`${rows.length} activit${rows.length!==1?'ies':'y'}`;
+  const list=document.getElementById('act-list');
+  if(!rows.length){list.innerHTML='<div class="empty"><div class="et">No activities</div><div class="ed">Plan a new camp or change the filter.</div></div>';return;}
+  list.innerHTML=rows.map(a=>{
+    const done=a.exec==='completed';
+    const foot=done
+      ?`<span class="foot-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>${a.footfall} footfall · ${a.leads} leads</span>`
+      :`<span class="foot-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${a.expFootfall||'—'} expected</span>`;
+    return `<div class="card" onclick="bucketGo('/activity/${a.id}')">
+      <div class="card-top">
+        <span class="card-title">${a.name}</span>
+        ${statusPill(a)}
+      </div>
+      <div class="inner">
+        <div class="line"><span style="color:var(--ink-2)">Venue:</span> ${a.venueName}</div>
+        <div class="line sub">${a.date} · ${a.time}</div>
+      </div>
+      <div class="card-foot">
+        ${foot}
+        <span class="foot-meta">${a.services.length} services</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function vRow(label,val){return `<div class="vd-row"><span class="vd-row-label">${label}</span><span class="vd-row-value">${val||'—'}</span></div>`;}
+function chipRow(items){return `<div class="sf-chips" style="padding:2px 0;">${items.map(i=>`<span class="sf-chip-multi sel" style="pointer-events:none;">${i}</span>`).join('')}</div>`;}
+
+function renderDetail(id){
+  const a=findActivityById(id); at.current=a;
+  const content=document.getElementById('ad-content');
+  const footer=document.getElementById('ad-footer');
+  if(!a){
+    document.getElementById('ad-id').textContent='Activity not found';
+    document.getElementById('ad-when').textContent='';
+    content.innerHTML='<div class="empty" style="margin-top:24px;"><div class="et">Activity not found</div></div>';
+    footer.innerHTML='';
+    return;
+  }
+  document.getElementById('ad-id').textContent=a.name;
+  document.getElementById('ad-when').textContent=a.date;
+  const meta=ACCOUNT_TYPE_META.venue;
+  let report='';
+  if(a.exec==='completed'){
+    const conv=a.footfall?Math.round((a.conversions/a.leads)*100):0;
+    report=`<div class="acc open" style="margin-top:14px;"><div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 3 5-6"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Post-activity report</div><div class="acc-sub">Outcome &amp; ROI</div></div>
+    </div><div class="acc-body">
+      <div class="ri-grid">
+        <div class="ri-stat"><div class="ri-stat-lbl">Footfall</div><div class="ri-stat-val">${a.footfall}</div></div>
+        <div class="ri-stat"><div class="ri-stat-lbl">Leads</div><div class="ri-stat-val">${a.leads}</div></div>
+        <div class="ri-stat"><div class="ri-stat-lbl">Conversions</div><div class="ri-stat-val">${a.conversions}</div></div>
+        <div class="ri-stat"><div class="ri-stat-lbl">Conv. rate</div><div class="ri-stat-val">${conv}%</div></div>
+      </div>
+    </div></div>`;
+  }
+  content.innerHTML=`
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-top"><span class="card-title">${a.venueName}</span>${statusPill(a)}</div>
+      <div class="inner"><div class="line">${a.name}</div><div class="line sub">${a.date} · ${a.time}</div></div>
+    </div>
+    <div class="acc open"><div class="acc-head">
+      <div class="acc-icon">${meta.icon}</div>
+      <div class="acc-title"><div class="acc-name">Activity plan</div><div class="acc-sub">Services, staff &amp; logistics</div></div>
+    </div><div class="acc-body">
+      ${vRow('Expected footfall',a.expFootfall||(a.footfall?a.footfall+' (actual)':'—'))}
+      ${vRow('Submitted by',a.submittedBy)}
+      ${a.reviewedBy?vRow('Approved by',a.reviewedBy):''}
+      <div class="vd-row" style="align-items:flex-start;"><span class="vd-row-label">Services</span><span class="vd-row-value">${chipRow(a.services)}</span></div>
+      <div class="vd-row" style="align-items:flex-start;"><span class="vd-row-label">Staff</span><span class="vd-row-value" style="text-align:right;">${a.staff.join('<br>')}</span></div>
+      <div class="vd-row" style="align-items:flex-start;"><span class="vd-row-label">Logistics</span><span class="vd-row-value">${chipRow(a.logistics)}</span></div>
+    </div></div>
+    ${report}
+    <div class="card" style="margin-top:14px;" onclick="bucketGo('/accounts/${a.venueSlug}')">
+      <div class="card-top"><span class="card-title" style="font-size:var(--f-sub);">Venue account</span><span class="pill wait">Venue</span></div>
+      <div class="inner"><div class="line sub">View account ›</div></div>
+    </div>`;
+
+  /* footer CTA by state */
+  if(a.approval==='pending'){
+    footer.innerHTML=`<button class="btn btn-primary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="openActApproval()">Review approval</button>`;
+  } else if(a.approval==='approved'&&a.exec==='planned'){
+    footer.innerHTML=`<button class="btn btn-primary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="openSheet('report')">Run camp &amp; log report</button>`;
+  } else {
+    footer.innerHTML=`<button class="btn secondary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="bucketGo('/activity')">Back to activities</button>`;
+  }
+  document.querySelector('#view-detail .screen').scrollTop=0;
+}
+
+function openActApproval(){
+  const a=at.current;
+  document.getElementById('aapprove-sub').textContent=`${a.venueName} · ${a.date}`;
+  document.getElementById('aapprove-body').innerHTML=`
+    ${vRow('Activity',a.name)}
+    ${vRow('Submitted by',a.submittedBy)}
+    ${vRow('Expected footfall',a.expFootfall)}
+    <div class="vd-row" style="align-items:flex-start;"><span class="vd-row-label">Services</span><span class="vd-row-value">${chipRow(a.services)}</span></div>
+    ${a.note?`<div class="vd-row" style="align-items:flex-start;"><span class="vd-row-label">Note</span><span class="vd-row-value" style="text-align:right;">${a.note}</span></div>`:''}`;
+  openSheet('aapprove');
+}
+function reviewActivity(decision){
+  if(at.current) at.current.approval=decision;
+  closeSheet('aapprove');
+  renderDetail(at.current.id);
+  snack(decision==='approved'?'Activity approved.':'Activity rejected — rep notified.');
+}
+
+/* New activity (maker) */
+function openNewAct(){
+  document.getElementById('na-venue').innerHTML=ACCOUNTS.filter(a=>a.type==='venue').map(v=>`<option value="${slugify(v.name)}">${v.name}</option>`).join('');
+  document.getElementById('na-name').value='';
+  document.getElementById('na-date').value='';
+  at.naServices=[];
+  document.getElementById('na-services').innerHTML=ALL_SERVICES.map(s=>`<button class="sf-chip-multi" onclick="toggleNaService('${s.replace(/'/g,"\\'")}',this)">${s}</button>`).join('');
+}
+function toggleNaService(s,btn){const i=at.naServices.indexOf(s);if(i>=0)at.naServices.splice(i,1);else at.naServices.push(s);btn.classList.toggle('sel');}
+function createActivity(){
+  const venueSlug=document.getElementById('na-venue').value;
+  const venue=ACCOUNTS.find(a=>slugify(a.name)===venueSlug);
+  const name=document.getElementById('na-name').value||'Health Camp';
+  const date=document.getElementById('na-date').value||'TBD';
+  const id='AT-'+(ACTIVITIES.length+1);
+  ACTIVITIES.push({id,name,venueSlug,venueName:venue?venue.name:'Venue',date,time:'TBD',
+    services:at.naServices.length?at.naServices:["BP","Sugar","BMI"],staff:["TBD"],logistics:["TBD"],
+    approval:"pending",exec:"planned",submittedBy:"Raj Hussain",note:"Created from app",expFootfall:venue?venue.footfall:'—',created:ACTIVITIES.length+1});
+  closeSheet('newact');
+  at.filter='Pending';renderChips();renderList();
+  snack('Activity created — sent for approval.');
+}
+
+function submitReport(){
+  const a=at.current;
+  const f=parseInt(document.getElementById('rp-footfall').value||'0',10);
+  const l=parseInt(document.getElementById('rp-leads').value||'0',10);
+  if(!f||!l){snack('Enter footfall and leads.');return;}
+  a.exec='completed';a.footfall=f;a.leads=l;a.conversions=Math.round(l*0.3);
+  closeSheet('report');
+  renderDetail(a.id);
+  snack(`Camp completed · ${f} footfall · ${l} leads captured`);
+}
+
+const _openOrig=openSheet;
+openSheet=function(id){ if(id==='newact') openNewAct(); _openOrig(id); };
+
+function showView(name){
+  document.getElementById('view-list').classList.toggle('active',name==='list');
+  document.getElementById('view-detail').classList.toggle('active',name==='detail');
+}
+bucketRoute('/activity',{
+  list(){ showView('list'); renderChips(); renderList(); },
+  detail(id){ showView('detail'); renderDetail(id); },
+});
+</script>
+</body>
+</html>

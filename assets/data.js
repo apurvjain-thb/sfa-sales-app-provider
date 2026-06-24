@@ -490,6 +490,37 @@ const DEALS=[
   {id:"D-7",name:"Sunrise Clinic — referral revival",type:"referral",accountSlug:"sunrise-multispecialty-clinic",accountName:"Sunrise Multispecialty Clinic",dealType:"Partnership",value:300000,stage:"Discussion",status:"Lost",prob:0,close:"08 Jun '26",created:7},
 ];
 function findDealById(id){return DEALS.find(d=>d.id===id);}
+
+/* ════════════════════════════════════════
+   ACTIVITY — health camps & events at venues.
+   Has its own maker-checker approval (like beat
+   visits): approval = approved|pending|rejected.
+   exec = planned|completed (with a post report).
+   ════════════════════════════════════════ */
+const ACTIVITY_APPROVAL_CLASS={approved:"done",pending:"wait",rejected:"miss"};
+const ACTIVITIES=[
+  {id:"AT-1",name:"Free Health Camp",venueSlug:"prestige-lakeside-habitat",venueName:"Prestige Lakeside Habitat",date:"21 Jun '26",time:"08:00 AM – 1:00 PM",
+    services:["BP","Sugar","BMI","ECG"],staff:["Dr. A. Rao (Physician)","2 Nurses","1 Coordinator"],logistics:["Space","Tables","Power","Permissions"],
+    approval:"approved",exec:"planned",submittedBy:"Raj Hussain",reviewedBy:"Priya Sundaram (Manager)",
+    expFootfall:"250–400",created:1},
+  {id:"AT-2",name:"Student Health Screening",venueSlug:"delhi-public-school-whitefield",venueName:"Delhi Public School, Whitefield",date:"24 Jun '26",time:"09:30 AM – 12:30 PM",
+    services:["BMI","Vision","Dental"],staff:["Dr. K. Menon (Pediatrician)","3 Nurses"],logistics:["Hall","Tables"],
+    approval:"pending",exec:"planned",submittedBy:"Raj Hussain",note:"New venue · added specialist desk",
+    expFootfall:"1,800 students",created:2},
+  {id:"AT-3",name:"Weekend Wellness Camp",venueSlug:"phoenix-marketcity",venueName:"Phoenix Marketcity",date:"28 Jun '26",time:"11:00 AM – 7:00 PM",
+    services:["BP","Sugar","BMI","Specialist OPD"],staff:["2 Physicians","2 Nurses","2 Coordinators"],logistics:["Atrium space","Branding","Power"],
+    approval:"pending",exec:"planned",submittedBy:"Raj Hussain",note:"High-footfall mall · weekend slot",
+    expFootfall:"2,000+/day",created:3},
+  {id:"AT-4",name:"Free Health Camp",venueSlug:"brigade-gateway-rwa",venueName:"Brigade Gateway RWA",date:"11 Jun '26",time:"08:00 AM – 12:00 PM",
+    services:["BP","Sugar","BMI"],staff:["Dr. S. Iyer (Physician)","2 Nurses","1 Coordinator"],logistics:["Clubhouse","Tables","Power"],
+    approval:"approved",exec:"completed",submittedBy:"Raj Hussain",reviewedBy:"Priya Sundaram (Manager)",
+    footfall:180,leads:22,conversions:6,created:4},
+  {id:"AT-5",name:"Diabetes Awareness Camp",venueSlug:"prestige-lakeside-habitat",venueName:"Prestige Lakeside Habitat",date:"2 Jun '26",time:"09:00 AM – 1:00 PM",
+    services:["Sugar","BP","Diet counselling"],staff:["Dr. A. Rao (Physician)","Dietician","2 Nurses"],logistics:["Clubhouse","Tables","Power"],
+    approval:"approved",exec:"completed",submittedBy:"Raj Hussain",reviewedBy:"Priya Sundaram (Manager)",
+    footfall:240,leads:30,conversions:9,created:5},
+];
+function findActivityById(id){return ACTIVITIES.find(a=>a.id===id);}
 function fmtINR(v){
   if(v>=10000000) return '₹'+(v/10000000).toFixed(v%10000000?1:0)+' Cr';
   if(v>=100000) return '₹'+(v/100000).toFixed(v%100000?1:0)+' L';

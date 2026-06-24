@@ -8,6 +8,7 @@
     { "source": "/accounts/:slug", "destination": "/accounts" },
     { "source": "/leads/:slug", "destination": "/leads" },
     { "source": "/deals/:slug", "destination": "/deals" },
+    { "source": "/activity/:slug", "destination": "/activity" },
     { "source": "/contacts/:slug", "destination": "/contacts" },
     { "source": "/tasks/:slug", "destination": "/tasks" }
   ],

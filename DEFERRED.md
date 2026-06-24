@@ -7,7 +7,6 @@ Tied to [UPGRADE_PLAN.md](UPGRADE_PLAN.md). Last updated: 2026-06-24.
 
 ## 🔭 Remaining Phases (not started)
 
-- [ ] **Phase 4 — Activity module** (camps/events, net-new): create activity (venue, date, services, staff, logistics checklist), **maker-checker approval flow**, live activity mode (footfall + on-the-spot leads), post-activity report (footfall/leads/conversions/ROI). Surface activities inside Beat Plan.
 - [ ] **Phase 5 — Tasks merge**: account-linked tasks + audit-trail/history timeline + AI summary banner; new task types (referral follow-up, activity execution, MOU follow-up); attachments, status/priority chips.
 - [ ] **Phase 5 — Evaluate Sales Reps**: change criteria to provider metrics (referrals generated, activities run, MOUs signed).
 - [ ] **Phase 5 — FieldIQ AI**: retrain prompts ("Which corporates are up for renewal?", "Best localities for next activity?", "Which referral doctors went cold?").
@@ -48,6 +47,13 @@ Tied to [UPGRADE_PLAN.md](UPGRADE_PLAN.md). Last updated: 2026-06-24.
 - Phase 1 — Account-centric model, Accounts module, Contacts merge.
 - Phase 2 — Dashboard provider KPIs, Beat Plan provider conversion (3 types, type-aware check-out, merged history, maker-checker).
 - Phase 3 — Leads pipeline (4 stages, stage-advance) + Deals pipeline (per-type stage stepper, value/probability, Won/Lost). Accessed via Dashboard "Pipeline" tiles (not yet in bottom nav — see More-overflow item below).
+- Phase 4 — Activity module (camps/events): list by status, maker-checker approval (approve/reject), new-activity creation → pending, post-activity report (footfall/leads/conversions/ROI). Accessed via Dashboard "Activities run" tile.
+
+## 📌 New deferrals from Phase 4
+- [ ] **Activities not surfaced inside Beat Plan** — plan said activities should appear as a visit type in the beat plan; currently a separate module only.
+- [ ] **Activity "live mode"** — on-the-spot lead capture during a camp (currently just a footfall/leads report at completion).
+- [ ] **Activity-generated leads → Leads module** auto-flow not wired.
+- [ ] **Activity staff/logistics** are display-only in create flow (defaults applied); add full pickers.
 
 ## 📌 New deferrals from Phase 3
 - [ ] **Leads/Deals not in bottom nav** — reachable via Dashboard quick tiles + direct URL only. Fold into "More" overflow when built.
