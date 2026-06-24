@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>Tasks · Roche SFA</title>
+<title>Tasks · Sakra Sales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -223,7 +223,7 @@ function tkRow(label,val){return `<div class="tk-row"><span class="tk-row-label"
 
 function aiTaskSummary(t){
   const prio=t.prio==='High'?'High-priority':t.prio==='Med'?'Medium-priority':'Low-priority';
-  const verb=({"Follow-up":"follow up","Sample request":"drop samples","CME opportunity":"line up a CME engagement","Referral":"align on a referral","Query":"close a query"}[t.type])||'follow up';
+  const verb=({"Referral follow-up":"follow up on referrals","Activity execution":"organise the camp/activity","MOU follow-up":"progress the corporate MOU","Lead nurturing":"nurture the lead","Query":"close a query"}[t.type])||'follow up';
   const goal=t.title.toLowerCase().replace(/^[a-z]/, m=>m).replace(/[.!?]+$/,'');
   const where=`${t.doctor} at ${t.clinic}`;
   const due=t.overdue
@@ -300,7 +300,7 @@ function renderDetail(id){
     remarks:"Task is currently on hold pending further follow-up and approval. Assigned agent to confirm doctor's availability and reschedule the drop-off this week.",
     account:t.clinic,
     contact:t.doctor,
-    visitType:t.type==='Follow-up'?'Follow Up':t.type,
+    visitType:t.type,
     createdAt:"07 May'26, 2:55 PM",
     dueAt:t.due+", 2026",
     attachments:[],
@@ -444,7 +444,7 @@ function renderEdit(){
   document.getElementById('te-id').textContent=`Update Task #${20340+(e.id%10)}`;
   const statuses=["Pending","In Progress","Done","Cancelled"];
   const priorities=["High","Medium","Low"];
-  const types=["Follow Up","Sample request","CME opportunity","Referral","Query"];
+  const types=["Referral follow-up","Activity execution","MOU follow-up","Lead nurturing","Query"];
   const eFullPrio=e.priority==='Med'?'Medium':e.priority;
   const attachListHTML=(e.attachments||[]).map((a,i)=>`
     <div class="attach-chip">

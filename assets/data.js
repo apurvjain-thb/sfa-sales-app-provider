@@ -42,18 +42,20 @@ const DOCTORS=[
   {n:"Dr. Divya Krishnan",spec:"Neurology",clinic:"Apollo Clinic, Jayanagar",tier:2,visits:1,last:"8 days ago",created:10},
 ];
 
-/* Tasks */
+/* Tasks — account-linked, provider task types.
+   (doctor = contact, clinic = account name — kept for page back-compat) */
+const TASK_TYPES=["Referral follow-up","Activity execution","MOU follow-up","Lead nurturing","Query"];
 const TASKS=[
-  {id:1229,title:"Share Phase-III oncology data",type:"Follow-up",status:"Open",prio:"High",doctor:"Dr. Rajesh Kumar",clinic:"Sakra World Hospital",due:"16 Jun, 10:45 AM",overdue:false,updated:6},
-  {id:1230,title:"Schedule CME invitation",type:"CME opportunity",status:"Open",prio:"Med",doctor:"Dr. Ananya Iyer",clinic:"Manipal Hospital, HAL",due:"17 Jun, 02:00 PM",overdue:false,updated:5},
-  {id:1231,title:"Drop sample — new formulation",type:"Sample request",status:"In Progress",prio:"High",doctor:"Dr. Priya Menon",clinic:"Fortis, Bannerghatta",due:"16 Jun, 11:00 AM",overdue:false,updated:1},
-  {id:1232,title:"Collect prescription feedback",type:"Follow-up",status:"In Progress",prio:"Low",doctor:"Dr. Vikram Nair",clinic:"Apollo, Koramangala",due:"18 Jun, 09:30 AM",overdue:false,updated:3},
-  {id:1233,title:"Referral discussion — HCG",type:"Referral",status:"Open",prio:"Med",doctor:"Dr. Sneha Rao",clinic:"HCG Cancer Centre",due:"15 Jun, 04:00 PM",overdue:true,updated:8},
-  {id:1234,title:"Confirm next detailing slot",type:"Follow-up",status:"Completed",prio:"Low",doctor:"Dr. Rohan Bhat",clinic:"Manipal Hospital, HAL",due:"13 Jun, 10:00 AM",overdue:false,updated:9},
-  {id:1235,title:"Reshare clinical evidence pack",type:"Follow-up",status:"Open",prio:"High",doctor:"Dr. Meera Pillai",clinic:"Narayana Health City",due:"16 Jun, 03:15 PM",overdue:false,updated:4},
-  {id:1236,title:"Address dosage query",type:"Query",status:"Denied",prio:"Med",doctor:"Dr. Manish Gupta",clinic:"Aster CMI",due:"12 Jun, 01:00 PM",overdue:false,updated:10},
-  {id:1237,title:"Plan joint patient webinar",type:"CME opportunity",status:"In Progress",prio:"Med",doctor:"Dr. Kavya Shetty",clinic:"Columbia Asia, Hebbal",due:"20 Jun, 11:30 AM",overdue:false,updated:2},
-  {id:1238,title:"Verify formulary inclusion",type:"Query",status:"Completed",prio:"Low",doctor:"Dr. Sandeep Verma",clinic:"Sakra World Hospital",due:"11 Jun, 09:00 AM",overdue:false,updated:11},
+  {id:1229,title:"Share referral process with Dr. Apurv Jain",type:"Referral follow-up",status:"Open",prio:"High",doctor:"Dr. Apurv Jain",clinic:"Dr. Jain's Nursing Home",accountSlug:"jain-s-nursing-home",due:"16 Jun, 10:45 AM",overdue:false,updated:6},
+  {id:1230,title:"Confirm logistics for Prestige health camp",type:"Activity execution",status:"In Progress",prio:"High",doctor:"Mr. Ramesh Gowda",clinic:"Prestige Lakeside Habitat",accountSlug:"prestige-lakeside-habitat",due:"20 Jun, 09:00 AM",overdue:false,updated:1},
+  {id:1231,title:"Progress Wipro MOU to negotiation",type:"MOU follow-up",status:"Open",prio:"High",doctor:"Mr. Arjun Pillai",clinic:"Wipro Technologies",accountSlug:"wipro-technologies",due:"19 Jun, 02:00 PM",overdue:false,updated:5},
+  {id:1232,title:"Nurture Lotus Clinic referral interest",type:"Lead nurturing",status:"In Progress",prio:"Low",doctor:"Dr. Shubham Sharma",clinic:"Lotus Children's Clinic",accountSlug:"lotus-children-s-clinic",due:"18 Jun, 09:30 AM",overdue:false,updated:3},
+  {id:1233,title:"Follow up on Aradhya referral commitment",type:"Referral follow-up",status:"Open",prio:"Med",doctor:"Dr. Ananya Devika Sharma",clinic:"Aradhya Clinics",accountSlug:"aradhya-clinics",due:"15 Jun, 04:00 PM",overdue:true,updated:8},
+  {id:1234,title:"Submit Brigade Gateway camp report",type:"Activity execution",status:"Completed",prio:"Low",doctor:"Mr. Suresh Menon",clinic:"Brigade Gateway RWA",accountSlug:"brigade-gateway-rwa",due:"13 Jun, 10:00 AM",overdue:false,updated:9},
+  {id:1235,title:"Reshare corporate package to Toyota",type:"MOU follow-up",status:"Open",prio:"High",doctor:"Mr. Karthik Subramaniam",clinic:"Toyota Kirloskar Motor",accountSlug:"toyota-kirloskar-motor",due:"16 Jun, 03:15 PM",overdue:false,updated:4},
+  {id:1236,title:"Resolve DPS screening date query",type:"Query",status:"Denied",prio:"Med",doctor:"Mrs. Anita Rao",clinic:"Delhi Public School, Whitefield",accountSlug:"delhi-public-school-whitefield",due:"12 Jun, 01:00 PM",overdue:false,updated:10},
+  {id:1237,title:"Plan Infosys on-site camp day",type:"Activity execution",status:"In Progress",prio:"Med",doctor:"Ms. Kavita Reddy",clinic:"Infosys Ltd",accountSlug:"infosys-ltd",due:"20 Jun, 11:30 AM",overdue:false,updated:2},
+  {id:1238,title:"Confirm Aravali IPD package inclusions",type:"MOU follow-up",status:"Completed",prio:"Low",doctor:"Mr. Rohit Deshmukh",clinic:"Aravali Power Company Pvt Ltd",accountSlug:"aravali-power-company-pvt-ltd",due:"11 Jun, 09:00 AM",overdue:false,updated:11},
 ];
 
 /* Today's visits — random (non-clean) times, short durations for completed (doctors are busy),

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>Profile · Roche SFA</title>
+<title>Profile · Sakra Sales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -82,7 +82,7 @@
           <div class="vd-section">
             <div class="vd-section-title"><span class="it"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>Work details</div>
             <div class="vd-row"><span class="vd-row-label">Role</span><span class="vd-row-value">Field Agent</span></div>
-            <div class="vd-row"><span class="vd-row-label">Workspace</span><span class="vd-row-value">Roche SFA</span></div>
+            <div class="vd-row"><span class="vd-row-label">Workspace</span><span class="vd-row-value">Sakra Sales CRM</span></div>
             <div class="vd-row"><span class="vd-row-label">Team</span><span class="vd-row-value">Central team</span></div>
             <div class="vd-row"><span class="vd-row-label">Branch mapped</span><span class="vd-row-value">Dubai — Healthcare City</span></div>
           </div>
@@ -417,11 +417,11 @@ const SALES_REPS=[
 ];
 /* Per-rep monthly profile. Keyed by display name used in the dropdown. */
 const SALES_REP_PROFILES={
-  "Saurabh Mehta — West 1":      {role:"Field Sr Rep · West 1",  visits:24,connect:"88%",p1:11,samples:32,score:"4.4 / 5"},
-  "Karthik Subramaniam — East 1":{role:"Field Rep · East 1",     visits:18,connect:"79%",p1:7, samples:21,score:"3.9 / 5"},
-  "Neha Kulkarni — Central":     {role:"Field Sr Rep · Central", visits:21,connect:"91%",p1:13,samples:26,score:"4.6 / 5"},
-  "Rohit Jaiswal — North 2":     {role:"Field Rep · North 2",    visits:14,connect:"68%",p1:5, samples:14,score:"3.5 / 5"},
-  "Sneha Pillai — South 3":      {role:"Field Sr Rep · South 3", visits:26,connect:"84%",p1:12,samples:30,score:"4.2 / 5"},
+  "Saurabh Mehta — West 1":      {role:"Field Sr Rep · West 1",  visits:24,connect:"88%",p1:11,samples:5,score:"4.4 / 5"},
+  "Karthik Subramaniam — East 1":{role:"Field Rep · East 1",     visits:18,connect:"79%",p1:7, samples:3,score:"3.9 / 5"},
+  "Neha Kulkarni — Central":     {role:"Field Sr Rep · Central", visits:21,connect:"91%",p1:13,samples:6,score:"4.6 / 5"},
+  "Rohit Jaiswal — North 2":     {role:"Field Rep · North 2",    visits:14,connect:"68%",p1:5, samples:2,score:"3.5 / 5"},
+  "Sneha Pillai — South 3":      {role:"Field Sr Rep · South 3", visits:26,connect:"84%",p1:12,samples:5,score:"4.2 / 5"},
 };
 function evalInitials(s){const parts=s.split(/\s+/);return ((parts[0]||'')[0]||'').toUpperCase()+((parts[parts.length-1]||'')[0]||'').toUpperCase();}
 
@@ -452,8 +452,8 @@ function onPickEvalRep(name){
       <div class="eval-stats">
         <div class="eval-stat"><div class="eval-stat-v">${p.visits}</div><div class="eval-stat-l">Visits</div></div>
         <div class="eval-stat"><div class="eval-stat-v">${p.connect}</div><div class="eval-stat-l">Connect rate</div></div>
-        <div class="eval-stat"><div class="eval-stat-v">${p.p1}</div><div class="eval-stat-l">P1 doctors met</div></div>
-        <div class="eval-stat"><div class="eval-stat-v">${p.samples}</div><div class="eval-stat-l">Samples dropped</div></div>
+        <div class="eval-stat"><div class="eval-stat-v">${p.p1}</div><div class="eval-stat-l">Referral accounts</div></div>
+        <div class="eval-stat"><div class="eval-stat-v">${p.samples}</div><div class="eval-stat-l">Camps run</div></div>
         <div class="eval-stat" style="grid-column:span 2;"><div class="eval-stat-v">${p.score}</div><div class="eval-stat-l">Last evaluation score</div></div>
       </div>
     </div>`;
@@ -474,10 +474,10 @@ function continueToEvaluate(){
 /* ════ FIELDIQ AI AGENT ════ */
 /* Agent-productivity prompts — sales, compliance, RCPA gaps, target history. */
 const FIQ_SUGGESTIONS=[
-  "What was my total primary sales last month, and did I hit my target?",
-  "What is my visit compliance and average visits per day for the last month?",
-  "Which of my doctors have the largest gap between prescription potential and actual RCPA — where am I leaving money on the table?",
-  "Which months in the past year did I miss my primary sales target, and for which brands?",
+  "How many referrals did I generate last month, and how many converted to admissions?",
+  "Which corporate accounts are up for renewal in the next 90 days?",
+  "Which referral doctors have gone cold — no referral in the last 30 days?",
+  "What are the best localities for my next health camp?",
 ];
 let __fiqHistory=[];
 function openFieldIQ(){
@@ -528,28 +528,28 @@ function sendFIQ(preset){
 function mockFIQReply(q){
   const lc=q.toLowerCase();
 
-  /* 1. Primary sales last month + target */
-  if(lc.includes('primary sales')||(lc.includes('hit')&&lc.includes('target'))){
-    return "Primary sales — <strong>May 2026</strong>:<br>• Achieved: <strong>₹48.6 L</strong><br>• Target: ₹52.0 L<br>• Attainment: <strong>93.5%</strong> · <span style=\"color:#DD8A2A;font-weight:700;\">missed by ₹3.4 L</span><br><br>Brand-wise gap:<br>• <strong>Herceptin</strong> — ₹19.2 L vs ₹19.0 L · <span style=\"color:#2FA56C;font-weight:700;\">+1%</span><br>• <strong>Avastin</strong> — ₹14.8 L vs ₹16.0 L · −7.5%<br>• <strong>Tecentriq</strong> — ₹8.1 L vs ₹10.0 L · <span style=\"color:#EF4A45;font-weight:700;\">−19%</span><br>• <strong>MabThera</strong> — ₹6.5 L vs ₹7.0 L · −7%<br>Tecentriq is the main drag — want me to surface the top 3 prescribers to recover?";
+  /* 1. Referrals generated + conversion to admissions */
+  if(lc.includes('referral')&&(lc.includes('generate')||lc.includes('convert')||lc.includes('admission')||lc.includes('how many'))){
+    return "Referrals — <strong>this month (1–16 Jun)</strong>:<br>• Referrals received: <strong>38</strong> (target 45)<br>• Converted to admissions: <strong>23</strong> · <span style=\"color:#2FA56C;font-weight:700;\">61% conversion</span> (target 55%)<br><br>Top contributing accounts:<br>• <strong>Aradhya Clinics</strong> — 9 referrals · 6 admitted<br>• <strong>Dr. Jain's Nursing Home</strong> — 4 referrals · 3 admitted<br>• <strong>Sunrise Multispecialty</strong> — 2 referrals · 1 admitted<br>You're 7 short of target — want me to flag the P1 referral accounts to push this week?";
   }
 
-  /* 2. Visit compliance + avg visits/day */
-  if(lc.includes('compliance')||(lc.includes('average')&&lc.includes('visits'))||(lc.includes('visits per day'))){
-    return "Last 30 days · visit metrics:<br>• <strong>VF compliance:</strong> 84% (target 80%) · <span style=\"color:#2FA56C;font-weight:700;\">on track</span><br>• <strong>Avg visits/day:</strong> 5.7 (target 6.0) · slightly under<br>• Total completed calls: 142<br>• Doctor coverage: 79% (22/28)<br><br>Where compliance dropped:<br>• <strong>P3 tier</strong> — only 50% covered (3/6) — pulled the overall avg down<br>• <strong>Tue 27 May & Thu 5 Jun</strong> — only 2 visits each (admin/CME days)<br>Lift suggestion: book one extra P3 call next Wed to bring avg to 6.0/day.";
+  /* 2. Corporate renewals in next 90 days */
+  if(lc.includes('renewal')||(lc.includes('corporate')&&lc.includes('up'))){
+    return "Corporate accounts up for renewal — <strong>next 90 days</strong>:<br>• <strong>Wipro Technologies</strong> — renews <strong>30 Jun '26</strong> · MOU in negotiation (₹22 L)<br>• <strong>Infosys Ltd</strong> — renews 31 Mar '27 (not urgent, strong relationship)<br><br><strong>Wipro</strong> is the priority — 14 days out and not yet signed. Want me to draft the renewal proposal and book a meeting with Mr. Arjun Pillai?";
   }
 
-  /* 3. Prescription potential vs RCPA gap */
-  if(lc.includes('rcpa')||lc.includes('potential')||lc.includes('leaving money')||lc.includes('gap')){
-    return "Top 5 doctors with the largest <strong>Rx potential vs RCPA gap</strong>:<br>1. <strong>Dr. Padmavathi K-R</strong> · Nephrology · gap <strong>₹4.2 L</strong> (potential ₹6.8 L, actual ₹2.6 L) — Tecentriq under-prescribed<br>2. <strong>Dr. Rohan Bhat</strong> · Oncology · gap <strong>₹3.6 L</strong> — Herceptin steady, Kadcyla untouched<br>3. <strong>Dr. Rajesh Kumar</strong> · Oncology · gap <strong>₹2.9 L</strong> — Avastin trending down, competitor share rising<br>4. <strong>Dr. Sneha Rao</strong> · Oncology · gap <strong>₹2.1 L</strong> — strong on MabThera, weak on Perjeta<br>5. <strong>Dr. Mallika</strong> · CTVS · gap <strong>₹1.4 L</strong> — RoActemra missed despite high-volume practice<br><br>Combined recoverable opportunity: <strong>~₹14.2 L</strong>. Want me to draft a brand-wise pitch for #1?";
+  /* 3. Cold referral doctors */
+  if(lc.includes('cold')||lc.includes('gone quiet')||(lc.includes('no referral'))||(lc.includes('doctor')&&lc.includes('30'))){
+    return "Referral doctors that have gone <strong>cold</strong> (no referral in 30+ days):<br>1. <strong>Dr. Rohit Deshmukh</strong> · Sunrise Multispecialty · last referral 38 days ago<br>2. <strong>Dr. Shubham Sharma</strong> · Lotus Children's Clinic · no referrals yet (new account)<br><br>Both are P2. Suggestion: schedule a relationship visit with Dr. Deshmukh this week and a first tie-up visit to Lotus. Want me to add them to your beat plan?";
   }
 
-  /* 4. Missed-target months past year, by brand */
-  if(lc.includes('past year')||lc.includes('last year')||lc.includes('12 month')||lc.includes('miss')||lc.includes('which month')){
-    return "Months you missed your primary sales target — <strong>Jun '25 to May '26</strong>:<br><br>• <strong>Jul '25</strong> — 88% · brands: <strong>Tecentriq, Esbriet</strong><br>• <strong>Sep '25</strong> — 91% · brands: <strong>Avastin, Tarceva</strong><br>• <strong>Dec '25</strong> — 86% · brands: <strong>Herceptin</strong> (festive lull), <strong>Tecentriq</strong><br>• <strong>Feb '26</strong> — 94% · brands: <strong>MabThera</strong><br>• <strong>May '26</strong> — 93.5% · brands: <strong>Tecentriq, Avastin</strong><br><br><strong>Tecentriq</strong> is the recurring miss (4 of 5 months). Want me to pull the prescribing trend &amp; the doctors who slowed down?";
+  /* 4. Best localities for next camp */
+  if(lc.includes('camp')||lc.includes('localit')||lc.includes('activity')||lc.includes('where')){
+    return "Best localities for your next <strong>health camp</strong> (by past footfall &amp; conversion):<br>• <strong>Prestige Lakeside Habitat</strong> — 3,200 households · last camp 240 footfall, 9 admissions<br>• <strong>Brigade Gateway RWA</strong> — strong engagement, 180 footfall last time<br>• <strong>Phoenix Marketcity</strong> — 2,000+/day footfall, untapped (no camp yet)<br><br>Highest ROI bet: <strong>Phoenix Marketcity</strong> weekend camp — biggest reach. Want me to create the activity and send it for approval?";
   }
 
   /* Fallback */
-  return "I can pull data on your sales, visit compliance, doctor potential vs RCPA, target history, or anything specific to a doctor or brand. Try one of the chips below — or ask me directly.";
+  return "I can pull data on referrals &amp; conversions, corporate MOU renewals, cold referral doctors, camp localities, or anything specific to an account. Try one of the chips below — or ask me directly.";
 }
 
 /* ════ LOGOUT ════ */

@@ -5,11 +5,9 @@ Tied to [UPGRADE_PLAN.md](UPGRADE_PLAN.md). Last updated: 2026-06-24.
 
 ---
 
-## 🔭 Remaining Phases (not started)
+## 🔭 Remaining Phases
 
-- [ ] **Phase 5 — Tasks merge**: account-linked tasks + audit-trail/history timeline + AI summary banner; new task types (referral follow-up, activity execution, MOU follow-up); attachments, status/priority chips.
-- [ ] **Phase 5 — Evaluate Sales Reps**: change criteria to provider metrics (referrals generated, activities run, MOUs signed).
-- [ ] **Phase 5 — FieldIQ AI**: retrain prompts ("Which corporates are up for renewal?", "Best localities for next activity?", "Which referral doctors went cold?").
+_All 5 planned phases are now built._ 🎉 Remaining work is the cleanup + deferred items below.
 
 ---
 
@@ -48,6 +46,12 @@ Tied to [UPGRADE_PLAN.md](UPGRADE_PLAN.md). Last updated: 2026-06-24.
 - Phase 2 — Dashboard provider KPIs, Beat Plan provider conversion (3 types, type-aware check-out, merged history, maker-checker).
 - Phase 3 — Leads pipeline (4 stages, stage-advance) + Deals pipeline (per-type stage stepper, value/probability, Won/Lost). Accessed via Dashboard "Pipeline" tiles (not yet in bottom nav — see More-overflow item below).
 - Phase 4 — Activity module (camps/events): list by status, maker-checker approval (approve/reject), new-activity creation → pending, post-activity report (footfall/leads/conversions/ROI). Accessed via Dashboard "Activities run" tile.
+- Phase 5 — Tasks merged to account-linked + provider task types (Referral follow-up/Activity execution/MOU follow-up/Lead nurturing/Query); Evaluate criteria reframed to provider metrics; FieldIQ prompts + responses re-pointed (referrals/conversion, MOU renewals, cold referral doctors, camp localities).
+
+## 📌 New deferrals from Phase 5
+- [ ] **Tasks → account link** — task detail shows account name but doesn't link to the account page (data has accountSlug ready).
+- [ ] **Task audit history** still uses placeholder "Sales CRM Admin" + Sep'25 sample dates — refresh to provider-realistic stamps.
+- [ ] **Evaluate** numeric scores are demo-only (not persisted); wire submission.
 
 ## 📌 New deferrals from Phase 4
 - [ ] **Activities not surfaced inside Beat Plan** — plan said activities should appear as a visit type in the beat plan; currently a separate module only.
