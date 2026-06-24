@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>Dashboard · Roche SFA</title>
+<title>Home · Sakra Sales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -25,18 +25,30 @@
       <div class="screen"><div style="padding:14px 18px 32px;">
 
         <!-- Active visit -->
-        <a class="dash-focal" href="/beat-plan/vikram-nair">
+        <a class="dash-focal" href="/beat-plan">
           <div class="dash-focal-body">
             <div class="dash-focal-status">
               <span class="dash-focal-pulse"></span>
               Active · 7m wait
             </div>
-            <div class="dash-focal-name">Dr. Vikram Nair</div>
-            <div class="dash-focal-meta">Apollo Koramangala · 02:14 PM</div>
+            <div class="dash-focal-name">Dr. Apurv Jain</div>
+            <div class="dash-focal-meta">Referral visit · Dr. Jain's Nursing Home · 02:14 PM</div>
           </div>
           <span class="dash-focal-go">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           </span>
+        </a>
+
+        <!-- Beat plan pending approval (maker-checker) -->
+        <a class="dash-approval" href="/beat-plan">
+          <span class="dash-approval-ic">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </span>
+          <span class="dash-approval-body">
+            <span class="dash-approval-t">1 beat plan awaiting approval</span>
+            <span class="dash-approval-s">Your edit to tomorrow's plan is with your manager</span>
+          </span>
+          <svg class="dash-action-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
         </a>
 
         <!-- Today's plan progress -->
@@ -62,81 +74,97 @@
           </div>
         </div>
 
-        <!-- Performance · last 30 days -->
+        <!-- Performance · this month -->
         <div class="dash-section-h">
           <span class="dash-section-h-t">Performance</span>
-          <span class="dash-section-h-s">Last 30 days · 18 May – 16 Jun</span>
+          <span class="dash-section-h-s">This month · 1 – 16 Jun</span>
         </div>
 
         <!-- Hero KPI pair -->
         <div class="kpi-pair">
           <div class="kpi-tile">
-            <div class="kpi-tile-l">Total completed calls</div>
-            <div class="kpi-tile-v">142</div>
+            <div class="kpi-tile-l">Referrals received</div>
+            <div class="kpi-tile-v">38<span class="kpi-tile-u">/45</span></div>
             <div class="kpi-tile-foot">
               <span class="kpi-trend up">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17l5-5 4 4 5-5"/><path d="M16 7h5v5"/></svg>
-                +12 vs prev. 30d
+                +6 vs last month
               </span>
             </div>
           </div>
           <div class="kpi-tile">
-            <div class="kpi-tile-l">Daily call average</div>
-            <div class="kpi-tile-v">5.7<span class="kpi-tile-u">/day</span></div>
+            <div class="kpi-tile-l">Activities run</div>
+            <div class="kpi-tile-v">4<span class="kpi-tile-u">camps</span></div>
             <div class="kpi-tile-foot">
               <span class="kpi-trend below">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-                Target 6.0/day
+                2 planned next
               </span>
             </div>
           </div>
         </div>
 
-        <!-- Doctor coverage with tier breakdown -->
+        <!-- Referral conversion -->
         <div class="kpi-card">
           <div class="kpi-card-h">
             <div>
-              <div class="kpi-card-l">Doctor coverage</div>
-              <div class="kpi-card-s">22 of 28 mapped doctors visited</div>
+              <div class="kpi-card-l">Referral → admission</div>
+              <div class="kpi-card-s">23 of 38 referrals converted to admissions</div>
             </div>
-            <div class="kpi-card-big">79<span class="kpi-card-big-u">%</span></div>
+            <div class="kpi-card-big kpi-card-big-ok">61<span class="kpi-card-big-u">%</span></div>
           </div>
-          <div class="kpi-bar-track"><span style="width:79%;background:var(--teal);"></span></div>
+          <div class="kpi-bar-track has-target">
+            <span style="width:61%;background:var(--green);"></span>
+            <i class="kpi-bar-target" style="left:55%;" title="Target 55%"></i>
+          </div>
+          <div class="kpi-bar-legend">
+            <span>Actual <strong>61%</strong></span>
+            <span>Target 55%</span>
+          </div>
+        </div>
+
+        <!-- Referral source coverage with tier breakdown -->
+        <div class="kpi-card">
+          <div class="kpi-card-h">
+            <div>
+              <div class="kpi-card-l">Referral source coverage</div>
+              <div class="kpi-card-s">9 of 12 referral accounts visited</div>
+            </div>
+            <div class="kpi-card-big">75<span class="kpi-card-big-u">%</span></div>
+          </div>
+          <div class="kpi-bar-track"><span style="width:75%;background:var(--teal);"></span></div>
           <div class="kpi-tier-grid">
             <div class="kpi-tier">
-              <div class="kpi-tier-head"><span class="kpi-tier-tag tier1">P1</span><span class="kpi-tier-pct">92%</span></div>
-              <div class="kpi-tier-bar"><span style="width:92%;background:var(--teal-press);"></span></div>
-              <div class="kpi-tier-frac">11 / 12</div>
+              <div class="kpi-tier-head"><span class="kpi-tier-tag tier1">P1</span><span class="kpi-tier-pct">100%</span></div>
+              <div class="kpi-tier-bar"><span style="width:100%;background:var(--teal-press);"></span></div>
+              <div class="kpi-tier-frac">2 / 2</div>
             </div>
             <div class="kpi-tier">
-              <div class="kpi-tier-head"><span class="kpi-tier-tag tier2">P2</span><span class="kpi-tier-pct">80%</span></div>
-              <div class="kpi-tier-bar"><span style="width:80%;background:var(--amber);"></span></div>
-              <div class="kpi-tier-frac">8 / 10</div>
+              <div class="kpi-tier-head"><span class="kpi-tier-tag tier2">P2</span><span class="kpi-tier-pct">67%</span></div>
+              <div class="kpi-tier-bar"><span style="width:67%;background:var(--amber);"></span></div>
+              <div class="kpi-tier-frac">2 / 3</div>
             </div>
             <div class="kpi-tier">
-              <div class="kpi-tier-head"><span class="kpi-tier-tag tier3">P3</span><span class="kpi-tier-pct">50%</span></div>
-              <div class="kpi-tier-bar"><span style="width:50%;background:var(--ink-3);"></span></div>
-              <div class="kpi-tier-frac">3 / 6</div>
+              <div class="kpi-tier-head"><span class="kpi-tier-tag tier3">All</span><span class="kpi-tier-pct">75%</span></div>
+              <div class="kpi-tier-bar"><span style="width:75%;background:var(--ink-3);"></span></div>
+              <div class="kpi-tier-frac">9 / 12</div>
             </div>
           </div>
         </div>
 
-        <!-- VF Compliance -->
+        <!-- Corporate MOU pipeline -->
         <div class="kpi-card">
           <div class="kpi-card-h">
             <div>
-              <div class="kpi-card-l">VF compliance</div>
-              <div class="kpi-card-s">Visit-frequency adherence vs cycle plan</div>
+              <div class="kpi-card-l">Corporate MOU pipeline</div>
+              <div class="kpi-card-s">2 signed this quarter · 2 in negotiation</div>
             </div>
-            <div class="kpi-card-big kpi-card-big-ok">84<span class="kpi-card-big-u">%</span></div>
+            <div class="kpi-card-big">₹48<span class="kpi-card-big-u">L</span></div>
           </div>
-          <div class="kpi-bar-track has-target">
-            <span style="width:84%;background:var(--green);"></span>
-            <i class="kpi-bar-target" style="left:80%;" title="Target 80%"></i>
-          </div>
+          <div class="kpi-bar-track"><span style="width:55%;background:var(--teal);"></span></div>
           <div class="kpi-bar-legend">
-            <span>Actual <strong>84%</strong></span>
-            <span>Target 80%</span>
+            <span>Signed <strong>₹26L</strong></span>
+            <span>In pipeline ₹22L</span>
           </div>
         </div>
 
@@ -153,11 +181,18 @@
             <span class="dash-action-t">2 tasks overdue</span>
             <svg class="dash-action-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
           </a>
+          <a class="dash-action-item" href="/accounts/wipro-technologies">
+            <span class="dash-action-ic">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h2M13 8h2M9 12h2M13 12h2M9 16h6"/></svg>
+            </span>
+            <span class="dash-action-t">Wipro MOU renewal due 30 Jun</span>
+            <svg class="dash-action-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
           <a class="dash-action-item" href="/beat-plan">
             <span class="dash-action-ic">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
             </span>
-            <span class="dash-action-t">Reschedule Dr. Anjali — missed at 11:42 AM</span>
+            <span class="dash-action-t">Reschedule Brigade Gateway camp recce</span>
             <svg class="dash-action-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
           </a>
         </div>

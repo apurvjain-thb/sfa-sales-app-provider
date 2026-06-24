@@ -518,6 +518,14 @@ body{
 .dash-action-t{flex:1;font-size:13px;font-weight:600;color:var(--ink);line-height:1.35;overflow:hidden;}
 .dash-action-chev{color:var(--ink-4);flex:0 0 14px;}
 
+/* Approval banner (maker-checker) */
+.dash-approval{display:flex;align-items:center;gap:12px;margin-top:12px;background:var(--amber-tint);border:1px solid var(--amber);border-radius:14px;padding:12px 14px;text-decoration:none;color:inherit;}
+.dash-approval:active{filter:brightness(.98);}
+.dash-approval-ic{width:30px;height:30px;border-radius:9px;background:var(--surface);color:var(--amber);display:flex;align-items:center;justify-content:center;flex:0 0 30px;}
+.dash-approval-body{flex:1;min-width:0;}
+.dash-approval-t{display:block;font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;}
+.dash-approval-s{display:block;font-size:11.5px;font-weight:500;color:var(--ink-2);margin-top:2px;line-height:1.35;}
+
 /* Stats grid — icon-led, single value + label */
 .dash-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .dash-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 14px;box-shadow:var(--shadow-card);display:flex;align-items:center;gap:12px;}
