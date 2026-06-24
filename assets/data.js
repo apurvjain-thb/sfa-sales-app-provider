@@ -384,3 +384,61 @@ function findDoctorBySlug(slug){return DOCTORS.find(d=>slugify(d.n)===slug);}
 function findTaskById(id){return TASKS.find(t=>String(t.id)===String(id));}
 function findAccountBySlug(slug){return ACCOUNTS.find(a=>slugify(a.name)===slug);}
 function accInitials(name){const p=name.replace(/^(Dr|Mr|Mrs|Ms)\.?\s*/i,'').trim().split(/\s+/);return ((p[0]||'')[0]||'').toUpperCase()+((p[1]||'')[0]||'').toUpperCase();}
+
+/* ════════════════════════════════════════
+   CONTACTS — multi-role people, each linked
+   to an Account. Derived from ACCOUNTS so the
+   two stay in sync. Clinical fields only for
+   doctors (referral sources). No call logs.
+   ════════════════════════════════════════ */
+const CONTACTS=ACCOUNTS.flatMap(a=>(a.contacts||[]).map((c,i)=>({
+  id:`${a.id}-C${i+1}`,
+  n:c.n,role:c.role,spec:c.spec||'',phone:c.phone,email:c.email||'',
+  type:a.type,accountName:a.name,accountSlug:slugify(a.name),accountSub:a.sub,
+  isDoctor:/^Dr\.?\s/i.test(c.n),
+})));
+function findContactBySlug(slug){return CONTACTS.find(c=>slugify(c.n)===slug);}
+
+/* Provider message templates — channel + account-type aware.
+   {name} → contact short name. */
+const PROVIDER_MSG_TEMPLATES={
+  referral:{
+    SMS:[
+      {t:"Pre-visit greeting",b:"Hello Dr. {name}, looking forward to meeting you today to discuss patient referrals to Sakra. — Raj, Sakra World Hospital"},
+      {t:"Post-visit thanks",b:"Dr. {name}, thank you for your time. Sharing the referral process details shortly. — Raj, Sakra"},
+    ],
+    WhatsApp:[
+      {t:"Referral process share",b:"Hi Dr. {name} 👋 Sharing our streamlined patient-referral process and the dedicated coordinator contact for fast-track admissions at Sakra. Happy to walk through it anytime."},
+      {t:"Follow-up nudge",b:"Dr. {name}, hope the referral pad and coordinator details were useful. Do let me know if any of your patients need priority slots this week."},
+    ],
+    Email:[
+      {t:"Referral tie-up proposal",b:"Dear Dr. {name},\n\nThank you for meeting. As discussed, please find attached our referral partnership note covering specialties, priority-admission SLAs and the dedicated coordinator line.\n\nWarm regards,\nRaj Hussain\nSakra World Hospital",attachments:[{name:"sakra-referral-partnership.pdf",size:1.4*1024*1024}]},
+    ],
+  },
+  venue:{
+    SMS:[
+      {t:"Camp proposal",b:"Hello {name}, proposing a free health camp at your premises with Sakra specialists. Shall I share dates & services? — Raj, Sakra"},
+      {t:"Camp confirmation",b:"{name}, confirming our health camp on the agreed date. Our team will reach 1 hour prior for setup. — Raj, Sakra"},
+    ],
+    WhatsApp:[
+      {t:"Camp services menu",b:"Hi {name} 👋 For the health camp we can offer: BP & sugar screening, BMI, ECG, and a specialist OPD desk. Sharing the logistics checklist and a sample flyer."},
+      {t:"Logistics confirmation",b:"{name}, for the camp we'll need a 10x10 covered space, 2 tables, 6 chairs and a power point. Our team handles the rest. Confirming footfall estimate so we staff accordingly."},
+    ],
+    Email:[
+      {t:"Camp proposal pack",b:"Dear {name},\n\nThank you for the discussion. Attached is our health-camp proposal — services menu, staffing, logistics needs and a sample resident flyer.\n\nBest,\nRaj Hussain\nSakra World Hospital",attachments:[{name:"sakra-health-camp-proposal.pdf",size:2.0*1024*1024},{name:"resident-flyer-sample.png",size:640*1024}]},
+    ],
+  },
+  corporate:{
+    SMS:[
+      {t:"Intro message",b:"Hello {name}, Raj from Sakra World Hospital. Keen to discuss an employee health tie-up for your team. When works for a quick call? "},
+      {t:"Proposal follow-up",b:"{name}, following up on the corporate health package proposal shared. Happy to revise tiers based on your headcount. — Raj, Sakra"},
+    ],
+    WhatsApp:[
+      {t:"Package overview",b:"Hi {name} 👋 Sharing our corporate health package — OPD + IPD options, annual health checks, and on-site camp days for employees. Can tailor to your headcount."},
+      {t:"Renewal reminder",b:"{name}, a friendly reminder that your employee health tie-up is up for renewal soon. Happy to share the renewal terms with any enhancements for this year."},
+    ],
+    Email:[
+      {t:"MOU proposal",b:"Dear {name},\n\nThank you for your time. Attached is our corporate health tie-up proposal and a draft MOU covering OPD/IPD coverage, health checks and on-site camps.\n\nLooking forward to your thoughts.\n\nBest,\nRaj Hussain\nSakra World Hospital",attachments:[{name:"sakra-corporate-MOU-draft.pdf",size:1.8*1024*1024},{name:"package-tiers.xlsx",size:88*1024}]},
+    ],
+  },
+};
