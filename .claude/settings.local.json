@@ -1,7 +1,26 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(gh auth *)",
+      "Bash(git remote *)",
+      "Bash(git pull *)",
+      "mcp__plugin_figma_figma__get_metadata",
+      "mcp__plugin_figma_figma__get_design_context",
+      "mcp__plugin_figma_figma__get_screenshot",
+      "Bash(python3)",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s -o b2b_01_profile.png \"https://www.figma.com/api/mcp/asset/a507700f-f69c-4b5a-8f57-5e8e80788201\")",
+      "Bash(curl -s -o b2b_02_home.png \"https://www.figma.com/api/mcp/asset/9380deb8-ec83-49f3-889a-19181746ee31\")",
+      "Bash(curl -s -o b2b_03_leads1.png \"https://www.figma.com/api/mcp/asset/97de3fab-1fe7-4053-b614-9cada252353b\")",
+      "Bash(curl -s -o b2b_04_leads2.png \"https://www.figma.com/api/mcp/asset/89958e30-8e21-4ea2-8548-ebb1b737dc97\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(node --check assets/data.js)",
+      "Bash(node -e \"new Function\\(require\\('fs'\\).readFileSync\\('accounts/index.html','utf8'\\).match\\(/<script>\\\\n\\([\\\\s\\\\S]*?\\)<\\\\/script>/\\)[1]\\); console.log\\('accounts inline JS parses'\\)\")",
+      "Bash(node -e \"new Function\\(require\\('fs'\\).readFileSync\\('contacts/index.html','utf8'\\).match\\(/<script>\\\\n\\([\\\\s\\\\S]*?\\)<\\\\/script>/\\)[1]\\); console.log\\('contacts inline JS parses'\\)\")",
+      "Bash(node -e ' *)"
     ]
   }
 }

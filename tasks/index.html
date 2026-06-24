@@ -336,7 +336,7 @@ function renderDetail(id){
       ${tkRow('Due Date',__editState.dueAt)}
       ${tkRow('Created At',__editState.createdAt)}
       ${tkRow('Task Type',t.type)}
-      ${tkRow('Account Name',t.clinic)}
+      ${t.accountSlug?`<a class="tk-row" style="text-decoration:none;" href="/accounts/${t.accountSlug}" onclick="event.preventDefault();location.href='/accounts/${t.accountSlug}'"><span class="tk-row-label">Account Name</span><span class="tk-row-value" style="color:var(--teal-press);">${t.clinic} ›</span></a>`:tkRow('Account Name',t.clinic)}
       ${tkRow('Contact Name',t.doctor)}
       ${tkRow('Visit Type',__editState.visitType)}
       <div class="tk-desc-block">

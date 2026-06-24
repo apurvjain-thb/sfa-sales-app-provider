@@ -33,11 +33,12 @@ _All 5 planned phases are now built._ 🎉 Remaining work is the cleanup + defer
 
 ## 🧹 Cleanup / tech debt
 
-- [ ] **Remove legacy pharma data** from `assets/data.js` once nothing references it: `DOCTORS`, `TODAY_VISITS`, `BACKUP_VISITS`, `DOCTOR_PROFILES`, `PROFILE_FALLBACK`, `PRODUCTS`, `visitsForOffset`, `findDoctorBySlug`, `findTodayVisitBySlug`.
-- [ ] **Rebrand sweep** — page `<title>`s and copy still mix "Roche/SFA"; standardize to Sakra World Hospital + THB across all pages.
+- [x] **Remove legacy pharma data** from `assets/data.js` — done (DOCTORS, TODAY_VISITS, BACKUP_VISITS, DOCTOR_PROFILES, PROFILE_FALLBACK, PRODUCTS, visitsForOffset + dead helpers removed).
+- [x] **Rebrand sweep** — no "Roche" references remain anywhere; all page `<title>`s standardized to "Sakra Sales".
+- [x] **Account ↔ Leads/Deals/Tasks cross-links** — account detail now lists Related leads/deals/tasks; task detail links to its account.
 - [ ] **"Add Visit"** (Accounts) currently snackbars "pending approval" — wire it to actually create a Beat Plan visit in pending state.
-- [ ] **Profile / Login pages** — still pharma-branded; align to provider (add Pause Shift, Select Workspace from B2B).
-- [ ] **Bottom nav** — plan called for a "More" overflow (Leads/Deals/Activity/Contacts); currently a flat 5-tab nav. Revisit once Leads/Deals/Activity exist.
+- [ ] **Profile / Login pages** — add Pause Shift + Select Workspace from B2B (branding now done).
+- [ ] **Bottom nav** — plan called for a "More" overflow (Leads/Deals/Activity/Contacts); currently flat 5-tab nav + Dashboard tiles. Revisit.
 
 ---
 

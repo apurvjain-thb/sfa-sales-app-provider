@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local dev server that mirrors Vercel routing for the Roche SFA prototype.
+"""Local dev server that mirrors Vercel routing for the Sakra Sales prototype.
 
   /                       -> /dashboards/
   /dashboards             -> /dashboards/index.html
@@ -58,7 +58,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(("", PORT), Handler) as httpd:
-    print(f"Serving Roche SFA prototype at http://localhost:{PORT}")
+    print(f"Serving Sakra Sales prototype at http://localhost:{PORT}")
     print("Press Ctrl+C to stop.")
     try:
         httpd.serve_forever()
