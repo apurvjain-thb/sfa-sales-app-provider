@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Contacts · Roche SFA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <!-- LIST -->
+    <div class="screen-view" id="view-list">
+      <div class="appheader">
+        <div class="header-row">
+          <h1 class="page-title">Contacts</h1>
+          <div class="avatar" onclick="location.href='/profile'">RH</div>
+        </div>
+      </div>
+      <div class="chiprow" id="contact-chips"></div>
+      <div class="searchwrap"><div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="contact-search" placeholder="Search doctors" oninput="renderContacts()">
+      </div></div>
+      <div class="toolsrow">
+        <span class="count" id="contact-count">— doctors</span>
+        <div class="tools">
+          <button class="iconbtn" onclick="openSheet('c-sort')" title="Sort"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h12M3 12h9M3 18h6M17 7v12M17 19l3-3M17 19l-3-3"/></svg></button>
+          <button class="iconbtn" onclick="openSheet('c-filter')" title="Filter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button>
+        </div>
+      </div>
+      <div class="screen"><div class="pad" id="contact-list" style="padding-top:0;"></div></div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="screen-view" id="view-detail">
+      <div class="vd-topbar">
+        <a class="vd-back" href="/contacts" onclick="event.preventDefault();bucketGo('/contacts');">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="vd-topbar-title">
+          <div class="vd-visit-id">Contact profile</div>
+          <div class="vd-follow-up" id="cd-sub"></div>
+        </div>
+        <button class="vd-topbar-action" onclick="snack('More actions — built next.')"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+      </div>
+      <div class="screen"><div style="padding:0 0 32px;">
+        <div class="vd-hero-wrap">
+          <div class="vd-hero">
+            <div class="vd-hero-avatar" id="cd-avatar">DR</div>
+            <div class="vd-hero-body">
+              <div class="vd-hero-top">
+                <div style="min-width:0;flex:1;">
+                  <div class="vd-hero-name" id="cd-name">Doctor</div>
+                  <div class="vd-hero-spec" id="cd-spec">Specialty</div>
+                </div>
+                <span class="badge tier1" id="cd-tier" style="margin-top:2px;">P1</span>
+              </div>
+              <div class="vd-hero-clinic">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z"/><circle cx="12" cy="9" r="3"/></svg>
+                <span class="ct" id="cd-clinic"></span>
+              </div>
+              <div class="vd-hero-actions">
+                <a class="vd-hero-action" id="cd-call-btn" href="#" onclick="onCallContact(event)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  Call
+                </a>
+                <button class="vd-hero-action" onclick="openContactMsgSheet()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                  Message
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="vd-tabbar" id="cd-tabbar">
+          <button class="vd-tab active" onclick="setCDTab(0)">Doctor Profile</button>
+          <button class="vd-tab" onclick="setCDTab(1)">Past Visits</button>
+        </div>
+        <div style="padding:0 18px 32px;" id="cd-content"></div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- Message templates sheet -->
+  <div class="sheet-backdrop" id="cmsg-backdrop" onclick="closeSheet('cmsg')"></div>
+  <div class="bottom-sheet" id="cmsg-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <span class="sheet-title">Send a message</span>
+        <div class="msg-doctor-line" id="cmsg-doc-name">Doctor</div>
+      </div>
+      <button class="sheet-close" onclick="closeSheet('cmsg')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="msg-channels" id="cmsg-channels"></div>
+    <div class="msg-tmpl-list" id="cmsg-tmpl-list"></div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('cmsg')">Cancel</button>
+      <button class="btn btn-primary" id="cmsg-send" onclick="sendContactMessage()" disabled style="opacity:.55;">Send</button>
+    </div>
+  </div>
+
+  <!-- Call mode picker -->
+  <div class="sheet-backdrop" id="callmode-backdrop" onclick="closeSheet('callmode')"></div>
+  <div class="bottom-sheet" id="callmode-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <span class="sheet-title">How would you like to call?</span>
+        <div class="msg-doctor-line" id="callmode-doc-name">Doctor</div>
+      </div>
+      <button class="sheet-close" onclick="closeSheet('callmode')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="co-mode-grid">
+      <button class="co-mode-card" onclick="placeContactCall('personal')">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+        <div class="co-mode-card-body">
+          <div class="co-mode-card-t">Call via personal number</div>
+          <div class="co-mode-card-s" id="callmode-personal-sub">Direct dial to the doctor's mobile.</div>
+        </div>
+        <svg class="co-mode-card-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <button class="co-mode-card ai" onclick="placeContactCall('central')">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 16h3M14 16h2"/></svg></span>
+        <div class="co-mode-card-body">
+          <div class="co-mode-card-t">Call via central line <span class="co-mode-card-tag">Recorded</span></div>
+          <div class="co-mode-card-s">Routes through the Roche telephony bridge. Number stays private.</div>
+        </div>
+        <svg class="co-mode-card-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Sort sheet -->
+  <div class="sheet-backdrop" id="c-sort-backdrop" onclick="closeSheet('c-sort')"></div>
+  <div class="bottom-sheet" id="c-sort-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Sort doctors by</span>
+      <button class="sheet-close" onclick="closeSheet('c-sort')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sf-list" id="c-sort-list"></div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('c-sort')">Cancel</button>
+      <button class="btn btn-primary" onclick="applyContactsSort()">Apply</button>
+    </div>
+  </div>
+
+  <!-- Filter sheet -->
+  <div class="sheet-backdrop" id="c-filter-backdrop" onclick="closeSheet('c-filter')"></div>
+  <div class="bottom-sheet" id="c-filter-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Filters</span>
+      <button class="sheet-close" onclick="closeSheet('c-filter')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-h">Priority tier</div>
+      <div class="sf-chips" id="c-filter-tier"></div>
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-h">Specialty</div>
+      <div class="sf-chips" id="c-filter-spec"></div>
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-h">Recent engagement</div>
+      <div class="sf-chips" id="c-filter-recency"></div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="resetContactsFilter()">Reset</button>
+      <button class="btn btn-primary" onclick="applyContactsFilter()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/shell.js"></script>
+<script>
+initShell('contacts');
+
+const cs={
+  tier:"All",sort:"recent",
+  filter:{tier:[],spec:[],recency:""},
+  sortDraft:"recent",
+  filterDraft:{tier:[],spec:[],recency:""},
+};
+const C_SORTS=[
+  {k:"recent",l:"Recently updated"},
+  {k:"new",l:"Newly created"},
+  {k:"old",l:"Oldest created"},
+  {k:"alpha",l:"Alphabetical (A–Z)"},
+  {k:"tier",l:"Priority tier (P1 first)"},
+];
+const C_RECENCY=["Visited today","This week","Stale (1mo+)"];
+
+function renderChips(){document.getElementById('contact-chips').innerHTML=["All","P1","P2","P3"].map(c=>`<button class="chip ${cs.tier===c?'active':''}" onclick="setTier('${c}')">${c==='All'?'All':c+' tier'}</button>`).join('');}
+function setTier(t){cs.tier=t;renderChips();renderContacts();}
+
+/* ── Sort & Filter sheets ── */
+const _openSheetOrig=openSheet;
+openSheet=function(id){
+  if(id==='c-sort') populateContactsSortSheet();
+  if(id==='c-filter') populateContactsFilterSheet();
+  _openSheetOrig(id);
+};
+function populateContactsSortSheet(){
+  cs.sortDraft=cs.sort;
+  document.getElementById('c-sort-list').innerHTML=C_SORTS.map(s=>`
+    <div class="sf-option ${cs.sortDraft===s.k?'sel':''}" onclick="pickCSort('${s.k}')">
+      <span class="sf-option-t">${s.l}</span><span class="sf-radio"></span>
+    </div>`).join('');
+}
+function pickCSort(k){cs.sortDraft=k;document.querySelectorAll('#c-sort-list .sf-option').forEach((el,i)=>el.classList.toggle('sel',C_SORTS[i].k===k));}
+function applyContactsSort(){cs.sort=cs.sortDraft;closeSheet('c-sort');renderContacts();}
+
+function populateContactsFilterSheet(){
+  cs.filterDraft={tier:[...cs.filter.tier],spec:[...cs.filter.spec],recency:cs.filter.recency};
+  document.getElementById('c-filter-tier').innerHTML=["P1","P2","P3"].map(p=>`<button class="sf-chip-multi ${cs.filterDraft.tier.includes(p)?'sel':''}" onclick="toggleCFilter('tier','${p}',this)">${p}</button>`).join('');
+  const specs=[...new Set(DOCTORS.map(d=>d.spec))].sort();
+  document.getElementById('c-filter-spec').innerHTML=specs.map(s=>`<button class="sf-chip-multi ${cs.filterDraft.spec.includes(s)?'sel':''}" onclick="toggleCFilter('spec','${s.replace(/'/g,"\\'")}',this)">${s}</button>`).join('');
+  document.getElementById('c-filter-recency').innerHTML=C_RECENCY.map(r=>`<button class="sf-chip-multi ${cs.filterDraft.recency===r?'sel':''}" onclick="pickCRecency('${r.replace(/'/g,"\\'")}',this)">${r}</button>`).join('');
+}
+function toggleCFilter(group,val,btn){
+  const list=cs.filterDraft[group];
+  const i=list.indexOf(val);
+  if(i>=0) list.splice(i,1); else list.push(val);
+  btn.classList.toggle('sel');
+}
+function pickCRecency(r,btn){
+  cs.filterDraft.recency=(cs.filterDraft.recency===r)?'':r;
+  document.querySelectorAll('#c-filter-recency .sf-chip-multi').forEach(el=>el.classList.toggle('sel',el.textContent===cs.filterDraft.recency));
+}
+function applyContactsFilter(){cs.filter={tier:[...cs.filterDraft.tier],spec:[...cs.filterDraft.spec],recency:cs.filterDraft.recency};closeSheet('c-filter');renderContacts();}
+function resetContactsFilter(){cs.filterDraft={tier:[],spec:[],recency:""};populateContactsFilterSheet();}
+
+function matchesRecency(d,r){
+  if(!r) return true;
+  if(r==="Visited today") return d.last==="Today";
+  if(r==="This week") return /day|Today|Yesterday|hour/.test(d.last);
+  if(r==="Stale (1mo+)") return /month|1 month|2 month|3 month/.test(d.last);
+  return true;
+}
+
+function renderContacts(){
+  const q=(document.getElementById('contact-search').value||'').toLowerCase();
+  let rows=DOCTORS.filter(d=>{
+    const tierChipOk=cs.tier==='All'||('P'+d.tier)===cs.tier;
+    const tierFilterOk=!cs.filter.tier.length||cs.filter.tier.includes('P'+d.tier);
+    const specFilterOk=!cs.filter.spec.length||cs.filter.spec.includes(d.spec);
+    const recencyOk=matchesRecency(d,cs.filter.recency);
+    const qOk=!q||d.n.toLowerCase().includes(q)||d.clinic.toLowerCase().includes(q)||d.spec.toLowerCase().includes(q);
+    return tierChipOk&&tierFilterOk&&specFilterOk&&recencyOk&&qOk;
+  });
+  if(cs.sort==="new") rows=[...rows].sort((a,b)=>a.created-b.created);
+  else if(cs.sort==="old") rows=[...rows].sort((a,b)=>b.created-a.created);
+  else if(cs.sort==="alpha") rows=[...rows].sort((a,b)=>a.n.localeCompare(b.n));
+  else if(cs.sort==="tier") rows=[...rows].sort((a,b)=>a.tier-b.tier||a.created-b.created);
+  document.getElementById('contact-count').textContent=`${rows.length} doctor${rows.length!==1?'s':''}`;
+  const list=document.getElementById('contact-list');
+  if(!rows.length){list.innerHTML='<div class="empty"><div class="et">No doctors found</div><div class="ed">Try a different name, clinic, or tier.</div></div>';return;}
+  list.innerHTML=rows.map(d=>{
+    const slug=slugify(d.n);
+    const isNew=d.visits===0;
+    const newTag=isNew?'<span class="new-tag">New contact</span>':'';
+    const foot=isNew
+      ?`<span class="foot-meta no-visits"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>No prior visits</span>`
+      :`<span class="foot-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${d.visits} visit${d.visits!==1?'s':''} · Last ${d.last}</span>`;
+    return `<div class="card ${isNew?'is-new':''}" onclick="bucketGo('/contacts/${slug}')">
+      <div class="card-top">
+        <span class="card-title">${d.n}</span>
+        <div class="card-top-right"><span class="badge tier${d.tier}">P${d.tier}</span>${newTag}</div>
+      </div>
+      <div class="inner"><div class="line"><span style="color:var(--ink-2)">Specialty:</span> ${d.spec}</div><div class="line sub">${d.clinic}</div></div>
+      <div class="card-foot">${foot}</div>
+    </div>`;
+  }).join('');
+}
+
+function vRow(label,val){return `<div class="vd-row"><span class="vd-row-label">${label}</span><span class="vd-row-value">${val}</span></div>`;}
+
+const cd={tab:0,acc:{demo:true,recent:false,beh:false,topics:false},current:null};
+
+function renderDetail(slug){
+  const d=findDoctorBySlug(slug);
+  if(!d){
+    document.getElementById('cd-name').textContent='Contact not found';
+    document.getElementById('cd-spec').textContent='';
+    document.getElementById('cd-clinic').textContent='';
+    document.getElementById('cd-tier').style.display='none';
+    document.getElementById('cd-avatar').textContent='?';
+    document.querySelector('#view-detail .vd-tabbar').style.display='none';
+    document.getElementById('cd-content').innerHTML='<div class="empty" style="margin-top:24px;"><div class="et">Contact not found</div><div class="ed">This slug doesn\'t match any doctor in the directory.</div></div>';
+    return;
+  }
+  document.querySelector('#view-detail .vd-tabbar').style.display='';
+  document.getElementById('cd-tier').style.display='';
+  document.getElementById('cd-avatar').textContent=initials(d.n);
+  document.getElementById('cd-name').textContent=d.n;
+  document.getElementById('cd-spec').textContent=d.spec;
+  document.getElementById('cd-tier').textContent=`P${d.tier}`;
+  document.getElementById('cd-tier').className=`badge tier${d.tier}`;
+  document.getElementById('cd-clinic').textContent=d.clinic;
+  document.getElementById('cd-sub').textContent=`${d.visits} lifetime visits · Last ${d.last}`;
+  cd.current=d; cd.tab=0;
+  cd.acc={demo:true,recent:false,beh:false,topics:false};
+  setCDTab(0);
+}
+
+function setCDTab(n){
+  cd.tab=n;
+  document.querySelectorAll('#cd-tabbar .vd-tab').forEach((b,i)=>b.classList.toggle('active',i===n));
+  const el=document.getElementById('cd-content');
+  const d=cd.current; if(!d) return;
+  const p=profileOf(d.n);
+  switch(n){
+    case 0: el.innerHTML=renderDoctorProfile(d.n,p); bindAccordions(); break;
+    case 1: el.innerHTML=renderPastVisits(d.n); break;
+  }
+  document.querySelector('#view-detail .screen').scrollTop=0;
+}
+
+/* ── Shared rendering (mirrors beat-plan visit-detail) ── */
+function renderDoctorProfile(docName,p){
+  return `<div class="acc ${cd.acc.demo?'open':''}" data-key="demo">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Demographics</div><div class="acc-sub">Identity, registration & contact</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">
+      ${vRow('Role',p.role)}
+      ${vRow('MyRefNo',p.refNo)}
+      ${vRow('Mobile',p.mob)}
+      ${vRow('Email',p.email)}
+      ${vRow('Reg. No',p.regNo)}
+      ${vRow('Date of Birth',p.dob)}
+      ${vRow('Experience',p.exp)}
+      ${vRow('Area',p.area)}
+      ${vRow('City',p.city)}
+      ${vRow('Education',p.education)}
+    </div>
+  </div>
+  <div class="acc ${cd.acc.recent?'open':''}" data-key="recent">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Recent Interactions</div><div class="acc-sub">Frequency & latest engagements</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">
+      <div class="ri-grid">
+        <div class="ri-stat"><div class="ri-stat-lbl">Visit Freq</div><div class="ri-stat-val">${p.visitFreq}</div><div class="ri-stat-sub">${p.visitFreqSub||''}</div></div>
+        <div class="ri-stat"><div class="ri-stat-lbl">Next Visit</div><div class="ri-stat-val">${p.nextVisit}</div><div class="ri-stat-sub">${p.nextVisitSub||''}</div></div>
+        <div class="ri-stat" style="grid-column:span 2;"><div class="ri-stat-lbl">Previous Visit</div><div class="ri-stat-val">${p.prevVisit}</div><div class="ri-stat-sub">${p.prevVisitSub||''}</div></div>
+      </div>
+      <div class="ri-recent-h">Recent activity</div>
+      ${(p.recent||[]).map(r=>`
+        <div class="ri-recent-row">
+          <span class="ri-recent-dot" style="background:${r.dot==='pos'?'var(--green)':r.dot==='neg'?'var(--red)':'var(--amber)'}"></span>
+          <div class="ri-recent-info"><div class="ri-recent-title">${r.title}</div><div class="ri-recent-sub">${r.sub}</div></div>
+          <span class="ri-recent-date">${r.date}</span>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="acc ${cd.acc.beh?'open':''}" data-key="beh">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 3-3 5"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Behavior & Preferences</div><div class="acc-sub">How they engage & what works</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">
+      <div class="beh-list">
+        ${(p.behavior||[]).map((b,i)=>{
+          const icons=[
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM8 8h7M8 12h7M8 16h5"/></svg>',
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M6 8l6-4 6 4M6 16l6-4 6 4"/></svg>',
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M8 3v6M16 3v6"/></svg>',
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>',
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+          ];
+          return `<div class="beh-item">
+            <div class="beh-icon">${icons[i]||icons[0]}</div>
+            <div class="beh-content"><div class="beh-label">${b.l}</div><div class="beh-val">${b.v}</div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="acc ${cd.acc.topics?'open':''}" data-key="topics">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7 7 7 0 0 1-4 6.32V17H9v-1.68A7 7 0 0 1 5 9a7 7 0 0 1 7-7z"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Suggested Topics</div><div class="acc-sub">Talking points for next visit</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">
+      ${(p.topics||[]).map((t,i)=>`<div class="tp-item"><span class="tp-num">${i+1}</span><span class="tp-text">${t}</span></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function bindAccordions(){
+  document.querySelectorAll('#cd-content .acc').forEach(acc=>{
+    acc.querySelector('.acc-head').addEventListener('click',()=>{
+      const k=acc.dataset.key;
+      cd.acc[k]=!cd.acc[k];
+      acc.classList.toggle('open',cd.acc[k]);
+    });
+  });
+}
+
+function renderPastVisits(docName){
+  const p=profileOf(docName);
+  const data=(p.recent||[]).map(r=>({date:`${r.date} '26`,outcome:r.title.includes('Positive')?'Positive':r.title.includes('Negative')?'Negative':'Neutral',type:r.title.split(' · ')[0],detail:r.sub}));
+  if(!data.length) return '<div class="empty"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18"/></svg></div><div class="et">No past visits yet</div><div class="ed">Visit records will appear here as they happen.</div></div>';
+  return `<div class="tl-card">
+    <div class="tl-card-h">${data.length} visit${data.length!==1?'s':''} recorded</div>
+    <div class="tl-list">
+      ${data.map(v=>{const cls=v.outcome==='Positive'?'pos':v.outcome==='Negative'?'neg':'neu';return `<div class="tl-item">
+          <div class="tl-left"><div class="tl-dot ${cls}"></div><div class="tl-line"></div></div>
+          <div class="tl-body">
+            <div class="tl-row"><div class="tl-title">${v.type}</div><span class="tl-pill ${cls}">${v.outcome}</span></div>
+            <div class="tl-meta"><span>${v.date}</span></div>
+            <div class="tl-detail">${v.detail}</div>
+            <div class="tl-by"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Raj (You)</div>
+          </div>
+        </div>`;}).join('')}
+    </div>
+  </div>`;
+}
+
+function renderActivity(docName){
+  const p=profileOf(docName);
+  const acts=[];
+  (p.recent||[]).forEach(r=>{
+    acts.push({date:`${r.date} '26, ${r.title.includes('Video')?'04:02 PM':'10:48 AM'}`,label:'Visit Completed',detail:`Outcome: ${r.title.includes('Positive')?'Positive':r.title.includes('Negative')?'Negative':'Neutral'} · ${r.sub}`,by:'Raj (You)'});
+    acts.push({date:`${r.date} '26, ${r.title.includes('Video')?'03:55 PM':'09:32 AM'}`,label:'Checked In',detail:'Geo Match: ✓ verified',by:'System'});
+  });
+  if(!acts.length) return '<div class="empty"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="et">No activity yet</div><div class="ed">Check-ins and visits will appear here.</div></div>';
+  return `<div class="tl-card">
+    <div class="tl-card-h">${acts.length} event${acts.length!==1?'s':''}</div>
+    <div class="tl-list">
+      ${acts.map(a=>`<div class="tl-item">
+        <div class="tl-left"><div class="tl-dot act"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-row"><div class="tl-title">${a.label}</div></div>
+          <div class="tl-meta"><span>${a.date}</span></div>
+          <div class="tl-detail">${a.detail}</div>
+          <div class="tl-by"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>${a.by}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function showView(name){
+  document.getElementById('view-list').classList.toggle('active',name==='list');
+  document.getElementById('view-detail').classList.toggle('active',name==='detail');
+}
+
+/* ── Call + Message handlers ── */
+const C_MSG_TEMPLATES={
+  SMS:[
+    {t:"Pre-visit greeting",b:"Hi Dr. {name}, looking forward to our scheduled appointment today. — Raj, Roche"},
+    {t:"Post-visit thanks",b:"Dr. {name}, thank you for your time. Sharing the requested materials shortly. — Raj, Roche"},
+    {t:"Sample dispatch note",b:"Dr. {name}, courier with samples dispatched. Tracking shared on email. — Raj, Roche"},
+  ],
+  WhatsApp:[
+    {t:"Quick check-in",b:"Hi Dr. {name} 👋"},
+    {t:"Pre-visit greeting",b:"Hi Dr. {name} 👋 Looking forward to seeing you at your clinic today. Let me know if anything changes on your end."},
+    {t:"Reschedule request",b:"Dr. {name}, would Thursday 4 PM work better for our planned visit this week? Happy to align around your OPD schedule. — Raj"},
+    {t:"Share evidence pack",b:"Dr. {name}, sharing the Phase-III evidence pack we discussed. The summary deck is attached and the full study compendium is also included for your reference. Happy to walk through any specific endpoint in detail.\n\nBest,\nRaj",attachments:[{name:"Phase-III-evidence-summary.pdf",size:2.1*1024*1024},{name:"study-compendium.pdf",size:4.6*1024*1024}]},
+    {t:"KOL webinar invite",b:"Dr. {name}, please find the invite for our upcoming KOL webinar on 25 Jun, 6 PM IST.\n\nSpeakers:\n• Dr. R. Iyengar (Nephrology)\n• Dr. M. Pillai (Cardiology)\n• Roche Medical Affairs\n\nRegistration link: [secure registration link]\nCalendar invite attached.",attachments:[{name:"KOL-webinar-25Jun.ics",size:5*1024}]},
+    {t:"Sample drop confirmation",b:"Dr. {name}, the 2 sample boxes (Batch RX-7821, expiry Mar'27) have been handed over to your pharmacy this morning. The dispatch slip is attached for your records.\n\nWe've also enclosed the prescribing label v2.1 and the latest dosing card.",attachments:[{name:"sample-dispatch-slip.pdf",size:340*1024},{name:"prescribing-label-v2.1.pdf",size:880*1024},{name:"dosing-card-2026.png",size:620*1024}]},
+    {t:"Follow-up nudge",b:"Dr. {name}, hope the materials were useful. Happy to drop by for a quick follow-up next week — let me know what works."},
+    {t:"Thank you note",b:"Dr. {name}, a quick thank you for today's discussion. Truly appreciate the time and your candid input on the protocol. Sharing the requested links shortly. — Raj"},
+  ],
+  Email:[
+    {t:"Visit follow-up",b:"Dear Dr. {name},\n\nThank you for taking the time to meet. As discussed, please find attached the latest clinical evidence pack and our upcoming CME calendar.\n\nWarm regards,\nRaj Hussain\nRoche SFA",attachments:[{name:"clinical-evidence-pack.pdf",size:3.2*1024*1024},{name:"CME-calendar-Q3.xlsx",size:96*1024}]},
+    {t:"Clinical evidence pack",b:"Dear Dr. {name},\n\nSharing the consolidated Phase-III evidence pack for your reference.\n\nBest,\nRaj",attachments:[{name:"phase-III-pack.pdf",size:5.8*1024*1024}]},
+    {t:"Product introduction",b:"Dear Dr. {name},\n\nI'd like to introduce you to our latest formulation. Attached is a short brief covering the mechanism, dosing, and trial data."},
+    {t:"CME co-host proposal",b:"Dear Dr. {name},\n\nWe would love to co-host the upcoming CME on nephrology biomarkers. Draft agenda and speaker list attached for your input.\n\nLooking forward to hearing your thoughts.\n\nBest,\nRaj Hussain",attachments:[{name:"CME-agenda-draft.pdf",size:420*1024}]},
+  ],
+};
+function fmtCMsgBytes(b){if(b<1024) return b+' B'; if(b<1024*1024) return (b/1024).toFixed(0)+' KB'; return (b/(1024*1024)).toFixed(1)+' MB';}
+function cAttachExtBadge(name){const ext=(name.split('.').pop()||'').toLowerCase();return ({pdf:'PDF',xlsx:'XLS',xls:'XLS',png:'IMG',jpg:'IMG',jpeg:'IMG',ics:'CAL'})[ext]||'FILE';}
+const C_MSG_CHANNELS=[
+  {k:"SMS",   ic:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'},
+  {k:"WhatsApp",ic:'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.94 9.94 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm4.52 12.99c-.25-.12-1.47-.72-1.7-.81-.23-.08-.4-.12-.56.12s-.65.81-.79.97c-.15.17-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.55-1.33-.76-1.83-.2-.48-.4-.42-.55-.42l-.47-.01a.9.9 0 0 0-.66.31c-.23.25-.86.84-.86 2.05s.88 2.38 1 2.55c.12.17 1.73 2.64 4.19 3.7.59.25 1.05.4 1.4.52.59.19 1.12.16 1.55.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.18-.47-.3z"/></svg>'},
+  {k:"Email", ic:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>'},
+];
+const CENTRAL_LINE='+91 80 4567 8900';
+function onCallContact(e){
+  e.preventDefault();
+  const d=cd.current; if(!d){snack('No contact loaded.');return;}
+  const p=profileOf(d.n);
+  document.getElementById('callmode-doc-name').textContent=`${d.n} · ${d.clinic}`;
+  document.getElementById('callmode-personal-sub').textContent=p.phone?`Direct dial · ${p.phone}`:'No personal number on file.';
+  openSheet('callmode');
+}
+function placeContactCall(mode){
+  const d=cd.current; if(!d){ closeSheet('callmode'); return; }
+  const p=profileOf(d.n);
+  closeSheet('callmode');
+  if(mode==='personal'){
+    if(!p.phone){ snack('No personal number on file.'); return; }
+    location.href=`tel:${p.phone.replace(/\s/g,'')}`;
+    snack(`Dialling ${d.n} on personal number…`);
+  } else {
+    const ext=`ext ${4000+Math.floor((slugify(d.n).length*97)%900)}`;
+    location.href=`tel:${CENTRAL_LINE.replace(/\s|\+/g,'')}`;
+    snack(`Connecting via central line · ${ext}`);
+  }
+}
+let cmsgState={channel:"WhatsApp",previewIdx:null};
+
+function openContactMsgSheet(){
+  const d=cd.current; if(!d) return;
+  document.getElementById('cmsg-doc-name').textContent=`${d.n} · ${d.clinic}`;
+  cmsgState={channel:"WhatsApp",previewIdx:null};
+  renderCMsgList();
+  openSheet('cmsg');
+}
+function renderCMsgList(){
+  document.getElementById('cmsg-channels').style.display='';
+  document.getElementById('cmsg-channels').innerHTML=C_MSG_CHANNELS.map(c=>`
+    <button class="msg-channel-chip ${cmsgState.channel===c.k?'sel':''}" onclick="pickCMsgChannel('${c.k}')">${c.ic}${c.k}</button>`).join('');
+  const d=cd.current||{n:'Doctor'};
+  const name=d.n.replace(/^Dr\.?\s*/,'');
+  const list=C_MSG_TEMPLATES[cmsgState.channel]||[];
+  document.getElementById('cmsg-tmpl-list').innerHTML=list.map((t,i)=>{
+    const att=(t.attachments||[]).length;
+    const body=t.b.replace(/\{name\}/g,name).replace(/\n/g,'<br>');
+    return `<div class="msg-tmpl" onclick="openCMsgPreview(${i})">
+      <div class="msg-tmpl-h">
+        <span class="msg-tmpl-t">${t.t}</span>
+        ${att?`<span class="msg-tmpl-attach-tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>${att}</span>`:''}
+      </div>
+      <div class="msg-tmpl-body">${body}</div>
+    </div>`;
+  }).join('');
+  const send=document.getElementById('cmsg-send');
+  send.disabled=true; send.style.opacity='.55'; send.textContent='Send';
+}
+function pickCMsgChannel(k){ cmsgState.channel=k; cmsgState.previewIdx=null; renderCMsgList(); }
+
+function openCMsgPreview(i){
+  cmsgState.previewIdx=i;
+  const tmpl=C_MSG_TEMPLATES[cmsgState.channel][i];
+  const d=cd.current||{n:'Doctor'};
+  const name=d.n.replace(/^Dr\.?\s*/,'');
+  const body=tmpl.b.replace(/\{name\}/g,name);
+  const attList=(tmpl.attachments||[]).map(a=>`
+    <div class="attach-chip">
+      <span class="attach-chip-ic">${cAttachExtBadge(a.name)}</span>
+      <div class="attach-chip-info">
+        <div class="attach-chip-name">${a.name}</div>
+        <div class="attach-chip-size">${fmtCMsgBytes(a.size)}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('cmsg-channels').style.display='none';
+  document.getElementById('cmsg-tmpl-list').innerHTML=`
+    <button class="msg-preview-back" onclick="cmsgState.previewIdx=null;renderCMsgList();">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back to templates
+    </button>
+    <span class="msg-preview-channel">${cmsgState.channel} template</span>
+    <div class="msg-preview-title">${tmpl.t}</div>
+    <div class="msg-preview-body">${body}</div>
+    ${attList?`<div class="msg-preview-attach-h">Attachments · ${(tmpl.attachments||[]).length}</div><div class="msg-preview-attach-list">${attList}</div>`:''}`;
+  const send=document.getElementById('cmsg-send');
+  send.disabled=false; send.style.opacity='1';
+  send.textContent=`Send via ${cmsgState.channel}`;
+}
+
+function sendContactMessage(){
+  if(cmsgState.previewIdx==null) return;
+  const tmpl=C_MSG_TEMPLATES[cmsgState.channel][cmsgState.previewIdx];
+  closeSheet('cmsg');
+  snack(`${cmsgState.channel} template "${tmpl.t}" sent.`);
+}
+
+bucketRoute('/contacts',{
+  list(){ showView('list'); renderChips(); renderContacts(); },
+  detail(slug){ showView('detail'); renderDetail(slug); },
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Tasks · Roche SFA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <!-- LIST -->
+    <div class="screen-view" id="view-list">
+      <div class="appheader">
+        <div class="header-row">
+          <h1 class="page-title">Tasks</h1>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span class="daterange" onclick="snack('Date filter — built next.')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+              <span>14 Jun – 16 Jun</span>
+              <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+            </span>
+            <div class="avatar" onclick="location.href='/profile'">RH</div>
+          </div>
+        </div>
+      </div>
+      <div class="chiprow" id="task-chips"></div>
+      <div class="searchwrap"><div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="task-search" placeholder="Search by name, task ID, keyword" oninput="renderTasks()">
+      </div></div>
+      <div class="toolsrow">
+        <span class="count" id="task-count">— tasks</span>
+        <div class="tools">
+          <button class="iconbtn" onclick="openSheet('t-sort')" title="Sort"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h12M3 12h9M3 18h6M17 7v12M17 19l3-3M17 19l-3-3"/></svg></button>
+          <button class="iconbtn" onclick="openSheet('t-filter')" title="Filter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button>
+        </div>
+      </div>
+      <div class="screen"><div class="pad" id="task-list" style="padding-top:0;"></div></div>
+    </div>
+
+    <!-- DETAIL (B2B-style) -->
+    <div class="screen-view" id="view-detail">
+      <div class="tk-topbar">
+        <a class="tk-back" href="/tasks" onclick="event.preventDefault();bucketGo('/tasks');">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <div class="tk-title-block">
+          <div class="tk-id" id="td-id">Task #—</div>
+          <div class="tk-id-sub" id="td-sub">Created on —</div>
+        </div>
+      </div>
+      <div class="screen"><div style="padding:0 0 24px;" id="td-body"></div></div>
+      <div class="tk-footer">
+        <button class="btn btn-primary" onclick="openEdit()">Update Task</button>
+      </div>
+    </div>
+
+    <!-- EDIT (Update form) -->
+    <div class="screen-view" id="view-edit">
+      <div class="tk-topbar">
+        <button class="tk-back" onclick="closeEdit()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="tk-title-block">
+          <div class="tk-id" id="te-id">Update Task #—</div>
+        </div>
+      </div>
+      <div class="screen"><div id="te-body"></div></div>
+      <div class="tk-footer">
+        <button class="btn btn-primary" onclick="saveEdit()">Update Task</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sort sheet -->
+  <div class="sheet-backdrop" id="t-sort-backdrop" onclick="closeSheet('t-sort')"></div>
+  <div class="bottom-sheet" id="t-sort-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Sort tasks by</span>
+      <button class="sheet-close" onclick="closeSheet('t-sort')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sf-list" id="t-sort-list"></div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('t-sort')">Cancel</button>
+      <button class="btn btn-primary" onclick="applyTasksSort()">Apply</button>
+    </div>
+  </div>
+
+  <!-- Filter sheet -->
+  <div class="sheet-backdrop" id="t-filter-backdrop" onclick="closeSheet('t-filter')"></div>
+  <div class="bottom-sheet" id="t-filter-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Filters</span>
+      <button class="sheet-close" onclick="closeSheet('t-filter')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-h">Priority</div>
+      <div class="sf-chips" id="t-filter-prio"></div>
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-h">Task type</div>
+      <div class="sf-chips" id="t-filter-type"></div>
+    </div>
+    <div class="sf-section">
+      <div class="sf-toggle">
+        <div>
+          <div class="sf-toggle-t">Show overdue only</div>
+          <div class="sf-toggle-sub">Hide tasks not yet past their due date</div>
+        </div>
+        <div class="sf-switch" id="t-filter-overdue" onclick="toggleOverdueSwitch(this)"></div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="resetTasksFilter()">Reset</button>
+      <button class="btn btn-primary" onclick="applyTasksFilter()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/shell.js"></script>
+<script>
+initShell('tasks');
+
+const ts={
+  status:"All",sort:"prio",
+  filter:{prio:[],type:[],overdue:false},
+  sortDraft:"prio",
+  filterDraft:{prio:[],type:[],overdue:false},
+};
+const T_SORTS=[
+  {k:"prio",l:"Highest priority"},
+  {k:"new",l:"Newest first"},
+  {k:"old",l:"Oldest first"},
+  {k:"updated",l:"Recently updated"},
+  {k:"due",l:"Soonest due"},
+];
+const PRIO_CLASS={High:'high',Med:'med',Low:'low'};
+const DOT_FOR=t=>t.overdue?'var(--red)':(t.status==='Completed'?'var(--green)':t.status==='In Progress'?'var(--teal)':t.status==='Denied'?'var(--gray-dot)':'var(--teal)');
+
+function renderChips(){document.getElementById('task-chips').innerHTML=["All","Open","In Progress","Completed","Denied"].map(c=>`<button class="chip ${ts.status===c?'active':''}" onclick="setStatus('${c}')">${c}</button>`).join('');}
+function setStatus(s){ts.status=s;renderChips();renderTasks();}
+
+/* ── Sort & Filter sheets ── */
+const _openSheetOrig=openSheet;
+openSheet=function(id){
+  if(id==='t-sort') populateTasksSortSheet();
+  if(id==='t-filter') populateTasksFilterSheet();
+  _openSheetOrig(id);
+};
+function populateTasksSortSheet(){
+  ts.sortDraft=ts.sort;
+  document.getElementById('t-sort-list').innerHTML=T_SORTS.map(s=>`
+    <div class="sf-option ${ts.sortDraft===s.k?'sel':''}" onclick="pickTSort('${s.k}')">
+      <span class="sf-option-t">${s.l}</span><span class="sf-radio"></span>
+    </div>`).join('');
+}
+function pickTSort(k){ts.sortDraft=k;document.querySelectorAll('#t-sort-list .sf-option').forEach((el,i)=>el.classList.toggle('sel',T_SORTS[i].k===k));}
+function applyTasksSort(){ts.sort=ts.sortDraft;closeSheet('t-sort');renderTasks();}
+
+function populateTasksFilterSheet(){
+  ts.filterDraft={prio:[...ts.filter.prio],type:[...ts.filter.type],overdue:ts.filter.overdue};
+  document.getElementById('t-filter-prio').innerHTML=["High","Med","Low"].map(p=>`<button class="sf-chip-multi ${ts.filterDraft.prio.includes(p)?'sel':''}" onclick="toggleTFilter('prio','${p}',this)">${p==='Med'?'Medium':p}</button>`).join('');
+  const types=[...new Set(TASKS.map(t=>t.type))].sort();
+  document.getElementById('t-filter-type').innerHTML=types.map(t=>`<button class="sf-chip-multi ${ts.filterDraft.type.includes(t)?'sel':''}" onclick="toggleTFilter('type','${t.replace(/'/g,"\\'")}',this)">${t}</button>`).join('');
+  document.getElementById('t-filter-overdue').classList.toggle('on',ts.filterDraft.overdue);
+}
+function toggleTFilter(group,val,btn){
+  const list=ts.filterDraft[group];
+  const i=list.indexOf(val);
+  if(i>=0) list.splice(i,1); else list.push(val);
+  btn.classList.toggle('sel');
+}
+function toggleOverdueSwitch(el){ts.filterDraft.overdue=!ts.filterDraft.overdue;el.classList.toggle('on',ts.filterDraft.overdue);}
+function applyTasksFilter(){ts.filter={prio:[...ts.filterDraft.prio],type:[...ts.filterDraft.type],overdue:ts.filterDraft.overdue};closeSheet('t-filter');renderTasks();}
+function resetTasksFilter(){ts.filterDraft={prio:[],type:[],overdue:false};populateTasksFilterSheet();}
+
+function renderTasks(){
+  const q=(document.getElementById('task-search').value||'').toLowerCase();
+  let rows=TASKS.filter(t=>{
+    const s=ts.status==='All'||t.status===ts.status;
+    const prioOk=!ts.filter.prio.length||ts.filter.prio.includes(t.prio);
+    const typeOk=!ts.filter.type.length||ts.filter.type.includes(t.type);
+    const overdueOk=!ts.filter.overdue||t.overdue;
+    const m=!q||t.title.toLowerCase().includes(q)||t.doctor.toLowerCase().includes(q)||String(t.id).includes(q)||t.type.toLowerCase().includes(q);
+    return s&&prioOk&&typeOk&&overdueOk&&m;
+  });
+  if(ts.sort==="prio"){const o={High:0,Med:1,Low:2};rows=[...rows].sort((a,b)=>o[a.prio]-o[b.prio]);}
+  else if(ts.sort==="new") rows=[...rows].sort((a,b)=>b.id-a.id);
+  else if(ts.sort==="old") rows=[...rows].sort((a,b)=>a.id-b.id);
+  else if(ts.sort==="updated") rows=[...rows].sort((a,b)=>a.updated-b.updated);
+  else if(ts.sort==="due") rows=[...rows].sort((a,b)=>(b.overdue?1:0)-(a.overdue?1:0)||a.id-b.id);
+  document.getElementById('task-count').textContent=`${rows.length} task${rows.length!==1?'s':''}`;
+  const list=document.getElementById('task-list');
+  if(!rows.length){list.innerHTML='<div class="empty"><div class="et">No tasks here</div><div class="ed">Nothing in this status yet.</div></div>';return;}
+  list.innerHTML=rows.map(t=>`
+    <div class="card" onclick="bucketGo('/tasks/${t.id}')">
+      <div class="card-top"><span class="dotline"><span class="dot" style="background:${DOT_FOR(t)}"></span><span class="card-title">${t.title}</span></span><span class="card-id">#${t.id}</span></div>
+      <div class="inner"><div class="line">${t.doctor} <span style="color:var(--ink-3)">·</span> ${t.clinic}</div><div class="line sub"><span class="accent">${t.type}</span> · Assigned to you</div></div>
+      <div class="card-foot">
+        <span class="foot-meta ${t.overdue?'danger':''}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Due ${t.due}</span>
+        <span class="flag ${PRIO_CLASS[t.prio]}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>${t.prio}</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ── Detail view (B2B-task style) ── */
+const STATUS_TO_DISPLAY={Open:"Pending","In Progress":"In Progress",Completed:"Done",Denied:"Cancelled"};
+const DISPLAY_TO_STATUS={Pending:"Open","In Progress":"In Progress",Done:"Completed",Cancelled:"Denied"};
+let __editState=null;
+let __editSnap=null;
+let __historyOpen=true;
+
+function tkRow(label,val){return `<div class="tk-row"><span class="tk-row-label">${label}</span><span class="tk-row-value">${val}</span></div>`;}
+
+function aiTaskSummary(t){
+  const prio=t.prio==='High'?'High-priority':t.prio==='Med'?'Medium-priority':'Low-priority';
+  const verb=({"Follow-up":"follow up","Sample request":"drop samples","CME opportunity":"line up a CME engagement","Referral":"align on a referral","Query":"close a query"}[t.type])||'follow up';
+  const goal=t.title.toLowerCase().replace(/^[a-z]/, m=>m).replace(/[.!?]+$/,'');
+  const where=`${t.doctor} at ${t.clinic}`;
+  const due=t.overdue
+    ? `It's <strong>overdue</strong> (was due ${t.due}) — recommend reaching out today before it ages further.`
+    : `Due ${t.due}; aim to action it well ahead of the deadline.`;
+  const channel=t.prio==='High'
+    ? `Given the priority, a same-day in-person touch or call is best.`
+    : t.prio==='Med'
+    ? `A short call or message thread should resolve this efficiently.`
+    : `A written follow-up is sufficient — no need for an in-person visit.`;
+  return `${prio} ${t.type.toLowerCase()} to ${verb} with ${where}: "${goal}". ${due} ${channel}`;
+}
+
+/* Persistent history per task — generated once, mutated on edits */
+const __taskHistories={};
+function getHistory(t){
+  if(!__taskHistories[t.id]) __taskHistories[t.id]=buildHistory(t);
+  return __taskHistories[t.id];
+}
+function pushHistoryEvent(taskId,evt){
+  if(!__taskHistories[taskId]) __taskHistories[taskId]=[];
+  __taskHistories[taskId].unshift({active:false,by:"Raj Hussain",...evt});
+  /* prior most-recent loses its "active" highlight */
+  if(__taskHistories[taskId].length>1) __taskHistories[taskId][1].active=false;
+  __taskHistories[taskId][0].active=true;
+}
+function nowStamp(){
+  const d=new Date();
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let h=d.getHours(),m=d.getMinutes();
+  const ap=h>=12?'PM':'AM'; h=h%12||12;
+  return `${d.getDate()} ${months[d.getMonth()]}'26, ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
+}
+
+function buildHistory(t){
+  const ds=STATUS_TO_DISPLAY[t.status]||t.status;
+  const prioName=t.prio==='Med'?'Medium':t.prio;
+  const mod=t.id%5;
+  const attachNames=['evidence-pack.pdf','CME-invite.png','sample-batch.xlsx','product-brief.pdf','site-photo.jpg'];
+  const attachSizes=['2.1 MB','480 KB','58 KB','1.4 MB','3.2 MB'];
+  const remarks=[
+    'Spoke with clinic admin — Dr. is available between 3–5 PM.',
+    'Confirmed sample stock at Bengaluru warehouse, ready for dispatch.',
+    'Doctor reviewed the brochure and asked for the Phase-III deck.',
+    'Re-aligned scope after legal review — payer angle in next iteration.',
+    'Connected with KOL team, awaiting their input on the agenda.',
+  ];
+  return [
+    {date:"11 Sep'25, 5:20 PM",event:"Task Updated",meta:`Status: <strong>${ds}</strong>`,by:"Sales CRM Admin",active:true},
+    {date:"11 Sep'25, 1:14 PM",event:"Remark added",meta:`"${remarks[mod]}"`,by:"Raj Hussain",active:false},
+    {date:"10 Sep'25, 4:38 PM",event:"Attachment added",meta:`<strong>${attachNames[mod]}</strong> · ${attachSizes[mod]}`,by:"Raj Hussain",active:false},
+    {date:"9 Sep'25, 11:12 AM",event:"Priority changed",meta:`Set to <strong>${prioName}</strong>`,by:"Raj Hussain",active:false},
+    {date:"7 Sep'25, 6:42 PM",event:"Task Created",meta:"",by:"Sales CRM Admin",active:false},
+  ];
+}
+
+function renderDetail(id){
+  const t=findTaskById(id);
+  if(!t){
+    document.getElementById('td-id').textContent='Task not found';
+    document.getElementById('td-sub').textContent='';
+    document.getElementById('td-body').innerHTML='<div class="empty" style="margin:40px 24px;"><div class="et">Task not found</div><div class="ed">No task matches this ID.</div></div>';
+    document.querySelector('#view-detail .tk-footer').style.display='none';
+    return;
+  }
+  document.querySelector('#view-detail .tk-footer').style.display='';
+  __editState={
+    id:t.id,
+    title:t.title,
+    type:t.type,
+    priority:t.prio,
+    status:STATUS_TO_DISPLAY[t.status]||t.status,
+    assignee:"Raj Hussain",
+    remarks:"Task is currently on hold pending further follow-up and approval. Assigned agent to confirm doctor's availability and reschedule the drop-off this week.",
+    account:t.clinic,
+    contact:t.doctor,
+    visitType:t.type==='Follow-up'?'Follow Up':t.type,
+    createdAt:"07 May'26, 2:55 PM",
+    dueAt:t.due+", 2026",
+    attachments:[],
+  };
+  /* Keep a snapshot to detect what the user actually changed on save */
+  __editSnap={...__editState,attachments:[...__editState.attachments]};
+  __historyOpen=true;
+
+  document.getElementById('td-id').textContent=`B2B Task #${20340+(t.id%10)}`;
+  document.getElementById('td-sub').textContent=`Created on ${__editState.createdAt.replace(/, /,' — ')}`;
+
+  const dispStatus=__editState.status;
+  const history=getHistory(t);
+
+  document.getElementById('td-body').innerHTML=`
+    <div class="tk-banner">
+      <div class="tk-ai-row">
+        <span class="tk-ai-badge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2zM19 3l.8 2.2L22 6l-2.2.8L19 9l-.8-2.2L16 6l2.2-.8L19 3z"/></svg>
+          AI summary
+        </span>
+      </div>
+      <div class="tk-banner-summary">${aiTaskSummary(t)}</div>
+    </div>
+    <div class="tk-card" style="margin-top:14px;">
+      <div class="tk-card-title">${t.title}</div>
+      <div class="tk-pill-row">
+        <span class="tk-prio-pill ${PRIO_CLASS[t.prio]}">${t.prio==='Med'?'Medium':t.prio}</span>
+      </div>
+      <div class="tk-divider"></div>
+      ${tkRow('Status',dispStatus)}
+      ${tkRow('Priority',t.prio==='Med'?'Medium':t.prio)}
+      ${tkRow('Due Date',__editState.dueAt)}
+      ${tkRow('Created At',__editState.createdAt)}
+      ${tkRow('Task Type',t.type)}
+      ${tkRow('Account Name',t.clinic)}
+      ${tkRow('Contact Name',t.doctor)}
+      ${tkRow('Visit Type',__editState.visitType)}
+      <div class="tk-desc-block">
+        <div class="tk-desc-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 7c-2 0-4 1.5-4 4v6h6v-6H8c0-2 1-3 3-3V7zm9 0c-2 0-4 1.5-4 4v6h6v-6h-3c0-2 1-3 3-3V7z"/></svg>
+          Remarks
+        </div>
+        <div class="tk-desc-text" id="td-desc">${__editState.remarks.length>118?__editState.remarks.slice(0,118)+'<span class="read-more" onclick="toggleDesc(this)">.... Read More</span>':__editState.remarks}</div>
+      </div>
+    </div>
+    <div class="tk-history ${__historyOpen?'open':''}" id="td-history">
+      <div class="tk-history-head" onclick="toggleHistory()">
+        <span class="tk-history-h">Task History</span>
+        <svg class="tk-history-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="tk-history-body">
+        ${history.map(h=>`
+          <div class="tk-tl-item">
+            <div class="tk-tl-left">
+              <div class="tk-tl-dot ${h.active?'active':'past'}"></div>
+              <div class="tk-tl-line"></div>
+            </div>
+            <div class="tk-tl-body">
+              <div class="tk-tl-date">${h.date}</div>
+              <div class="tk-tl-card">
+                <div class="tk-tl-event">${h.event}</div>
+                ${h.meta?`<div class="tk-tl-meta">${h.meta}</div>`:''}
+                <div class="tk-tl-by">Updated By ${h.by}</div>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  document.querySelector('#view-detail .screen').scrollTop=0;
+}
+
+function toggleHistory(){
+  __historyOpen=!__historyOpen;
+  document.getElementById('td-history').classList.toggle('open',__historyOpen);
+}
+function toggleDesc(el){
+  el.parentElement.innerHTML=__editState.remarks;
+}
+
+/* ── Edit form ── */
+function openEdit(){
+  if(!__editState) return;
+  renderEdit();
+  showView('edit');
+  history.pushState({},'',`/tasks/${__editState.id}#edit`);
+  document.querySelector('#view-edit .screen').scrollTop=0;
+}
+function closeEdit(){
+  showView('detail');
+  history.pushState({},'',`/tasks/${__editState.id}`);
+}
+const ASSIGNEE_OPTIONS=["Raj Hussain (You)","Priya Sharma","Arjun Mehta","Kavita Reddy","Sanjay Kumar","Field Ops Pool"];
+const ALLOWED_EXTS=["pdf","xls","xlsx","jpg","jpeg","png"];
+const MAX_BYTES=10*1024*1024;
+const EXT_ICON={pdf:"PDF",xls:"XLS",xlsx:"XLS",jpg:"IMG",jpeg:"IMG",png:"IMG"};
+
+function fmtBytes(b){
+  if(b<1024) return b+" B";
+  if(b<1024*1024) return (b/1024).toFixed(0)+" KB";
+  return (b/(1024*1024)).toFixed(1)+" MB";
+}
+
+function saveEdit(){
+  /* Capture form values first */
+  const newRemarks=(document.getElementById('te-remarks')?.value||'').trim();
+  const newTitle=(document.getElementById('te-title')?.value||'').trim();
+  __editState.title=newTitle||__editState.title;
+  __editState.remarks=newRemarks;
+
+  /* Detect what actually changed and add audit entries */
+  const taskId=__editState.id;
+  const snap=__editSnap||{};
+  if(__editState.title!==snap.title){
+    pushHistoryEvent(taskId,{date:nowStamp(),event:"Title updated",meta:`Set to <strong>${__editState.title}</strong>`});
+  }
+  if(__editState.status!==snap.status){
+    pushHistoryEvent(taskId,{date:nowStamp(),event:"Status changed",meta:`Set to <strong>${__editState.status}</strong>`});
+  }
+  if(__editState.priority!==snap.priority){
+    const pn=__editState.priority==='Med'?'Medium':__editState.priority;
+    pushHistoryEvent(taskId,{date:nowStamp(),event:"Priority changed",meta:`Set to <strong>${pn}</strong>`});
+  }
+  if(__editState.visitType!==snap.visitType){
+    pushHistoryEvent(taskId,{date:nowStamp(),event:"Task type changed",meta:`Set to <strong>${__editState.visitType}</strong>`});
+  }
+  if(newRemarks && newRemarks!==(snap.remarks||'')){
+    const preview=newRemarks.length>120?newRemarks.slice(0,120)+'…':newRemarks;
+    pushHistoryEvent(taskId,{date:nowStamp(),event:"Remarks added",meta:`"${preview}"`});
+  }
+  (__editState.attachments||[]).forEach(a=>{
+    const wasThere=(snap.attachments||[]).some(s=>s.name===a.name && s.size===a.size);
+    if(!wasThere) pushHistoryEvent(taskId,{date:nowStamp(),event:"Attachment added",meta:`<strong>${a.name}</strong> · ${fmtBytes(a.size)}`});
+  });
+  snack('Task updated.');
+  setTimeout(()=>closeEdit(),700);
+}
+
+function renderEdit(){
+  const e=__editState;
+  document.getElementById('te-id').textContent=`Update Task #${20340+(e.id%10)}`;
+  const statuses=["Pending","In Progress","Done","Cancelled"];
+  const priorities=["High","Medium","Low"];
+  const types=["Follow Up","Sample request","CME opportunity","Referral","Query"];
+  const eFullPrio=e.priority==='Med'?'Medium':e.priority;
+  const attachListHTML=(e.attachments||[]).map((a,i)=>`
+    <div class="attach-chip">
+      <span class="attach-chip-ic">${EXT_ICON[a.name.split('.').pop().toLowerCase()]||'FILE'}</span>
+      <div class="attach-chip-info">
+        <div class="attach-chip-name">${a.name}</div>
+        <div class="attach-chip-size">${fmtBytes(a.size)}</div>
+      </div>
+      <button class="attach-chip-remove" onclick="removeAttach(${i})" aria-label="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>`).join('');
+
+  document.getElementById('te-body').innerHTML=`
+    <div class="tke-header-card">
+      <div class="tke-account">${e.account}</div>
+      <div class="tke-row">
+        <span class="tke-row-title">${e.title}</span>
+        <span class="tk-prio-pill ${PRIO_CLASS[e.priority]}">${eFullPrio}</span>
+        <span class="tk-status-pill">${e.status}</span>
+      </div>
+    </div>
+    <div class="tke-form">
+      <div class="tke-field">
+        <label class="tke-label">Title <span class="req">*</span></label>
+        <input class="tke-input" id="te-title" value="${e.title.replace(/"/g,'&quot;')}"/>
+      </div>
+      <div class="tke-field">
+        <label class="tke-label">Task type</label>
+        <select class="tke-select" id="te-type" onchange="__editState.visitType=this.value">${types.map(t=>`<option ${t===e.visitType?'selected':''}>${t}</option>`).join('')}</select>
+      </div>
+      <div class="tke-field">
+        <label class="tke-label">Priority</label>
+        <div class="tke-chips" id="te-prio">
+          ${priorities.map(p=>{
+            const sel=p===eFullPrio;
+            const cls=p==='High'?'sel':p==='Medium'?'sel-amber':'sel-low';
+            return `<button class="tke-chip ${sel?cls:''}" onclick="pickPrio('${p}')">${p}</button>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="tke-field">
+        <label class="tke-label">Status <span class="req">*</span></label>
+        <div class="tke-chips" id="te-status">
+          ${statuses.map(s=>`<button class="tke-chip ${s===e.status?'sel-status':''}" onclick="pickStatus('${s}')">${s}</button>`).join('')}
+        </div>
+      </div>
+      <div class="tke-field">
+        <label class="tke-label">Remarks</label>
+        <textarea class="tke-textarea" id="te-remarks" placeholder="Add a note — anything new the team should know">${e.remarks||''}</textarea>
+      </div>
+      <div class="tke-field">
+        <label class="tke-label">Attachments</label>
+        <input class="attach-input" id="te-attach" type="file" multiple accept=".pdf,.xls,.xlsx,.jpg,.jpeg,.png,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/jpeg,image/png" onchange="onAttachPick(event)"/>
+        <button class="attach-btn" type="button" onclick="document.getElementById('te-attach').click()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          Add files
+        </button>
+        <div class="attach-help">Accepted: PDF, XLS, XLSX, JPG, PNG · up to 10 MB each.</div>
+        <div class="attach-err" id="te-attach-err" style="display:none;"></div>
+        <div class="attach-list" id="te-attach-list">${attachListHTML}</div>
+      </div>
+    </div>`;
+}
+
+function onAttachPick(e){
+  const files=Array.from(e.target.files||[]);
+  const errEl=document.getElementById('te-attach-err');
+  errEl.style.display='none'; errEl.textContent='';
+  const accepted=[];
+  const rejected=[];
+  files.forEach(f=>{
+    const ext=(f.name.split('.').pop()||'').toLowerCase();
+    if(!ALLOWED_EXTS.includes(ext)) rejected.push(`${f.name} — file type not supported`);
+    else if(f.size>MAX_BYTES) rejected.push(`${f.name} — exceeds 10 MB limit`);
+    else accepted.push({name:f.name,size:f.size,ext});
+  });
+  __editState.attachments=[...(__editState.attachments||[]),...accepted];
+  if(rejected.length){
+    errEl.textContent=rejected.join(' · ');
+    errEl.style.display='block';
+  }
+  e.target.value='';
+  renderEdit();
+}
+function removeAttach(i){
+  __editState.attachments.splice(i,1);
+  renderEdit();
+}
+
+function pickPrio(p){
+  __editState.priority=(p==='Medium')?'Med':p;
+  renderEdit();
+}
+function pickStatus(s){
+  __editState.status=s;
+  renderEdit();
+}
+
+/* ── Router ── */
+function showView(name){
+  document.getElementById('view-list').classList.toggle('active',name==='list');
+  document.getElementById('view-detail').classList.toggle('active',name==='detail');
+  document.getElementById('view-edit').classList.toggle('active',name==='edit');
+}
+
+bucketRoute('/tasks',{
+  list(){ showView('list'); renderChips(); renderTasks(); },
+  detail(id){
+    if(location.hash==='#edit' && __editState){ showView('edit'); return; }
+    showView('detail'); renderDetail(id);
+  },
+});
+</script>
+</body>
+</html>

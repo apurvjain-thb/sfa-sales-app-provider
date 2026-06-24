@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Dashboard · Roche SFA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+    <div class="screen-view active">
+      <div class="appheader" style="padding-bottom:12px;">
+        <div class="header-row">
+          <div>
+            <div class="dash-greet">Good morning, Raj</div>
+            <div class="dash-greet-sub">Tue, 16 Jun 2026</div>
+          </div>
+          <div class="avatar" onclick="location.href='/profile'">RH</div>
+        </div>
+      </div>
+      <div class="screen"><div style="padding:14px 18px 32px;">
+
+        <!-- Active visit -->
+        <a class="dash-focal" href="/beat-plan/vikram-nair">
+          <div class="dash-focal-body">
+            <div class="dash-focal-status">
+              <span class="dash-focal-pulse"></span>
+              Active · 7m wait
+            </div>
+            <div class="dash-focal-name">Dr. Vikram Nair</div>
+            <div class="dash-focal-meta">Apollo Koramangala · 02:14 PM</div>
+          </div>
+          <span class="dash-focal-go">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+
+        <!-- Today's plan progress -->
+        <div class="dash-progress">
+          <div class="dash-progress-h">
+            <span class="dash-progress-title">Today's plan</span>
+            <span class="dash-progress-count">2 of 6</span>
+          </div>
+          <div class="dash-progress-bar"><span style="width:33%"></span></div>
+          <div class="dash-progress-row">
+            <span class="dash-progress-stat done">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
+              <span class="v">2</span> done
+            </span>
+            <span class="dash-progress-stat">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              <span class="v">3</span> left
+            </span>
+            <span class="dash-progress-stat miss">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              <span class="v">1</span> missed
+            </span>
+          </div>
+        </div>
+
+        <!-- Performance · last 30 days -->
+        <div class="dash-section-h">
+          <span class="dash-section-h-t">Performance</span>
+          <span class="dash-section-h-s">Last 30 days · 18 May – 16 Jun</span>
+        </div>
+
+        <!-- Hero KPI pair -->
+        <div class="kpi-pair">
+          <div class="kpi-tile">
+            <div class="kpi-tile-l">Total completed calls</div>
+            <div class="kpi-tile-v">142</div>
+            <div class="kpi-tile-foot">
+              <span class="kpi-trend up">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17l5-5 4 4 5-5"/><path d="M16 7h5v5"/></svg>
+                +12 vs prev. 30d
+              </span>
+            </div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-tile-l">Daily call average</div>
+            <div class="kpi-tile-v">5.7<span class="kpi-tile-u">/day</span></div>
+            <div class="kpi-tile-foot">
+              <span class="kpi-trend below">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                Target 6.0/day
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Doctor coverage with tier breakdown -->
+        <div class="kpi-card">
+          <div class="kpi-card-h">
+            <div>
+              <div class="kpi-card-l">Doctor coverage</div>
+              <div class="kpi-card-s">22 of 28 mapped doctors visited</div>
+            </div>
+            <div class="kpi-card-big">79<span class="kpi-card-big-u">%</span></div>
+          </div>
+          <div class="kpi-bar-track"><span style="width:79%;background:var(--teal);"></span></div>
+          <div class="kpi-tier-grid">
+            <div class="kpi-tier">
+              <div class="kpi-tier-head"><span class="kpi-tier-tag tier1">P1</span><span class="kpi-tier-pct">92%</span></div>
+              <div class="kpi-tier-bar"><span style="width:92%;background:var(--teal-press);"></span></div>
+              <div class="kpi-tier-frac">11 / 12</div>
+            </div>
+            <div class="kpi-tier">
+              <div class="kpi-tier-head"><span class="kpi-tier-tag tier2">P2</span><span class="kpi-tier-pct">80%</span></div>
+              <div class="kpi-tier-bar"><span style="width:80%;background:var(--amber);"></span></div>
+              <div class="kpi-tier-frac">8 / 10</div>
+            </div>
+            <div class="kpi-tier">
+              <div class="kpi-tier-head"><span class="kpi-tier-tag tier3">P3</span><span class="kpi-tier-pct">50%</span></div>
+              <div class="kpi-tier-bar"><span style="width:50%;background:var(--ink-3);"></span></div>
+              <div class="kpi-tier-frac">3 / 6</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VF Compliance -->
+        <div class="kpi-card">
+          <div class="kpi-card-h">
+            <div>
+              <div class="kpi-card-l">VF compliance</div>
+              <div class="kpi-card-s">Visit-frequency adherence vs cycle plan</div>
+            </div>
+            <div class="kpi-card-big kpi-card-big-ok">84<span class="kpi-card-big-u">%</span></div>
+          </div>
+          <div class="kpi-bar-track has-target">
+            <span style="width:84%;background:var(--green);"></span>
+            <i class="kpi-bar-target" style="left:80%;" title="Target 80%"></i>
+          </div>
+          <div class="kpi-bar-legend">
+            <span>Actual <strong>84%</strong></span>
+            <span>Target 80%</span>
+          </div>
+        </div>
+
+        <!-- Action needed -->
+        <div class="dash-mh">
+          <span class="dash-mh-h">Action needed</span>
+          <a class="dash-mh-l" href="/tasks">View all</a>
+        </div>
+        <div class="dash-action">
+          <a class="dash-action-item" href="/tasks">
+            <span class="dash-action-ic urgent">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            </span>
+            <span class="dash-action-t">2 tasks overdue</span>
+            <svg class="dash-action-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+          <a class="dash-action-item" href="/beat-plan">
+            <span class="dash-action-ic">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+            </span>
+            <span class="dash-action-t">Reschedule Dr. Anjali — missed at 11:42 AM</span>
+            <svg class="dash-action-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/shell.js"></script>
+<script>
+initShell('dashboard');
+</script>
+</body>
+</html>

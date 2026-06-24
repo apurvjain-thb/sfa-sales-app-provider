@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Evaluate · Roche SFA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <div class="screen-view active" id="view-list">
+      <div class="pf-topbar">
+        <a class="pf-back" href="/profile" onclick="event.preventDefault();location.href='/profile';">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="pf-title">Evaluate sales rep</div>
+      </div>
+      <div class="pf-divider"></div>
+      <div class="screen"><div style="padding:0 0 120px;">
+        <div class="ev-hero">
+          <div class="ev-hero-avatar" id="ev-avatar">SR</div>
+          <div>
+            <div class="ev-hero-label">Evaluating</div>
+            <div class="ev-hero-name" id="ev-rep-name">—</div>
+          </div>
+        </div>
+        <div class="pf-divider"></div>
+        <div class="ev-intro">
+          <div class="ev-intro-h">Performance review</div>
+          <div class="ev-intro-s">Rate each competency on a 1–5 scale and add notes where useful. This will be saved to the rep's quarterly evaluation file.</div>
+        </div>
+
+        <div class="ev-section">
+          <div class="ev-section-h">Quantitative — rate 1 (poor) to 5 (excellent)</div>
+          <div id="ev-numeric"></div>
+        </div>
+
+        <div class="ev-section">
+          <div class="ev-section-h">Qualitative — your written feedback</div>
+          <div id="ev-text"></div>
+        </div>
+
+        <div class="ev-section">
+          <div class="ev-section-h">Overall recommendation</div>
+          <div class="ev-rec-row" id="ev-rec"></div>
+        </div>
+
+        <div class="ev-progress" id="ev-progress"></div>
+      </div></div>
+      <div class="ev-footer">
+        <button class="btn secondary" onclick="location.href='/profile'">Cancel</button>
+        <button class="btn btn-primary" id="ev-submit" onclick="submitEvaluation()">Submit evaluation</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/assets/shell.js"></script>
+<script>
+document.getElementById('device').insertAdjacentHTML('afterbegin',STATUS_BAR_HTML);
+document.getElementById('device').insertAdjacentHTML('beforeend','<div class="snackbar" id="snackbar"></div>');
+
+const NUMERIC_Q=[
+  {k:'comm',     l:'Communication & rapport',   s:'Clarity, listening, doctor engagement'},
+  {k:'product',  l:'Product knowledge',         s:'Depth on Roche brands, MoA, evidence'},
+  {k:'planning', l:'Planning & punctuality',    s:'Adherence to beat plan, time on territory'},
+  {k:'compliance',l:'Compliance & process',     s:'CRM hygiene, sample handling, MR ethics'},
+  {k:'outcome',  l:'Outcomes & conversions',    s:'Quality of leads, brand growth in territory'},
+  {k:'team',     l:'Teamwork & collaboration',  s:'Coordination with MSL, KAM, marketing'},
+];
+const TEXT_Q=[
+  {k:'strengths', l:'Notable strengths',         ph:'What this rep does exceptionally well.'},
+  {k:'improve',   l:'Areas for improvement',     ph:'Coaching themes or skill gaps to focus on next quarter.'},
+  {k:'goals',     l:'Goals for next quarter',    ph:'Specific, measurable goals for the upcoming review cycle.'},
+  {k:'notes',     l:'Additional comments',       ph:'Anything else worth flagging for HR or the regional lead.'},
+];
+const RECS=[
+  {k:'promote', l:'Promote',           c:'pos'},
+  {k:'retain',  l:'Retain at level',   c:'neu'},
+  {k:'coach',   l:'Needs coaching',    c:'amber'},
+  {k:'pip',     l:'Place on PIP',      c:'neg'},
+];
+
+const ev={scores:{},notes:{},rec:''};
+
+function getRepName(){
+  const u=new URL(location.href);
+  return u.searchParams.get('rep')||sessionStorage.getItem('evalRep')||'—';
+}
+function repInitials(name){
+  const parts=(name.split('—')[0]||'').trim().split(/\s+/);
+  return ((parts[0]||'')[0]||'').toUpperCase()+((parts[1]||'')[0]||'').toUpperCase();
+}
+
+function renderEvaluator(){
+  const rep=getRepName();
+  document.getElementById('ev-rep-name').textContent=rep;
+  document.getElementById('ev-avatar').textContent=repInitials(rep);
+
+  document.getElementById('ev-numeric').innerHTML=NUMERIC_Q.map(q=>`
+    <div class="ev-q">
+      <div class="ev-q-l">${q.l}</div>
+      <div class="ev-q-s">${q.s}</div>
+      <div class="ev-scale" data-key="${q.k}">
+        ${[1,2,3,4,5].map(n=>`<button class="ev-scale-btn ${ev.scores[q.k]===n?'sel':''}" onclick="pickScore('${q.k}',${n})">${n}</button>`).join('')}
+      </div>
+      <div class="ev-scale-legend"><span>Poor</span><span>Excellent</span></div>
+    </div>`).join('');
+
+  document.getElementById('ev-text').innerHTML=TEXT_Q.map(q=>`
+    <div class="ev-tq">
+      <label class="tke-label">${q.l}</label>
+      <textarea class="tke-textarea" placeholder="${q.ph}" oninput="ev.notes['${q.k}']=this.value;updateProgress();">${ev.notes[q.k]||''}</textarea>
+    </div>`).join('');
+
+  document.getElementById('ev-rec').innerHTML=RECS.map(r=>`
+    <button class="ev-rec-chip ${r.c} ${ev.rec===r.k?'sel':''}" onclick="pickRec('${r.k}')">${r.l}</button>`).join('');
+
+  updateProgress();
+}
+function pickScore(k,n){ ev.scores[k]=n; renderEvaluator(); }
+function pickRec(k){ ev.rec=k; renderEvaluator(); }
+function updateProgress(){
+  const totalNumeric=NUMERIC_Q.length;
+  const doneNumeric=NUMERIC_Q.filter(q=>ev.scores[q.k]).length;
+  const recDone=ev.rec?1:0;
+  const totalRequired=totalNumeric+1; /* numeric + rec */
+  const doneRequired=doneNumeric+recDone;
+  const pct=Math.round((doneRequired/totalRequired)*100);
+  document.getElementById('ev-progress').innerHTML=`
+    <div class="ev-prog-row">
+      <span class="ev-prog-t">${doneRequired} / ${totalRequired} required answered</span>
+      <span class="ev-prog-pct">${pct}%</span>
+    </div>
+    <div class="ev-prog-bar"><div class="ev-prog-fill" style="width:${pct}%;"></div></div>`;
+  const sub=document.getElementById('ev-submit');
+  sub.disabled=doneRequired<totalRequired;
+  sub.style.opacity=sub.disabled?'.55':'1';
+}
+function submitEvaluation(){
+  if(NUMERIC_Q.some(q=>!ev.scores[q.k])){ snack('Please answer all rating questions.'); return; }
+  if(!ev.rec){ snack('Please pick an overall recommendation.'); return; }
+  snack('Evaluation submitted.');
+  setTimeout(()=>location.href='/profile',800);
+}
+
+renderEvaluator();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/login/:slug", "destination": "/login" },
+    { "source": "/profile/:slug", "destination": "/profile" },
+    { "source": "/beat-plan/:slug", "destination": "/beat-plan" },
+    { "source": "/contacts/:slug", "destination": "/contacts" },
+    { "source": "/tasks/:slug", "destination": "/tasks" }
+  ],
+  "redirects": [
+    { "source": "/", "destination": "/login", "permanent": false }
+  ]
+}

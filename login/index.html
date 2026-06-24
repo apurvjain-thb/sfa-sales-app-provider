@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Login · Roche SFA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <!-- PHONE -->
+    <div class="screen-view" id="view-phone">
+      <div class="screen"><div class="lg-screen">
+        <div class="lg-logo-wrap">
+          <img class="lg-logo-img" src="/assets/thb-logo.svg" alt="THB — Technology · Healthcare · Big Data Analytics">
+        </div>
+        <div class="lg-body">
+          <h1 class="lg-h">Login</h1>
+          <div class="lg-field" id="lg-phone-field">
+            <span class="lg-field-label">Mobile Number</span>
+            <div class="lg-field-inner">
+              <button class="lg-isd" onclick="openSheet('isd')">
+                <span class="lg-isd-flag" id="lg-flag">🇮🇳</span>
+                <span id="lg-code">+91</span>
+                <svg class="lg-isd-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <span class="lg-field-sep"></span>
+              <input class="lg-input" id="lg-phone" type="tel" inputmode="numeric" placeholder="9146465325" maxlength="15" oninput="onPhoneInput()" onfocus="document.getElementById('lg-phone-field').classList.add('focus')" onblur="document.getElementById('lg-phone-field').classList.remove('focus')"/>
+            </div>
+          </div>
+          <div class="lg-btn-row">
+            <button class="btn lg-btn-outline" onclick="snack('Cognito SSO — built next.')">Login via Cognito</button>
+            <button class="btn btn-primary" id="lg-getotp" onclick="getOTP()" disabled style="opacity:.55;">Get OTP</button>
+          </div>
+          <div class="lg-or">Or</div>
+          <button class="lg-more" onclick="snack('More login options — built next.')">
+            More login options
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="lg-foot">
+          <div class="lg-foot-text">Powered By</div>
+          <img class="lg-foot-logo-img" src="/assets/thb-logo.svg" alt="THB">
+        </div>
+      </div></div>
+    </div>
+
+    <!-- OTP -->
+    <div class="screen-view" id="view-otp">
+      <div class="screen"><div style="padding:0 24px;">
+        <div class="otp-topbar" style="padding-left:0;padding-right:0;">
+          <button class="otp-back" onclick="bucketGo('/login')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
+        </div>
+        <h1 class="otp-h">Enter OTP</h1>
+        <div class="otp-sub">
+          Sent to <span class="num" id="otp-phone-disp">+91 9146465325</span>
+          <a class="edit" onclick="bucketGo('/login')">Edit</a>
+        </div>
+        <div class="otp-boxes" id="otp-boxes">
+          <input class="otp-box" maxlength="1" inputmode="numeric" autocomplete="one-time-code"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric"/>
+        </div>
+        <div class="otp-resend-row">
+          <span>Didn't receive it?</span>
+          <button class="otp-resend" id="otp-resend" onclick="resendOTP()" disabled>Resend in <span id="otp-timer">30s</span></button>
+        </div>
+        <button class="btn btn-primary" id="otp-verify" onclick="verifyOTP()" style="width:100%;padding:15px;font-size:15px;opacity:.55;" disabled>Verify &amp; Continue</button>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- Login success splash — fades in on correct OTP, then routes to /beat-plan -->
+  <div class="login-splash" id="login-splash" aria-hidden="true">
+    <div class="login-splash-mark">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+    </div>
+    <div class="login-splash-t">Welcome back, Raj</div>
+    <div class="login-splash-s">Loading your beat plan…</div>
+    <div class="login-splash-dots"><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- ISD code sheet -->
+  <div class="sheet-backdrop" id="isd-backdrop" onclick="closeSheet('isd')"></div>
+  <div class="bottom-sheet" id="isd-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Select country code</span>
+      <button class="sheet-close" onclick="closeSheet('isd')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="isd-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search country or code" oninput="renderISDList(this.value)"/>
+    </div>
+    <div class="isd-list" id="isd-list"></div>
+  </div>
+</div>
+
+<script src="/assets/shell.js"></script>
+<script>
+/* No bottom nav on login screens — inject status bar only */
+document.getElementById('device').insertAdjacentHTML('afterbegin',STATUS_BAR_HTML);
+document.getElementById('device').insertAdjacentHTML('beforeend','<div class="snackbar" id="snackbar"></div>');
+
+const COUNTRIES=[
+  {f:"🇮🇳",n:"India",c:"+91"},
+  {f:"🇺🇸",n:"United States",c:"+1"},
+  {f:"🇨🇦",n:"Canada",c:"+1"},
+  {f:"🇬🇧",n:"United Kingdom",c:"+44"},
+  {f:"🇦🇪",n:"United Arab Emirates",c:"+971"},
+  {f:"🇸🇬",n:"Singapore",c:"+65"},
+  {f:"🇦🇺",n:"Australia",c:"+61"},
+  {f:"🇩🇪",n:"Germany",c:"+49"},
+  {f:"🇫🇷",n:"France",c:"+33"},
+  {f:"🇯🇵",n:"Japan",c:"+81"},
+  {f:"🇨🇳",n:"China",c:"+86"},
+  {f:"🇰🇷",n:"South Korea",c:"+82"},
+  {f:"🇧🇩",n:"Bangladesh",c:"+880"},
+  {f:"🇱🇰",n:"Sri Lanka",c:"+94"},
+  {f:"🇳🇵",n:"Nepal",c:"+977"},
+  {f:"🇵🇰",n:"Pakistan",c:"+92"},
+  {f:"🇲🇾",n:"Malaysia",c:"+60"},
+  {f:"🇮🇩",n:"Indonesia",c:"+62"},
+  {f:"🇵🇭",n:"Philippines",c:"+63"},
+  {f:"🇹🇭",n:"Thailand",c:"+66"},
+  {f:"🇻🇳",n:"Vietnam",c:"+84"},
+  {f:"🇸🇦",n:"Saudi Arabia",c:"+966"},
+  {f:"🇶🇦",n:"Qatar",c:"+974"},
+  {f:"🇰🇼",n:"Kuwait",c:"+965"},
+  {f:"🇧🇭",n:"Bahrain",c:"+973"},
+  {f:"🇴🇲",n:"Oman",c:"+968"},
+  {f:"🇿🇦",n:"South Africa",c:"+27"},
+  {f:"🇳🇬",n:"Nigeria",c:"+234"},
+  {f:"🇪🇬",n:"Egypt",c:"+20"},
+  {f:"🇰🇪",n:"Kenya",c:"+254"},
+  {f:"🇧🇷",n:"Brazil",c:"+55"},
+  {f:"🇲🇽",n:"Mexico",c:"+52"},
+  {f:"🇦🇷",n:"Argentina",c:"+54"},
+  {f:"🇮🇹",n:"Italy",c:"+39"},
+  {f:"🇪🇸",n:"Spain",c:"+34"},
+  {f:"🇳🇱",n:"Netherlands",c:"+31"},
+  {f:"🇨🇭",n:"Switzerland",c:"+41"},
+  {f:"🇸🇪",n:"Sweden",c:"+46"},
+  {f:"🇳🇴",n:"Norway",c:"+47"},
+  {f:"🇩🇰",n:"Denmark",c:"+45"},
+  {f:"🇫🇮",n:"Finland",c:"+358"},
+  {f:"🇮🇪",n:"Ireland",c:"+353"},
+  {f:"🇧🇪",n:"Belgium",c:"+32"},
+  {f:"🇵🇹",n:"Portugal",c:"+351"},
+  {f:"🇬🇷",n:"Greece",c:"+30"},
+  {f:"🇹🇷",n:"Turkey",c:"+90"},
+  {f:"🇷🇺",n:"Russia",c:"+7"},
+];
+
+const STATIC_OTP="321564";
+const ls={code:"+91",flag:"🇮🇳",phone:""};
+
+function loadLoginState(){
+  try{
+    const s=JSON.parse(sessionStorage.getItem('rocheLogin')||'{}');
+    if(s.code) ls.code=s.code; if(s.flag) ls.flag=s.flag; if(s.phone) ls.phone=s.phone;
+  }catch(e){}
+}
+function saveLoginState(){sessionStorage.setItem('rocheLogin',JSON.stringify(ls));}
+
+function onPhoneInput(){
+  const v=document.getElementById('lg-phone').value.replace(/\D/g,'');
+  document.getElementById('lg-phone').value=v;
+  ls.phone=v;
+  const ok=v.length>=6;
+  const b=document.getElementById('lg-getotp');
+  b.disabled=!ok; b.style.opacity=ok?'1':'.55';
+}
+function getOTP(){
+  if(!ls.phone||ls.phone.length<6){snack('Enter a valid phone number.');return;}
+  saveLoginState();
+  bucketGo('/login/enter-otp');
+}
+
+/* ── ISD sheet ── */
+function renderISDList(q){
+  q=(q||'').toLowerCase().trim();
+  const filtered=COUNTRIES.filter(c=>!q||c.n.toLowerCase().includes(q)||c.c.includes(q));
+  document.getElementById('isd-list').innerHTML=filtered.map(c=>`
+    <div class="isd-row" onclick="pickISD('${c.f}','${c.c}')">
+      <span class="isd-row-flag">${c.f}</span>
+      <span class="isd-row-name">${c.n}</span>
+      <span class="isd-row-code">${c.c}</span>
+    </div>`).join('');
+}
+function pickISD(flag,code){
+  ls.flag=flag; ls.code=code; saveLoginState();
+  document.getElementById('lg-flag').textContent=flag;
+  document.getElementById('lg-code').textContent=code;
+  closeSheet('isd');
+}
+
+/* ── OTP entry ── */
+let resendInterval=null;
+function setupOTP(){
+  const boxes=document.querySelectorAll('#otp-boxes .otp-box');
+  boxes.forEach((box,i)=>{
+    box.value='';
+    box.classList.remove('filled','error');
+    box.oninput=()=>{
+      box.value=box.value.replace(/\D/g,'').slice(0,1);
+      if(box.value){box.classList.add('filled');if(boxes[i+1]) boxes[i+1].focus();}
+      else box.classList.remove('filled');
+      const filled=[...boxes].every(b=>b.value);
+      const verify=document.getElementById('otp-verify');
+      verify.disabled=!filled; verify.style.opacity=filled?'1':'.55';
+      if(filled) verify.focus();
+    };
+    box.onkeydown=e=>{
+      if(e.key==='Backspace'&&!box.value&&boxes[i-1]) boxes[i-1].focus();
+    };
+    box.onpaste=e=>{
+      const data=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      if(!data) return; e.preventDefault();
+      [...data].forEach((d,j)=>{if(boxes[j]){boxes[j].value=d;boxes[j].classList.add('filled');}});
+      const filled=[...boxes].every(b=>b.value);
+      const verify=document.getElementById('otp-verify');
+      verify.disabled=!filled; verify.style.opacity=filled?'1':'.55';
+      (boxes[Math.min(data.length,5)]||boxes[5]).focus();
+    };
+  });
+  document.getElementById('otp-phone-disp').textContent=`${ls.code} ${ls.phone}`;
+  setTimeout(()=>boxes[0].focus(),100);
+  startResendTimer();
+}
+function startResendTimer(){
+  let s=30;
+  document.getElementById('otp-timer').textContent=s+'s';
+  document.getElementById('otp-resend').disabled=true;
+  document.getElementById('otp-resend').innerHTML='Resend in <span id="otp-timer">'+s+'s</span>';
+  if(resendInterval) clearInterval(resendInterval);
+  resendInterval=setInterval(()=>{
+    s--;
+    if(s<=0){
+      clearInterval(resendInterval);
+      const btn=document.getElementById('otp-resend');
+      btn.disabled=false;
+      btn.textContent='Resend OTP';
+    } else {
+      const t=document.getElementById('otp-timer');
+      if(t) t.textContent=s+'s';
+    }
+  },1000);
+}
+function resendOTP(){snack('OTP resent.');startResendTimer();}
+function verifyOTP(){
+  const boxes=document.querySelectorAll('#otp-boxes .otp-box');
+  const entered=[...boxes].map(b=>b.value).join('');
+  if(entered===STATIC_OTP){
+    snack('Verified. Logging in…');
+    setTimeout(()=>location.href='/dashboards',700);
+  } else {
+    boxes.forEach(b=>b.classList.add('error'));
+    snack('Incorrect OTP. Please try again.');
+    setTimeout(()=>boxes.forEach(b=>b.classList.remove('error')),1200);
+  }
+}
+
+/* ── Router ── */
+function showView(name){
+  document.getElementById('view-phone').classList.toggle('active',name==='phone');
+  document.getElementById('view-otp').classList.toggle('active',name==='otp');
+}
+
+loadLoginState();
+document.getElementById('lg-flag').textContent=ls.flag;
+document.getElementById('lg-code').textContent=ls.code;
+if(ls.phone){document.getElementById('lg-phone').value=ls.phone;onPhoneInput();}
+renderISDList('');
+
+bucketRoute('/login',{
+  list(){ showView('phone'); },
+  detail(slug){
+    if(slug==='enter-otp'){
+      if(!ls.phone){bucketGo('/login');return;}
+      showView('otp'); setupOTP();
+    } else bucketGo('/login');
+  },
+});
+</script>
+</body>
+</html>

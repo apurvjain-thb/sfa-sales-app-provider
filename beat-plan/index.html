@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Today's Plan · Roche SFA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <!-- LIST view -->
+    <div class="screen-view" id="view-list">
+      <div class="appheader">
+        <div class="header-row">
+          <h1 class="page-title">Today's plan</h1>
+          <div class="avatar" onclick="location.href='/profile'">RH</div>
+        </div>
+      </div>
+      <div class="plan-date-bar">
+        <div class="plan-date-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+          <span id="plan-date-label">Tue, 16 Jun 2026</span>
+          <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          <input type="date" id="plan-date-input" value="2026-06-16" max="2026-06-16" onchange="onPlanDateChange(event)">
+        </div>
+        <button class="plan-reopt-btn" onclick="openReoptSheet()" title="Re-optimise tomorrow onwards">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
+          Re-optimise
+        </button>
+      </div>
+      <div class="plan-statusbar" id="plan-statusbar"></div>
+      <div class="plan-toolbar">
+        <span class="count" id="plan-count">— visits</span>
+        <div class="tools">
+          <div class="view-toggle" role="tablist" aria-label="Switch view">
+            <button id="vt-list" class="view-toggle-btn sel" onclick="setPlanView('list')" aria-pressed="true" aria-label="List view" title="List view">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            </button>
+            <button id="vt-map" class="view-toggle-btn" onclick="setPlanView('map')" aria-pressed="false" aria-label="Map view" title="Map view">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 6l7-3 8 3 7-3v15l-7 3-8-3-7 3z"/><path d="M8 3v18M16 6v18"/></svg>
+            </button>
+          </div>
+          <span class="tool-sep" aria-hidden="true"></span>
+          <button class="iconbtn ghost" onclick="openSheet('plan-sort')" aria-label="Sort" title="Sort"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h12M3 12h9M3 18h6M17 7v12M17 19l3-3M17 19l-3-3"/></svg></button>
+          <button class="iconbtn ghost" onclick="openSheet('plan-filter')" aria-label="Filter" title="Filter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button>
+        </div>
+      </div>
+      <div class="screen">
+        <div class="pad" id="plan-list" style="padding-top:6px;"></div>
+        <div class="pad" id="plan-map" style="padding-top:6px;display:none;"></div>
+      </div>
+    </div>
+
+    <!-- DETAIL view -->
+    <div class="screen-view" id="view-detail">
+      <div class="vd-topbar">
+        <a class="vd-back" href="/beat-plan" onclick="event.preventDefault();bucketGo('/beat-plan');">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="vd-topbar-title">
+          <div class="vd-visit-id" id="vd-visit-id">Visit</div>
+          <div class="vd-follow-up" id="vd-follow-up"></div>
+        </div>
+        <button class="vd-edit-btn" id="vd-edit-btn" onclick="openUpdateVisit()" aria-label="Update visit">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
+      </div>
+      <div class="screen"><div style="padding:0 0 100px;">
+        <div class="vd-hero-wrap">
+          <div class="vd-hero">
+            <div class="vd-hero-avatar" id="vd-hero-avatar">DR</div>
+            <div class="vd-hero-body">
+              <div class="vd-hero-top">
+                <div style="min-width:0;flex:1;">
+                  <div class="vd-hero-name" id="vd-hero-name">Doctor</div>
+                  <div class="vd-hero-spec" id="vd-hero-spec">Specialty</div>
+                </div>
+                <span class="badge tier1" id="vd-hero-tier" style="margin-top:2px;">P1</span>
+              </div>
+              <div class="vd-hero-clinic">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z"/><circle cx="12" cy="9" r="3"/></svg>
+                <span class="ct" id="vd-hero-clinic"></span>
+              </div>
+              <div class="vd-hero-actions">
+                <a class="vd-hero-action" id="vd-call-btn" href="#" onclick="onCallDoctor(event)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  Call
+                </a>
+                <button class="vd-hero-action" onclick="openMessageSheet()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                  Message
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="vd-tabbar" id="vd-tabbar">
+          <button class="vd-tab active" onclick="setVDTab(0)">Visit Details</button>
+          <button class="vd-tab" onclick="setVDTab(1)">Doctor Profile</button>
+          <button class="vd-tab" onclick="setVDTab(2)">Past Visits</button>
+        </div>
+        <div style="padding:0 18px 32px;" id="vd-content"></div>
+      </div></div>
+      <div class="vd-footer" id="vd-footer">
+        <button class="btn btn-primary" id="vd-footer-cta" style="flex:1;padding:14px;font-size:var(--f-sub);"></button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Pre-visit tips sheet -->
+  <div class="sheet-backdrop" id="tips-backdrop" onclick="closeSheet('tips')"></div>
+  <div class="bottom-sheet" id="tips-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <div class="sheet-title">Pre-visit briefing</div>
+        <div class="tips-doc-name" id="tips-doc-name">Doctor</div>
+      </div>
+      <button class="sheet-close" onclick="closeSheet('tips')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div id="tips-list"></div>
+  </div>
+
+  <!-- Check-out sheet -->
+  <div class="sheet-backdrop" id="checkout-backdrop" onclick="closeSheet('checkout')"></div>
+  <div class="bottom-sheet" id="checkout-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Check out</span>
+      <button class="sheet-close" onclick="closeSheet('checkout')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="co-doctor-block">
+      <div class="co-doctor-name" id="co-doc-name">Doctor</div>
+      <div class="co-doctor-meta" id="co-doc-meta">Specialty · Clinic</div>
+    </div>
+    <div class="map-mock" aria-hidden="true">
+      <div class="park"></div>
+      <div class="pin-wrap">
+        <div class="pin-pulse"></div>
+        <svg class="pin" viewBox="0 0 24 32" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12c0 8.4 12 20 12 20s12-11.6 12-20C24 5.4 18.6 0 12 0z"/><circle cx="12" cy="12" r="5" fill="#fff"/></svg>
+      </div>
+      <div class="map-acc"><span class="dot"></span>Live · ~8m accuracy</div>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Location (geo-tagged) <span class="req" style="color:var(--red)">*</span></label>
+      <select class="tke-select" id="co-location">
+        <option value="">Select location</option>
+      </select>
+      <div style="font-size:11px;color:var(--green);font-weight:600;margin-top:6px;display:inline-flex;align-items:center;gap:4px;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
+        Detected location matches the scheduled clinic
+      </div>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Check-out time</label>
+      <div class="co-readonly-wrap">
+        <input class="tke-input co-readonly" id="co-time" readonly>
+      </div>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Product detailed <span class="req" style="color:var(--red)">*</span></label>
+      <select class="tke-select" id="co-product">
+        <option value="">Select product</option>
+      </select>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Visit outcome <span class="req" style="color:var(--red)">*</span></label>
+      <select class="tke-select" id="co-outcome">
+        <option value="">Select outcome</option>
+        <option>Positive</option>
+        <option>Negative</option>
+        <option>Neutral</option>
+        <option>Incomplete</option>
+      </select>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Materials shared</label>
+      <div class="sf-chips" id="co-materials"></div>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Samples dropped</label>
+      <div class="sf-chips" id="co-samples"></div>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Doctor engagement</label>
+      <div class="sf-chips" id="co-engagement"></div>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Recommended next visit</label>
+      <select class="tke-select" id="co-followup">
+        <option value="">Select cadence</option>
+        <option>Within 3 days</option>
+        <option>Within 1 week</option>
+        <option>Within 2 weeks</option>
+        <option>Within a month</option>
+        <option>No follow-up needed</option>
+      </select>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Next action</label>
+      <textarea class="tke-textarea" id="co-action" maxlength="500" placeholder="What's the next step you committed to?" oninput="updateActionCounter()"></textarea>
+      <span class="co-counter" id="co-counter">0 / 500</span>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('checkout')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitCheckout()">Complete visit</button>
+    </div>
+  </div>
+
+  <!-- Check-out mode picker -->
+  <div class="sheet-backdrop" id="comode-backdrop" onclick="closeSheet('comode')"></div>
+  <div class="bottom-sheet" id="comode-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">How would you like to check out?</span>
+      <button class="sheet-close" onclick="closeSheet('comode')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="co-mode-grid">
+      <button class="co-mode-card" onclick="pickCheckoutMode('manual')">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
+        <div class="co-mode-card-body">
+          <div class="co-mode-card-t">Fill in the form</div>
+          <div class="co-mode-card-s">Pick the outcome and type your notes yourself.</div>
+        </div>
+        <svg class="co-mode-card-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <button class="co-mode-card ai" onclick="pickCheckoutMode('voice')">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></svg></span>
+        <div class="co-mode-card-body">
+          <div class="co-mode-card-t">Speak to fill <span class="co-mode-card-tag">AI</span></div>
+          <div class="co-mode-card-s">Dictate the wrap-up — AI fills the form for you to review.</div>
+        </div>
+        <svg class="co-mode-card-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Voice dictation sheet -->
+  <div class="sheet-backdrop" id="voice-backdrop" onclick="closeSheet('voice')"></div>
+  <div class="bottom-sheet" id="voice-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <span class="vc-ai-tag">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
+          AI dictation
+        </span>
+        <div class="sheet-title">Speak to fill check-out</div>
+        <div class="msg-doctor-line" id="vc-doc-name">Doctor</div>
+      </div>
+      <button class="sheet-close" onclick="closeSheet('voice')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="vc-mic-wrap">
+      <button class="vc-mic" id="vc-mic" onclick="toggleVoiceRec()">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></svg>
+      </button>
+      <div class="vc-status" id="vc-status">Tap the mic to start</div>
+    </div>
+    <div class="vc-transcript" id="vc-transcript"></div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('voice')">Cancel</button>
+      <button class="btn btn-primary" id="vc-done" onclick="processVoice()" disabled style="opacity:.55;">Review &amp; submit</button>
+    </div>
+  </div>
+
+  <!-- Message templates sheet -->
+  <div class="sheet-backdrop" id="msg-backdrop" onclick="closeSheet('msg')"></div>
+  <div class="bottom-sheet" id="msg-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <span class="sheet-title">Send a message</span>
+        <div class="msg-doctor-line" id="msg-doc-name">Doctor</div>
+      </div>
+      <button class="sheet-close" onclick="closeSheet('msg')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="msg-channels" id="msg-channels"></div>
+    <div class="msg-tmpl-list" id="msg-tmpl-list"></div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('msg')">Cancel</button>
+      <button class="btn btn-primary" id="msg-send" onclick="sendMessage()" disabled style="opacity:.55;">Send</button>
+    </div>
+  </div>
+
+  <!-- Re-optimise beat plan sheet -->
+  <div class="sheet-backdrop" id="reopt-backdrop" onclick="closeSheet('reopt')"></div>
+  <div class="bottom-sheet" id="reopt-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <span class="vc-ai-tag" style="display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--teal-deep);background:var(--teal-tint);padding:3px 7px;border-radius:999px;">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
+          AI re-planner
+        </span>
+        <div class="sheet-title">Re-optimise beat plan</div>
+        <div class="msg-doctor-line">From <strong>Wed, 17 Jun 2026</strong> onwards</div>
+      </div>
+      <button class="sheet-close" onclick="closeSheet('reopt')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="ropt-section">
+      <label class="tke-label">Optimisation criterion <span class="req" style="color:var(--red)">*</span></label>
+      <div class="ropt-radio-list">
+        <label class="ropt-radio sel" data-val="route">
+          <input type="radio" name="ropt-mode" value="route" checked onchange="onReoptModeChange()">
+          <span class="ropt-radio-body">
+            <span class="ropt-radio-t">Optimise for shortest route</span>
+            <span class="ropt-radio-s">Minimise travel time and distance between visits.</span>
+          </span>
+          <span class="ropt-radio-mark"></span>
+        </label>
+        <label class="ropt-radio" data-val="brand">
+          <input type="radio" name="ropt-mode" value="brand" onchange="onReoptModeChange()">
+          <span class="ropt-radio-body">
+            <span class="ropt-radio-t">Optimise for a selected brand</span>
+            <span class="ropt-radio-s">Prioritise doctors most likely to prescribe a specific product.</span>
+          </span>
+          <span class="ropt-radio-mark"></span>
+        </label>
+      </div>
+    </div>
+    <div class="ropt-section" id="ropt-brand-field" style="display:none;">
+      <label class="tke-label">Brand</label>
+      <select class="tke-select" id="ropt-brand"></select>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('reopt')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitReopt()">Submit</button>
+    </div>
+  </div>
+
+  <!-- Call mode picker -->
+  <div class="sheet-backdrop" id="callmode-backdrop" onclick="closeSheet('callmode')"></div>
+  <div class="bottom-sheet" id="callmode-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <span class="sheet-title">How would you like to call?</span>
+        <div class="msg-doctor-line" id="callmode-doc-name">Doctor</div>
+      </div>
+      <button class="sheet-close" onclick="closeSheet('callmode')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="co-mode-grid">
+      <button class="co-mode-card" onclick="placeCall('personal')">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+        <div class="co-mode-card-body">
+          <div class="co-mode-card-t">Call via personal number</div>
+          <div class="co-mode-card-s" id="callmode-personal-sub">Direct dial to the doctor's mobile.</div>
+        </div>
+        <svg class="co-mode-card-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <button class="co-mode-card ai" onclick="placeCall('central')">
+        <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 16h3M14 16h2"/></svg></span>
+        <div class="co-mode-card-body">
+          <div class="co-mode-card-t">Call via central line <span class="co-mode-card-tag">Recorded</span></div>
+          <div class="co-mode-card-s">Routes through the Roche telephony bridge. Number stays private.</div>
+        </div>
+        <svg class="co-mode-card-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Update Visit sheet -->
+  <div class="sheet-backdrop" id="update-backdrop" onclick="closeSheet('update')"></div>
+  <div class="bottom-sheet" id="update-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Update visit time</span>
+      <button class="sheet-close" onclick="closeSheet('update')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="co-doctor-block">
+      <div class="co-doctor-name" id="uv-doc-name">Doctor</div>
+      <div class="co-doctor-meta" id="uv-doc-meta">Specialty · Clinic</div>
+    </div>
+    <div class="uv-current">
+      <div class="uv-current-lbl">Originally scheduled</div>
+      <div class="uv-current-val" id="uv-orig-time">—</div>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">New visit time <span class="req" style="color:var(--red)">*</span></label>
+      <input type="time" class="tke-input" id="uv-new-time" style="font-size:16px;">
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Reason for change <span class="req" style="color:var(--red)">*</span></label>
+      <select class="tke-select" id="uv-reason">
+        <option value="">Select a reason</option>
+        <option>Doctor unavailable currently</option>
+        <option>Dr. asked to reschedule today</option>
+        <option>Dr. asked to reschedule to another day</option>
+      </select>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('update')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitUpdateVisit()">Save changes</button>
+    </div>
+  </div>
+
+  <!-- Sort sheet -->
+  <div class="sheet-backdrop" id="plan-sort-backdrop" onclick="closeSheet('plan-sort')"></div>
+  <div class="bottom-sheet" id="plan-sort-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Sort visits by</span>
+      <button class="sheet-close" onclick="closeSheet('plan-sort')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sf-list" id="plan-sort-list"></div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('plan-sort')">Cancel</button>
+      <button class="btn btn-primary" onclick="applyPlanSort()">Apply</button>
+    </div>
+  </div>
+
+  <!-- Filter sheet -->
+  <div class="sheet-backdrop" id="plan-filter-backdrop" onclick="closeSheet('plan-filter')"></div>
+  <div class="bottom-sheet" id="plan-filter-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Filters</span>
+      <button class="sheet-close" onclick="closeSheet('plan-filter')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-h">Visit type</div>
+      <div class="sf-chips" id="plan-filter-vt"></div>
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-h">Priority tier</div>
+      <div class="sf-chips" id="plan-filter-prio"></div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="resetPlanFilter()">Reset</button>
+      <button class="btn btn-primary" onclick="applyPlanFilter()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/shell.js"></script>
+<script>
+initShell('plan');
+
+const plan={
+  offset:0,status:"All",tab:0,
+  acc:{demo:true,recent:false,beh:false,topics:false},
+  currentVisit:null,
+  /* per-visit (keyed by slug) runtime overrides */
+  overrides:{},
+  sort:"time-asc",
+  filter:{vt:[],prio:[]},
+  sortDraft:"time-asc",
+  filterDraft:{vt:[],prio:[]},
+  checkoutSlug:null,
+  view:"list",
+  mapSelected:null,
+};
+const PLAN_TABS=[
+  {k:"All",m:v=>true},
+  {k:"Upcoming",m:v=>v.status==='up'},
+  {k:"Active",m:v=>v.status==='waiting'||v.status==='active'},
+  {k:"Completed",m:v=>v.status==='done'},
+  {k:"Missed",m:v=>v.status==='miss'},
+];
+const SORT_OPTIONS=[
+  {k:"time-asc", l:"Time — Earliest first", cmp:(a,b)=>timeOf(a)-timeOf(b)},
+  {k:"time-desc",l:"Time — Latest first",   cmp:(a,b)=>timeOf(b)-timeOf(a)},
+  {k:"prio",    l:"Priority (P1 first)",    cmp:(a,b)=>a.tier-b.tier || timeOf(a)-timeOf(b)},
+  {k:"status",  l:"By status",              cmp:(a,b)=>{const o={waiting:0,up:1,done:2,miss:3};return (o[a.status]??9)-(o[b.status]??9);}},
+];
+function timeOf(v){const [h,m]=v.time.split(':').map(Number);return (v.ap==='PM'&&h!==12?h+12:v.ap==='AM'&&h===12?0:h)*60+m;}
+function mergedVisit(v){
+  const slug=slugify(v.doc);
+  const o=plan.overrides[slug];
+  return o?{...v,...o}:v;
+}
+function effectiveVisits(){return visitsForOffset(plan.offset).map(mergedVisit);}
+
+/* ── LIST ── */
+function onPlanDateChange(e){
+  if(!e.target.value) return;
+  const [y,m,d]=e.target.value.split('-').map(Number);
+  const sel=new Date(y,m-1,d);
+  const diffDays=Math.round((TODAY-sel)/86400000);
+  plan.offset=-diffDays;
+  const label=diffDays===0?`${DOW[sel.getDay()]}, ${fmtDateShort(sel)} ${sel.getFullYear()}`:fmtDate(sel);
+  document.getElementById('plan-date-label').textContent=label;
+  renderPlan();
+}
+function setPlanStatus(k){plan.status=k;renderPlan();}
+
+function setPlanView(v){
+  plan.view=v;
+  document.getElementById('vt-list').classList.toggle('sel',v==='list');
+  document.getElementById('vt-map').classList.toggle('sel',v==='map');
+  document.getElementById('vt-list').setAttribute('aria-pressed',v==='list');
+  document.getElementById('vt-map').setAttribute('aria-pressed',v==='map');
+  document.getElementById('plan-list').style.display=v==='list'?'':'none';
+  document.getElementById('plan-map').style.display=v==='map'?'':'none';
+  renderPlan();
+}
+
+function activeVisitOf(all){
+  if(plan.offset!==0) return null;
+  return all.find(v=>v.status==='active'||v.status==='waiting')||null;
+}
+function activeVisitCardHTML(active){
+  if(!active) return '';
+  const slug=slugify(active.doc);
+  const isPreCheckin=active.status==='active';
+  const waitMins=active.waitMins||0;
+  const tag=isPreCheckin
+    ?`Active visit · ${waitMins}m wait at clinic`
+    :`Checked in${active.checkedInAt?` · ${active.checkedInAt}`:''}`;
+  const timeLine=`${active.time} ${active.ap}${active.dur?` · ${active.dur}`:''}`;
+  const cta=isPreCheckin
+    ? `<button class="vc-cta checkin" onclick="event.stopPropagation();event.preventDefault();doCheckIn('${slug}')">
+         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
+         Check in
+       </button>`
+    : `<button class="vc-cta checkout" onclick="event.stopPropagation();event.preventDefault();openCheckoutMode('${slug}')">
+         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+         Check out
+       </button>`;
+  return `
+    <a class="plan-active-card" href="/beat-plan/${slug}" onclick="event.preventDefault();bucketGo('/beat-plan/${slug}');">
+      <div class="plan-active-head">
+        <span class="plan-active-tag"><span class="pulse-dot"></span>${tag}</span>
+        <span class="plan-active-time">${timeLine}</span>
+      </div>
+      <div class="plan-active-doc">${active.doc}</div>
+      <div class="plan-active-meta">${active.spec} · ${active.clinic}</div>
+      <div class="plan-active-foot">
+        <span class="plan-active-vtype">${active.vt==='Video call'?SVG.video:SVG.person} ${active.vt}</span>
+        ${cta}
+      </div>
+    </a>`;
+}
+
+/* Map view state — zoom + pan */
+const MAP_Z={min:1,max:3,step:0.4};
+let mapView={zoom:1,panX:0,panY:0};
+function applyMapTransform(){
+  const c=document.querySelector('.plan-map-canvas');
+  if(!c) return;
+  c.style.transform=`translate(${mapView.panX}px,${mapView.panY}px) scale(${mapView.zoom})`;
+  const zo=document.getElementById('map-zoom-readout');
+  if(zo) zo.textContent=Math.round(mapView.zoom*100)+'%';
+  document.querySelectorAll('.plan-map-zoom button').forEach(b=>{
+    if(b.dataset.act==='in') b.disabled=mapView.zoom>=MAP_Z.max-.001;
+    if(b.dataset.act==='out') b.disabled=mapView.zoom<=MAP_Z.min+.001;
+    if(b.dataset.act==='reset') b.disabled=mapView.zoom===1&&!mapView.panX&&!mapView.panY;
+  });
+}
+function mapZoomIn(){ mapView.zoom=Math.min(MAP_Z.max,+(mapView.zoom+MAP_Z.step).toFixed(2)); applyMapTransform(); }
+function mapZoomOut(){
+  mapView.zoom=Math.max(MAP_Z.min,+(mapView.zoom-MAP_Z.step).toFixed(2));
+  if(mapView.zoom<=1.001){mapView.panX=0;mapView.panY=0;}
+  applyMapTransform();
+}
+function mapZoomReset(){ mapView={zoom:1,panX:0,panY:0}; applyMapTransform(); }
+
+let _panStart=null;
+function onMapPanStart(e){
+  if(mapView.zoom<=1) return;
+  const t=e.touches?e.touches[0]:e;
+  _panStart={x:t.clientX,y:t.clientY,baseX:mapView.panX,baseY:mapView.panY,moved:false};
+}
+function onMapPanMove(e){
+  if(!_panStart) return;
+  const t=e.touches?e.touches[0]:e;
+  const dx=t.clientX-_panStart.x, dy=t.clientY-_panStart.y;
+  if(Math.abs(dx)+Math.abs(dy)>4) _panStart.moved=true;
+  mapView.panX=_panStart.baseX+dx;
+  mapView.panY=_panStart.baseY+dy;
+  applyMapTransform();
+  if(e.cancelable) e.preventDefault();
+}
+function onMapPanEnd(){ _panStart=null; }
+function onMapWheel(e){
+  e.preventDefault();
+  if(e.deltaY<0) mapZoomIn(); else mapZoomOut();
+}
+
+/* SVG base map — roads, parks, water — scales with the canvas via preserveAspectRatio="none" */
+const MAP_BASE_SVG=`
+  <svg class="plan-map-bg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="mapGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#EAF1F4"/>
+        <stop offset="100%" stop-color="#D5E0E6"/>
+      </linearGradient>
+    </defs>
+    <rect width="100" height="100" fill="url(#mapGrad)"/>
+    <ellipse cx="18" cy="22" rx="13" ry="7" fill="#B9D5E3" opacity=".75"/>
+    <ellipse cx="84" cy="72" rx="11" ry="6" fill="#B9D5E3" opacity=".7"/>
+    <rect x="14" y="58" width="22" height="14" rx="3" fill="#BDD8B6" opacity=".7"/>
+    <rect x="68" y="14" width="22" height="13" rx="3" fill="#BDD8B6" opacity=".65"/>
+    <circle cx="36" cy="42" r="7" fill="#BDD8B6" opacity=".55"/>
+    <circle cx="74" cy="54" r="5" fill="#BDD8B6" opacity=".5"/>
+    <path d="M0 50 L100 50" stroke="#94A6B0" stroke-width="1.6" opacity=".7"/>
+    <path d="M50 0 L50 100" stroke="#94A6B0" stroke-width="1.6" opacity=".7"/>
+    <path d="M0 18 L100 28" stroke="#94A6B0" stroke-width="1" opacity=".5"/>
+    <path d="M0 80 L100 72" stroke="#94A6B0" stroke-width="1" opacity=".5"/>
+    <path d="M28 0 L22 100" stroke="#94A6B0" stroke-width="1" opacity=".5"/>
+    <path d="M78 0 L82 100" stroke="#94A6B0" stroke-width="1" opacity=".5"/>
+    <path d="M0 35 L100 35" stroke="#94A6B0" stroke-width=".5" opacity=".35"/>
+    <path d="M0 65 L100 65" stroke="#94A6B0" stroke-width=".5" opacity=".35"/>
+    <path d="M15 0 L15 100" stroke="#94A6B0" stroke-width=".5" opacity=".35"/>
+    <path d="M40 0 L40 100" stroke="#94A6B0" stroke-width=".5" opacity=".35"/>
+    <path d="M62 0 L62 100" stroke="#94A6B0" stroke-width=".5" opacity=".35"/>
+    <path d="M88 0 L88 100" stroke="#94A6B0" stroke-width=".5" opacity=".35"/>
+    <text x="6" y="8" font-family="Inter,sans-serif" font-size="3" fill="#6E7E89" font-weight="700">BENGALURU</text>
+    <text x="34" y="76" font-family="Inter,sans-serif" font-size="2.6" fill="#6F8B6A" font-weight="600">Cubbon Park</text>
+    <text x="70" y="80" font-family="Inter,sans-serif" font-size="2.6" fill="#6485A0" font-weight="600">Bellandur Lake</text>
+  </svg>`;
+
+function renderPlanMap(visits){
+  const map=document.getElementById('plan-map');
+
+  if(!visits.length){
+    map.innerHTML='<div class="empty"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6l7-3 8 3 7-3v15l-7 3-8-3-7 3z"/></svg></div><div class="et">No visits to plot</div><div class="ed">Switch filters or pick another day to see pins.</div></div>';
+    return;
+  }
+  /* Stable visual ordering — pin numbers follow time order regardless of sort */
+  const numbered=[...visits].sort((a,b)=>timeOf(a)-timeOf(b));
+  const pinIdx={};numbered.forEach((v,i)=>{pinIdx[slugify(v.doc)]=i+1;});
+  const selSlug=plan.mapSelected;
+  const sel=visits.find(v=>slugify(v.doc)===selSlug)||numbered.find(v=>v.status==='active'||v.status==='waiting')||numbered[0];
+
+  const pins=visits.map(v=>{
+    const slug=slugify(v.doc);
+    const cls=(v.status==='waiting'||v.status==='active')?'wait':v.status;
+    const isSel=slug===slugify(sel.doc);
+    const shortDoc=v.doc.replace(/^Dr\.?\s*/,'').split(' ').slice(0,2).join(' ');
+    return `<button class="plan-pin ${cls} ${isSel?'sel':''}" style="left:${v.mx}%;top:${v.my}%;" onclick="onMapPinClick(event,'${slug}')" title="${v.doc} · ${v.time} ${v.ap}">
+      <span class="plan-pin-num">${pinIdx[slug]}</span>
+      <span class="plan-pin-label">${v.time} ${v.ap} · ${shortDoc}</span>
+    </button>`;
+  }).join('');
+
+  const selSlugFinal=slugify(sel.doc);
+  const selCls=(sel.status==='waiting'||sel.status==='active')?'wait':sel.status;
+  const selLabel=sel.status==='active'?`Active · ${sel.waitMins||0}m wait`:sel.status==='waiting'?'Checked in':STATUS_LABEL[sel.status];
+  map.innerHTML=`
+    <div class="plan-map-wrap" id="plan-map-wrap"
+      onmousedown="onMapPanStart(event)" onmousemove="onMapPanMove(event)" onmouseup="onMapPanEnd()" onmouseleave="onMapPanEnd()"
+      ontouchstart="onMapPanStart(event)" ontouchmove="onMapPanMove(event)" ontouchend="onMapPanEnd()"
+      onwheel="onMapWheel(event)">
+      <div class="plan-map-canvas" id="plan-map-canvas">
+        ${MAP_BASE_SVG}
+        <div class="plan-map-pins">${pins}</div>
+      </div>
+      <div class="plan-map-zoom">
+        <button data-act="in" onclick="mapZoomIn()" aria-label="Zoom in">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <span class="plan-map-zoom-r" id="map-zoom-readout">100%</span>
+        <button data-act="out" onclick="mapZoomOut()" aria-label="Zoom out">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12h14"/></svg>
+        </button>
+        <button data-act="reset" onclick="mapZoomReset()" aria-label="Reset view" title="Reset view">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        </button>
+      </div>
+      <div class="plan-map-legend">
+        <div class="lg-row"><span class="lg-sw up"></span>Upcoming</div>
+        <div class="lg-row"><span class="lg-sw wait"></span>Active</div>
+        <div class="lg-row"><span class="lg-sw done"></span>Completed</div>
+        <div class="lg-row"><span class="lg-sw miss"></span>Missed</div>
+      </div>
+      <div class="plan-map-hint">${visits.length} visit${visits.length!==1?'s':''} mapped · scroll / pinch to zoom</div>
+    </div>
+    <a class="plan-map-card ${selCls}" href="/beat-plan/${selSlugFinal}" onclick="event.preventDefault();bucketGo('/beat-plan/${selSlugFinal}');">
+      <div class="plan-map-card-head">
+        <span class="plan-map-card-pin ${selCls}">${pinIdx[selSlugFinal]}</span>
+        <div style="min-width:0;flex:1;">
+          <div class="plan-map-card-doc">${sel.doc}</div>
+          <div class="plan-map-card-meta">${sel.time} ${sel.ap} · ${sel.dur} · ${sel.spec}</div>
+        </div>
+        <span class="plan-map-card-status ${selCls}">${selLabel}</span>
+      </div>
+      <div class="plan-map-card-clinic">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z"/><circle cx="12" cy="9" r="3"/></svg>
+        ${sel.clinic}
+      </div>
+      <div class="plan-map-card-hint">Tap card to open · tap any pin to preview</div>
+    </a>`;
+  applyMapTransform();
+}
+function onMapPinClick(ev,slug){
+  ev.stopPropagation();
+  /* Suppress click that ended a pan-drag */
+  if(_panStart&&_panStart.moved) return;
+  selectMapPin(slug);
+}
+function selectMapPin(slug){ plan.mapSelected=slug; renderPlan(); }
+
+function renderPlan(){
+  const all=effectiveVisits();
+  const counts={};PLAN_TABS.forEach(t=>{counts[t.k]=all.filter(t.m).length;});
+  document.getElementById('plan-statusbar').innerHTML=PLAN_TABS.map(t=>`
+    <button class="plan-stat-chip ${plan.status===t.k?'sel':''}" onclick="setPlanStatus('${t.k}')">
+      ${t.k}<span class="ct">${counts[t.k]}</span>
+    </button>`).join('');
+
+  const tab=PLAN_TABS.find(t=>t.k===plan.status);
+  let visits=all.filter(tab.m);
+  if(plan.filter.vt.length) visits=visits.filter(v=>plan.filter.vt.includes(v.vt));
+  if(plan.filter.prio.length) visits=visits.filter(v=>plan.filter.prio.includes('P'+v.tier));
+  const sortOpt=SORT_OPTIONS.find(s=>s.k===plan.sort);
+  if(sortOpt) visits=[...visits].sort(sortOpt.cmp);
+
+  const dateLabel=plan.offset===0?'Today':(()=>{const d=new Date(TODAY);d.setDate(TODAY.getDate()+plan.offset);return fmtDateShort(d);})();
+  document.getElementById('plan-count').textContent=`${visits.length} visit${visits.length!==1?'s':''} · ${dateLabel}`;
+
+  const active=activeVisitOf(all);
+  const activeSlug=active?slugify(active.doc):null;
+  const activeHTML=activeVisitCardHTML(active);
+  /* When the active visit is shown as a hero card, exclude it from the list to avoid duplication.
+     The user can still find it via the "Waiting" tab — it stays visible above the list. */
+  const listVisits=activeSlug?visits.filter(v=>slugify(v.doc)!==activeSlug):visits;
+
+  renderPlanMap(visits);
+
+  const list=document.getElementById('plan-list');
+  if(!listVisits.length){
+    list.innerHTML=activeHTML+(active
+      ?`<div class="empty"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></div><div class="et">Active visit is shown above</div><div class="ed">No other visits match this filter.</div></div>`
+      :`<div class="empty"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div><div class="et">No visits match</div><div class="ed">Adjust the status, sort, or filter to see what else is here.</div></div>`);
+    return;
+  }
+  const listHTML=listVisits.map(v=>{
+    const slug=slugify(v.doc);
+    const isActive=v.status==='active';
+    const isWaiting=v.status==='waiting';
+    const isMiss=v.status==='miss';
+    const isDone=v.status==='done';
+    const isUp=v.status==='up';
+    const vtIcon=v.vt==='Video call'?SVG.video:SVG.person;
+    const autoPill=isWaiting&&v.autoCheckedIn?`<span class="vc-auto-pill"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z"/><circle cx="12" cy="9" r="3"/></svg>Auto</span>`:'';
+    const statusBadge=(isWaiting||isActive)
+      ?`<span class="vc-wait-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${v.waitMins||0}m wait</span>${autoPill}`
+      :`<span class="pill ${STATUS_CLASS[v.status]} vc-status-pill">${STATUS_LABEL[v.status]}</span>`;
+    let actions='';
+    if(!isMiss) actions+=`<button class="vc-tips-btn" onclick="event.stopPropagation();event.preventDefault();openTipsSheet('${v.doc.replace(/'/g,"\\'")}')">${SVG.bulb} Tips</button>`;
+    if(isUp||isActive) actions+=`<button class="vc-cta checkin" onclick="event.stopPropagation();event.preventDefault();doCheckIn('${slug}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Check in</button>`;
+    if(isWaiting) actions+=`<button class="vc-cta checkout" onclick="event.stopPropagation();event.preventDefault();openCheckoutMode('${slug}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Check out</button>`;
+    if(isDone&&v.outcome) actions+=`<span class="vc-outcome ${outcomeClass(v.outcome)}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>${v.outcome}</span>`;
+    const durSpan=isDone&&v.dur?`<span class="vc-dur">· ${v.dur}</span>`:'';
+    return `<a class="vc ${isWaiting||isActive?'is-waiting':''}" href="/beat-plan/${slug}" onclick="event.preventDefault();bucketGo('/beat-plan/${slug}');">
+      <div class="vc-top">
+        <span class="vc-time-wrap"><span class="vc-time">${v.time}</span><span class="vc-ap">${v.ap}</span>${durSpan}</span>
+        <span style="display:inline-flex;align-items:center;gap:0;">${statusBadge}</span>
+      </div>
+      <div class="vc-body">
+        <div class="vc-name">${v.doc}${v.rescheduledFrom?`<span class="vc-resched-tag"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-3.18-6.87"/><path d="M21 4v5h-5"/></svg>Rescheduled</span>`:''}</div>
+        <div class="vc-sub"><span class="sp">${v.spec}</span><span class="dot-sep">·</span><span class="cl">${v.clinic}</span></div>
+      </div>
+      <div class="vc-foot">
+        <span class="vc-vtype">${vtIcon} ${v.vt}</span>
+        <span class="vc-foot-actions">${actions}</span>
+      </div>
+    </a>`;
+  }).join('');
+  const restLabel=active?`<div class="plan-rest-h">Rest of today · ${listVisits.length}</div>`:'';
+  list.innerHTML=activeHTML+restLabel+listHTML+(plan.offset===0?backupPlanHTML():'');
+}
+
+/* Backup plan — two on-standby doctors shown at the bottom of today's list, so the rep has
+   a quick fallback if a scheduled visit cancels. Tap → opens contacts detail. */
+function backupPlanHTML(){
+  if(!Array.isArray(BACKUP_VISITS)||!BACKUP_VISITS.length) return '';
+  return `
+    <div class="plan-backup-block">
+      <div class="plan-backup-h">
+        <span class="plan-backup-h-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg></span>
+        <div>
+          <div class="plan-backup-h-t">Backup plan · 2 doctors</div>
+          <div class="plan-backup-h-s">In case one of today's visits cancels</div>
+        </div>
+      </div>
+      ${BACKUP_VISITS.map(b=>{
+        const vtIcon=b.vt==='Video call'?SVG.video:SVG.person;
+        return `<div class="plan-backup-card">
+          <div class="plan-backup-top">
+            <span class="plan-backup-window"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${b.window}</span>
+            <span class="badge tier${b.tier}">P${b.tier}</span>
+          </div>
+          <div class="plan-backup-name">${b.doc}</div>
+          <div class="vc-sub"><span class="sp">${b.spec}</span><span class="dot-sep">·</span><span class="cl">${b.clinic}</span></div>
+          <div class="plan-backup-foot">
+            <span class="vc-vtype">${vtIcon} ${b.vt}</span>
+            <span class="plan-backup-reason">${b.reason}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function outcomeClass(o){return o==='Positive'?'pos':o==='Neutral'?'neu':o==='Negative'?'neg':o==='Escalated'?'esc':'neu';}
+
+/* ── Check-in / Check-out ── */
+function nowTimeStr(){
+  const d=new Date();
+  let h=d.getHours(),m=d.getMinutes();
+  const ap=h>=12?'PM':'AM'; h=h%12||12;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
+}
+function doCheckIn(slug){
+  const cur=plan.overrides[slug]||{};
+  plan.overrides[slug]={...cur,status:'waiting',autoCheckedIn:false,checkedInAt:nowTimeStr(),waitMins:0};
+  snack(`Checked in at ${nowTimeStr()}`);
+  renderPlan();
+}
+const CO_MATERIALS=["Phase-III deck","Brochure","MoA video","Dosing card","CME invite","Sample drop"];
+const CO_SAMPLES=["None","1–5","6–10","10+"];
+const CO_ENGAGEMENT=["Highly engaged","Engaged","Lukewarm","Disengaged"];
+let coState={materials:[],samples:"",engagement:"",followup:""};
+
+function renderCheckoutChips(){
+  document.getElementById('co-materials').innerHTML=CO_MATERIALS.map(m=>`
+    <button class="sf-chip-multi ${coState.materials.includes(m)?'sel':''}" onclick="toggleCoMat('${m.replace(/'/g,"\\'")}',this)">${m}</button>`).join('');
+  document.getElementById('co-samples').innerHTML=CO_SAMPLES.map(s=>`
+    <button class="sf-chip-multi ${coState.samples===s?'sel':''}" onclick="setCoSamples('${s.replace(/'/g,"\\'")}',this)">${s}</button>`).join('');
+  document.getElementById('co-engagement').innerHTML=CO_ENGAGEMENT.map(e=>`
+    <button class="sf-chip-multi ${coState.engagement===e?'sel':''}" onclick="setCoEng('${e.replace(/'/g,"\\'")}',this)">${e}</button>`).join('');
+}
+function toggleCoMat(v,btn){
+  const i=coState.materials.indexOf(v);
+  if(i>=0) coState.materials.splice(i,1); else coState.materials.push(v);
+  btn.classList.toggle('sel');
+}
+function setCoSamples(v){coState.samples=v;renderCheckoutChips();}
+function setCoEng(v){coState.engagement=v;renderCheckoutChips();}
+
+function openCheckOut(slug){
+  const v=effectiveVisits().find(x=>slugify(x.doc)===slug);
+  if(!v) return;
+  plan.checkoutSlug=slug;
+  document.getElementById('co-doc-name').textContent=v.doc;
+  document.getElementById('co-doc-meta').textContent=`${v.spec} · ${v.clinic}`;
+  /* Populate location dropdown — primary = detected clinic, plus a couple of nearby decoys */
+  const nearby=[
+    `${v.clinic}  (detected)`,
+    `${v.clinic.split(',')[0]} — Parking lot`,
+    `${v.clinic.split(',')[0]} — Reception lobby`,
+  ];
+  const locSel=document.getElementById('co-location');
+  locSel.innerHTML=nearby.map((opt,i)=>`<option value="${opt.replace(/  \(detected\)$/,'')}" ${i===0?'selected':''}>${opt}</option>`).join('');
+  const prodSel=document.getElementById('co-product');
+  if(prodSel){
+    prodSel.innerHTML='<option value="">Select product</option>'+PRODUCTS.map(p=>`<option>${p}</option>`).join('');
+    prodSel.value='';
+  }
+  document.getElementById('co-outcome').value='';
+  document.getElementById('co-action').value='';
+  document.getElementById('co-followup').value='';
+  document.getElementById('co-time').value=nowTimeStr();
+  coState={materials:[],samples:"",engagement:"",followup:""};
+  renderCheckoutChips();
+  updateActionCounter();
+  openSheet('checkout');
+}
+function updateActionCounter(){
+  const ta=document.getElementById('co-action');
+  const c=document.getElementById('co-counter');
+  const n=ta.value.length;
+  c.textContent=`${n} / 500`;
+  c.classList.toggle('near',n>=450 && n<500);
+  c.classList.toggle('over',n>=500);
+}
+function submitCheckout(){
+  const outcome=document.getElementById('co-outcome').value;
+  const action=document.getElementById('co-action').value;
+  const location=document.getElementById('co-location').value;
+  const prodSel=document.getElementById('co-product');
+  const product=prodSel?prodSel.value:"";
+  const followup=document.getElementById('co-followup').value;
+  if(!location){snack('Please confirm your location.');return;}
+  if(prodSel && !product){snack('Please select the product you detailed.');return;}
+  if(!outcome){snack('Please select a visit outcome.');return;}
+  if(!coState.engagement){snack('Please rate the doctor\'s engagement.');return;}
+  if(!followup){snack('Please pick a follow-up cadence.');return;}
+  const slug=plan.checkoutSlug;
+  plan.overrides[slug]={
+    ...(plan.overrides[slug]||{}),
+    status:'done',
+    outcome,
+    product,
+    nextAction:action,
+    materialsShared:[...coState.materials],
+    samplesDropped:coState.samples||"None",
+    engagement:coState.engagement,
+    followupCadence:followup,
+    checkedOutAt:document.getElementById('co-time').value,
+    checkOutLocation:location,
+  };
+  closeSheet('checkout');
+  snack('Visit completed. Moved to Completed.');
+  renderPlan();
+}
+
+/* Re-optimise sheet (Wednesday onwards) */
+function openReoptSheet(){
+  const sel=document.getElementById('ropt-brand');
+  if(sel) sel.innerHTML='<option value="">Select brand</option>'+PRODUCTS.map(p=>`<option>${p.replace(/\s*\([^)]+\)$/,'')}</option>`).join('');
+  document.querySelectorAll('.ropt-radio').forEach((el,i)=>el.classList.toggle('sel',i===0));
+  document.querySelectorAll('.ropt-radio input').forEach((el,i)=>el.checked=(i===0));
+  document.getElementById('ropt-brand-field').style.display='none';
+  openSheet('reopt');
+}
+function onReoptModeChange(){
+  const checked=document.querySelector('.ropt-radio input:checked');
+  if(!checked) return;
+  document.querySelectorAll('.ropt-radio').forEach(el=>el.classList.toggle('sel',el.dataset.val===checked.value));
+  document.getElementById('ropt-brand-field').style.display=checked.value==='brand'?'':'none';
+}
+function submitReopt(){
+  const mode=document.querySelector('.ropt-radio input:checked')?.value;
+  if(mode==='brand'){
+    const brand=document.getElementById('ropt-brand').value;
+    if(!brand){ snack('Please pick a brand to optimise for.'); return; }
+    snack(`Re-optimisation queued · brand: ${brand}`);
+  } else {
+    snack('Re-optimisation queued · shortest-route mode');
+  }
+  closeSheet('reopt');
+}
+
+/* ── Update Visit (reschedule) ── */
+function openUpdateVisit(){
+  const v=plan.currentVisit; if(!v) return;
+  document.getElementById('uv-doc-name').textContent=v.doc;
+  document.getElementById('uv-doc-meta').textContent=`${v.spec} · ${v.clinic}`;
+  document.getElementById('uv-orig-time').textContent=`${v.time} ${v.ap} · ${v.dur}`;
+  /* prefill the time input with the current 24h value */
+  let [h,m]=v.time.split(':').map(Number);
+  if(v.ap==='PM' && h!==12) h+=12;
+  if(v.ap==='AM' && h===12) h=0;
+  document.getElementById('uv-new-time').value=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  document.getElementById('uv-reason').value='';
+  openSheet('update');
+}
+function submitUpdateVisit(){
+  const v=plan.currentVisit; if(!v) return;
+  const newTime=document.getElementById('uv-new-time').value;
+  const reason=document.getElementById('uv-reason').value;
+  if(!newTime){snack('Please pick a new visit time.');return;}
+  if(!reason){snack('Please select a reason for the change.');return;}
+  let [h,m]=newTime.split(':').map(Number);
+  const ap=h>=12?'PM':'AM';
+  const h12=h%12||12;
+  const displayTime=`${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  const slug=slugify(v.doc);
+  plan.overrides[slug]={
+    ...(plan.overrides[slug]||{}),
+    time:displayTime, ap,
+    rescheduledFrom:`${v.time} ${v.ap}`,
+    rescheduleReason:reason,
+  };
+  closeSheet('update');
+  snack(`Visit moved to ${displayTime} ${ap}.`);
+  /* refresh currentVisit + re-render detail and list */
+  plan.currentVisit=mergedVisit(findTodayVisitBySlug(slug));
+  renderPlan();
+  /* update detail header time line */
+  document.getElementById('vd-follow-up').textContent=`Scheduled: ${fmtDateShort(TODAY)} '26, ${displayTime} ${ap}`;
+  setVDTab(plan.tab);
+}
+
+/* ── Check-out mode picker (manual vs voice AI) ── */
+function openCheckoutMode(slug){
+  plan.checkoutSlug=slug;
+  openSheet('comode');
+}
+function pickCheckoutMode(mode){
+  closeSheet('comode');
+  if(mode==='manual') setTimeout(()=>openCheckOut(plan.checkoutSlug),200);
+  else setTimeout(()=>openVoiceCheckout(plan.checkoutSlug),200);
+}
+
+/* ── Voice dictation (simulated STT) ── */
+let voiceState='idle'; // idle | recording | ready
+let voiceTimer=null;
+let voiceText='';
+const SAMPLE_TRANSCRIPT="The doctor was very receptive to the Phase-III evidence pack and asked for the registration link to the upcoming KOL webinar. Outcome was positive overall. I shared the Phase-III deck and the dosing card during the visit, and dropped about 6 to 10 sample boxes. Engagement was highly engaged — she was leaning forward and asking detailed questions throughout. I recommend a follow-up visit within 1 week. Next step is to share the webinar invite via WhatsApp this evening and follow up with a brochure tomorrow.";
+
+function openVoiceCheckout(slug){
+  const v=effectiveVisits().find(x=>slugify(x.doc)===slug);
+  if(!v) return;
+  document.getElementById('vc-doc-name').textContent=`${v.doc} · ${v.clinic}`;
+  voiceState='idle'; voiceText='';
+  document.getElementById('vc-transcript').textContent='';
+  document.getElementById('vc-status').textContent='Tap the mic to start';
+  document.getElementById('vc-status').className='vc-status';
+  document.getElementById('vc-mic').className='vc-mic';
+  const done=document.getElementById('vc-done');
+  done.disabled=true; done.style.opacity='.55';
+  openSheet('voice');
+}
+function toggleVoiceRec(){
+  const mic=document.getElementById('vc-mic');
+  const status=document.getElementById('vc-status');
+  const tx=document.getElementById('vc-transcript');
+  if(voiceState==='idle'){
+    voiceState='recording';
+    mic.className='vc-mic recording';
+    status.className='vc-status recording';
+    status.textContent='Listening — tap mic when you\'re done';
+    /* Stream the sample transcript word-by-word */
+    voiceText='';
+    const words=SAMPLE_TRANSCRIPT.split(' ');
+    let i=0;
+    voiceTimer=setInterval(()=>{
+      if(i>=words.length){ stopVoiceRec(); return; }
+      voiceText+=(i===0?'':' ')+words[i++];
+      tx.textContent=voiceText;
+      tx.scrollTop=tx.scrollHeight;
+    },90);
+  } else if(voiceState==='recording'){
+    stopVoiceRec();
+  }
+}
+function stopVoiceRec(){
+  if(voiceTimer){ clearInterval(voiceTimer); voiceTimer=null; }
+  voiceState='ready';
+  document.getElementById('vc-mic').className='vc-mic';
+  document.getElementById('vc-status').className='vc-status';
+  document.getElementById('vc-status').textContent='Transcription captured — review and submit';
+  const done=document.getElementById('vc-done');
+  done.disabled=false; done.style.opacity='1';
+}
+function processVoice(){
+  /* Brief "AI processing" beat, then route to the manual form pre-filled */
+  document.getElementById('vc-mic').className='vc-mic processing';
+  document.getElementById('vc-status').className='vc-status processing';
+  document.getElementById('vc-status').textContent='Understanding your input…';
+  setTimeout(()=>{
+    const lc=voiceText.toLowerCase();
+    /* Outcome */
+    let outcome='Positive';
+    if(lc.includes('negative')||lc.includes('not receptive')) outcome='Negative';
+    else if(lc.includes('neutral')||lc.includes('inconclusive')) outcome='Neutral';
+    else if(lc.includes('incomplete')||lc.includes('cut short')) outcome='Incomplete';
+    /* Materials shared — scan for keywords */
+    const matMap=[
+      ['phase-iii deck','Phase-III deck'],['phase iii deck','Phase-III deck'],['phase 3 deck','Phase-III deck'],['evidence pack','Phase-III deck'],
+      ['brochure','Brochure'],
+      ['moa video','MoA video'],['mechanism video','MoA video'],
+      ['dosing card','Dosing card'],
+      ['cme invite','CME invite'],['webinar invite','CME invite'],
+      ['sample','Sample drop'],
+    ];
+    const materials=[];
+    matMap.forEach(([kw,label])=>{ if(lc.includes(kw) && !materials.includes(label)) materials.push(label); });
+    /* Samples dropped — bucket from numbers or phrases */
+    let samples="";
+    const sm=lc.match(/(\d+)\s*(?:to\s*(\d+))?\s*sample/);
+    if(sm){
+      const n=parseInt(sm[2]||sm[1],10);
+      if(n===0) samples="None";
+      else if(n<=5) samples="1–5";
+      else if(n<=10) samples="6–10";
+      else samples="10+";
+    } else if(/no\s+sample|dropped\s+none/.test(lc)) samples="None";
+    /* Engagement */
+    let engagement="";
+    if(lc.includes('highly engaged')||lc.includes('very engaged')) engagement="Highly engaged";
+    else if(lc.includes('engaged')) engagement="Engaged";
+    else if(lc.includes('lukewarm')||lc.includes('disinterested')) engagement="Lukewarm";
+    else if(lc.includes('disengaged')||lc.includes('not engaged')) engagement="Disengaged";
+    /* Recommended next visit */
+    let followup="";
+    if(/within\s*3\s*days?|within\s*three\s*days?/.test(lc)) followup="Within 3 days";
+    else if(/within\s*(1|one)\s*week/.test(lc)) followup="Within 1 week";
+    else if(/within\s*(2|two)\s*weeks?/.test(lc)) followup="Within 2 weeks";
+    else if(/within\s*(a|one)?\s*month/.test(lc)) followup="Within a month";
+    else if(/no\s+follow.up/.test(lc)) followup="No follow-up needed";
+    /* Next action — anything after "next step" or take a fragment */
+    let action=voiceText;
+    const m=voiceText.match(/[Nn]ext (?:step|action) is (?:to )?([^.]+\.?)/);
+    if(m) action=m[1].trim();
+    closeSheet('voice');
+    setTimeout(()=>{
+      openCheckOut(plan.checkoutSlug);
+      document.getElementById('co-outcome').value=outcome;
+      document.getElementById('co-action').value=action;
+      document.getElementById('co-followup').value=followup;
+      coState={materials:[...materials],samples,engagement,followup};
+      renderCheckoutChips();
+      updateActionCounter();
+      snack('AI filled the form — review and submit.');
+    },220);
+  },900);
+}
+
+/* ── Message templates ── */
+const MSG_TEMPLATES={
+  SMS:[
+    {t:"Pre-visit greeting",b:"Hi Dr. {name}, looking forward to our scheduled appointment today. — Raj, Roche"},
+    {t:"Post-visit thanks",b:"Dr. {name}, thank you for your time. Sharing the requested materials shortly. — Raj, Roche"},
+    {t:"Sample dispatch note",b:"Dr. {name}, courier with samples dispatched. Tracking shared on email. — Raj, Roche"},
+  ],
+  WhatsApp:[
+    {t:"Quick check-in",b:"Hi Dr. {name} 👋"},
+    {t:"Pre-visit greeting",b:"Hi Dr. {name} 👋 Looking forward to seeing you at your clinic today. Let me know if anything changes on your end."},
+    {t:"Reschedule request",b:"Dr. {name}, would Thursday 4 PM work better for our planned visit this week? Happy to align around your OPD schedule. — Raj"},
+    {t:"Share evidence pack",b:"Dr. {name}, sharing the Phase-III evidence pack we discussed. The summary deck is attached and the full study compendium is also included for your reference. Happy to walk through any specific endpoint in detail.\n\nBest,\nRaj",attachments:[{name:"Phase-III-evidence-summary.pdf",size:2.1*1024*1024},{name:"study-compendium.pdf",size:4.6*1024*1024}]},
+    {t:"KOL webinar invite",b:"Dr. {name}, please find the invite for our upcoming KOL webinar on 25 Jun, 6 PM IST.\n\nSpeakers:\n• Dr. R. Iyengar (Nephrology)\n• Dr. M. Pillai (Cardiology)\n• Roche Medical Affairs\n\nRegistration link: [secure registration link]\nCalendar invite attached.",attachments:[{name:"KOL-webinar-25Jun.ics",size:5*1024}]},
+    {t:"Sample drop confirmation",b:"Dr. {name}, the 2 sample boxes (Batch RX-7821, expiry Mar'27) have been handed over to your pharmacy this morning. The dispatch slip is attached for your records.\n\nWe've also enclosed the prescribing label v2.1 and the latest dosing card.",attachments:[{name:"sample-dispatch-slip.pdf",size:340*1024},{name:"prescribing-label-v2.1.pdf",size:880*1024},{name:"dosing-card-2026.png",size:620*1024}]},
+    {t:"Follow-up nudge",b:"Dr. {name}, hope the materials were useful. Happy to drop by for a quick follow-up next week — let me know what works."},
+    {t:"Thank you note",b:"Dr. {name}, a quick thank you for today's discussion. Truly appreciate the time and your candid input on the protocol. Sharing the requested links shortly. — Raj"},
+  ],
+  Email:[
+    {t:"Visit follow-up",b:"Dear Dr. {name},\n\nThank you for taking the time to meet today. As discussed, please find attached the latest clinical evidence pack and our upcoming CME calendar.\n\nWarm regards,\nRaj Hussain\nRoche SFA",attachments:[{name:"clinical-evidence-pack.pdf",size:3.2*1024*1024},{name:"CME-calendar-Q3.xlsx",size:96*1024}]},
+    {t:"Clinical evidence pack",b:"Dear Dr. {name},\n\nSharing the consolidated Phase-III evidence pack for your reference. Happy to walk you through any of the studies in detail.\n\nBest,\nRaj",attachments:[{name:"phase-III-pack.pdf",size:5.8*1024*1024}]},
+    {t:"Product introduction",b:"Dear Dr. {name},\n\nI'd like to introduce you to our latest formulation. Attached is a short brief covering the mechanism, dosing, and trial data."},
+    {t:"CME co-host proposal",b:"Dear Dr. {name},\n\nWe would love to co-host the upcoming CME on nephrology biomarkers. Draft agenda and speaker list attached for your input.\n\nLooking forward to hearing your thoughts.\n\nBest,\nRaj Hussain",attachments:[{name:"CME-agenda-draft.pdf",size:420*1024}]},
+  ],
+};
+const MSG_CHANNELS=[
+  {k:"SMS",   ic:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'},
+  {k:"WhatsApp",ic:'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.94 9.94 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15h-.01a8.22 8.22 0 0 1-4.18-1.14l-.3-.18-3.11.82.83-3.04-.2-.31a8.24 8.24 0 0 1-1.26-4.39c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.41a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.4-.12-.56.12s-.65.81-.79.97c-.15.17-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.55-1.33-.76-1.83-.2-.48-.4-.42-.55-.42l-.47-.01a.9.9 0 0 0-.66.31c-.23.25-.86.84-.86 2.05s.88 2.38 1 2.55c.12.17 1.73 2.64 4.19 3.7.59.25 1.05.4 1.4.52.59.19 1.12.16 1.55.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.18-.47-.3z"/></svg>'},
+  {k:"Email", ic:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>'},
+];
+let msgState={channel:"WhatsApp",previewIdx:null};
+
+function fmtMsgBytes(b){
+  if(b<1024) return b+' B';
+  if(b<1024*1024) return (b/1024).toFixed(0)+' KB';
+  return (b/(1024*1024)).toFixed(1)+' MB';
+}
+function attachExtBadge(name){
+  const ext=(name.split('.').pop()||'').toLowerCase();
+  return ({pdf:'PDF',xlsx:'XLS',xls:'XLS',png:'IMG',jpg:'IMG',jpeg:'IMG',ics:'CAL'})[ext]||'FILE';
+}
+
+function openMessageSheet(){
+  const v=plan.currentVisit; if(!v) return;
+  document.getElementById('msg-doc-name').textContent=`${v.doc} · ${v.clinic}`;
+  msgState={channel:"WhatsApp",previewIdx:null};
+  renderMsgList();
+  openSheet('msg');
+}
+function renderMsgList(){
+  document.getElementById('msg-channels').style.display='';
+  document.getElementById('msg-channels').innerHTML=MSG_CHANNELS.map(c=>`
+    <button class="msg-channel-chip ${msgState.channel===c.k?'sel':''}" onclick="pickMsgChannel('${c.k}')">${c.ic}${c.k}</button>`).join('');
+  const v=plan.currentVisit||{doc:'Doctor'};
+  const name=v.doc.replace(/^Dr\.?\s*/,'');
+  const list=MSG_TEMPLATES[msgState.channel]||[];
+  document.getElementById('msg-tmpl-list').innerHTML=list.map((t,i)=>{
+    const att=(t.attachments||[]).length;
+    const body=t.b.replace(/\{name\}/g,name).replace(/\n/g,'<br>');
+    return `<div class="msg-tmpl" onclick="openMsgPreview(${i})">
+      <div class="msg-tmpl-h">
+        <span class="msg-tmpl-t">${t.t}</span>
+        ${att?`<span class="msg-tmpl-attach-tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>${att}</span>`:''}
+      </div>
+      <div class="msg-tmpl-body">${body}</div>
+    </div>`;
+  }).join('');
+  /* Footer Send button is hidden on list — it lives on the preview screen */
+  const send=document.getElementById('msg-send');
+  send.disabled=true; send.style.opacity='.55';
+  send.textContent='Send';
+}
+function pickMsgChannel(k){ msgState.channel=k; msgState.previewIdx=null; renderMsgList(); }
+
+function openMsgPreview(i){
+  msgState.previewIdx=i;
+  const tmpl=MSG_TEMPLATES[msgState.channel][i];
+  const v=plan.currentVisit||{doc:'Doctor'};
+  const name=v.doc.replace(/^Dr\.?\s*/,'');
+  const body=tmpl.b.replace(/\{name\}/g,name);
+  const attList=(tmpl.attachments||[]).map(a=>`
+    <div class="attach-chip">
+      <span class="attach-chip-ic">${attachExtBadge(a.name)}</span>
+      <div class="attach-chip-info">
+        <div class="attach-chip-name">${a.name}</div>
+        <div class="attach-chip-size">${fmtMsgBytes(a.size)}</div>
+      </div>
+    </div>`).join('');
+  /* Replace the list area with the preview */
+  document.getElementById('msg-channels').style.display='none';
+  document.getElementById('msg-tmpl-list').innerHTML=`
+    <button class="msg-preview-back" onclick="msgState.previewIdx=null;renderMsgList();">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back to templates
+    </button>
+    <span class="msg-preview-channel">${msgState.channel} template</span>
+    <div class="msg-preview-title">${tmpl.t}</div>
+    <div class="msg-preview-body">${body}</div>
+    ${attList?`<div class="msg-preview-attach-h">Attachments · ${(tmpl.attachments||[]).length}</div><div class="msg-preview-attach-list">${attList}</div>`:''}`;
+  const send=document.getElementById('msg-send');
+  send.disabled=false; send.style.opacity='1';
+  send.textContent=`Send via ${msgState.channel}`;
+}
+
+function sendMessage(){
+  if(msgState.previewIdx==null) return;
+  const tmpl=MSG_TEMPLATES[msgState.channel][msgState.previewIdx];
+  const slug=slugify(plan.currentVisit.doc);
+  recordUserEvent(slug,{
+    type:'message',
+    channel:msgState.channel,
+    template:tmpl.t,
+    time:nowTimeStr(),
+    attachments:(tmpl.attachments||[]).map(a=>a.name),
+  });
+  closeSheet('msg');
+  snack(`${msgState.channel} template "${tmpl.t}" sent.`);
+  setVDTab(plan.tab);
+}
+
+/* ── Call doctor — pick personal vs central line ── */
+const CENTRAL_LINE='+91 80 4567 8900';
+function onCallDoctor(e){
+  e.preventDefault();
+  const v=plan.currentVisit; if(!v) return;
+  const p=profileOf(v.doc);
+  document.getElementById('callmode-doc-name').textContent=`${v.doc} · ${v.clinic}`;
+  document.getElementById('callmode-personal-sub').textContent=p.phone?`Direct dial · ${p.phone}`:'No personal number on file.';
+  openSheet('callmode');
+}
+function placeCall(mode){
+  const v=plan.currentVisit; if(!v){ closeSheet('callmode'); return; }
+  const p=profileOf(v.doc);
+  const slug=slugify(v.doc);
+  closeSheet('callmode');
+  if(mode==='personal'){
+    if(!p.phone){ snack('No personal number on file.'); return; }
+    recordUserEvent(slug,{type:'call',channel:'Personal',time:nowTimeStr(),phone:p.phone});
+    location.href=`tel:${p.phone.replace(/\s/g,'')}`;
+    snack(`Dialling ${v.doc} on personal number…`);
+  } else {
+    const ext=`ext ${4000+Math.floor((slug.length*97)%900)}`;
+    recordUserEvent(slug,{type:'call',channel:'Central line',time:nowTimeStr(),phone:`${CENTRAL_LINE} ${ext}`});
+    location.href=`tel:${CENTRAL_LINE.replace(/\s|\+/g,'')}`;
+    snack(`Connecting via central line · ${ext}`);
+  }
+  setTimeout(()=>setVDTab(plan.tab),300);
+}
+function recordUserEvent(slug,evt){
+  const cur=plan.overrides[slug]||{};
+  const events=[...(cur.userEvents||[]),evt];
+  plan.overrides[slug]={...cur,userEvents:events};
+}
+
+/* ── Sort & Filter sheets ── */
+const VT_OPTS=['In person','Video call'];
+const PRIO_OPTS=['P1','P2','P3'];
+const _openSheetOrig=openSheet;
+openSheet=function(id){
+  if(id==='plan-sort') populateSortSheet();
+  if(id==='plan-filter') populateFilterSheet();
+  _openSheetOrig(id);
+};
+function populateSortSheet(){
+  plan.sortDraft=plan.sort;
+  document.getElementById('plan-sort-list').innerHTML=SORT_OPTIONS.map(s=>`
+    <div class="sf-option ${plan.sortDraft===s.k?'sel':''}" onclick="pickSort('${s.k}')">
+      <span class="sf-option-t">${s.l}</span>
+      <span class="sf-radio"></span>
+    </div>`).join('');
+}
+function pickSort(k){
+  plan.sortDraft=k;
+  document.querySelectorAll('#plan-sort-list .sf-option').forEach((el,i)=>el.classList.toggle('sel',SORT_OPTIONS[i].k===k));
+}
+function applyPlanSort(){plan.sort=plan.sortDraft;closeSheet('plan-sort');renderPlan();}
+
+function populateFilterSheet(){
+  plan.filterDraft={vt:[...plan.filter.vt],prio:[...plan.filter.prio]};
+  document.getElementById('plan-filter-vt').innerHTML=VT_OPTS.map(o=>`<button class="sf-chip-multi ${plan.filterDraft.vt.includes(o)?'sel':''}" onclick="toggleFilter('vt','${o}',this)">${o}</button>`).join('');
+  document.getElementById('plan-filter-prio').innerHTML=PRIO_OPTS.map(o=>`<button class="sf-chip-multi ${plan.filterDraft.prio.includes(o)?'sel':''}" onclick="toggleFilter('prio','${o}',this)">${o}</button>`).join('');
+}
+function toggleFilter(group,val,btn){
+  const list=plan.filterDraft[group];
+  const i=list.indexOf(val);
+  if(i>=0) list.splice(i,1); else list.push(val);
+  btn.classList.toggle('sel');
+}
+function applyPlanFilter(){plan.filter={vt:[...plan.filterDraft.vt],prio:[...plan.filterDraft.prio]};closeSheet('plan-filter');renderPlan();}
+function resetPlanFilter(){plan.filterDraft={vt:[],prio:[]};populateFilterSheet();}
+
+/* ── DETAIL ── */
+function vRow(label,val){return `<div class="vd-row"><span class="vd-row-label">${label}</span><span class="vd-row-value">${val}</span></div>`;}
+
+function renderDetail(slug){
+  const base=findTodayVisitBySlug(slug);
+  const v=base?mergedVisit(base):null;
+  if(!v){
+    document.getElementById('vd-content').innerHTML='<div class="empty"><div class="et">Visit not found</div><div class="ed">This URL doesn\'t match any scheduled visit.</div></div>';
+    document.getElementById('vd-visit-id').textContent='Visit not found';
+    document.getElementById('vd-follow-up').textContent='';
+    document.getElementById('vd-footer').style.display='none';
+    return;
+  }
+  plan.currentVisit=v;plan.tab=0;
+  plan.acc={demo:true,recent:false,beh:false,topics:false};
+
+  const idx=TODAY_VISITS.indexOf(base);
+  document.getElementById('vd-visit-id').textContent=`Visit #${20340+idx}`;
+  document.getElementById('vd-follow-up').textContent=`Scheduled: ${fmtDateShort(TODAY)} '26, ${v.time} ${v.ap}`;
+  document.getElementById('vd-hero-avatar').textContent=initials(v.doc);
+  document.getElementById('vd-hero-name').textContent=v.doc;
+  document.getElementById('vd-hero-spec').textContent=v.spec;
+  document.getElementById('vd-hero-tier').textContent=`P${v.tier}`;
+  document.getElementById('vd-hero-tier').className=`badge tier${v.tier}`;
+  document.getElementById('vd-hero-clinic').textContent=v.clinic;
+
+  /* Edit icon — only when the visit is still actionable (upcoming or waiting) */
+  const editable=v.status==='up'||v.status==='waiting'||v.status==='active';
+  document.getElementById('vd-edit-btn').style.display=editable?'flex':'none';
+
+  /* Footer CTA — context aware single primary action */
+  const footer=document.getElementById('vd-footer');
+  const cta=document.getElementById('vd-footer-cta');
+  if(v.status==='up'||v.status==='active'){
+    footer.style.display='flex';
+    cta.textContent='Check in';
+    cta.onclick=()=>{ doCheckIn(slug); renderDetail(slug); };
+  } else if(v.status==='waiting'){
+    footer.style.display='flex';
+    cta.textContent='Check out';
+    cta.onclick=()=>openCheckoutMode(slug);
+  } else {
+    footer.style.display='none';
+  }
+
+  setVDTab(0);
+}
+
+function setVDTab(n){
+  plan.tab=n;
+  document.querySelectorAll('.vd-tab').forEach((b,i)=>b.classList.toggle('active',i===n));
+  const el=document.getElementById('vd-content');
+  const v=plan.currentVisit||{};
+  const p=profileOf(v.doc);
+  switch(n){
+    case 0: el.innerHTML=renderVisitDetails(v);break;
+    case 1: el.innerHTML=renderDoctorProfile(v.doc,p);bindAccordions();break;
+    case 2: el.innerHTML=renderPastVisits(v.doc);break;
+  }
+  document.getElementById('view-detail').querySelector('.screen').scrollTop=0;
+}
+
+function renderVisitDetails(v){
+  const isDone=v.status==='done',isWait=v.status==='waiting',isMiss=v.status==='miss',isActive=v.status==='active';
+  let statusHTML='';
+  if(isDone)statusHTML='<span style="display:inline-flex;align-items:center;gap:4px;color:var(--green);font-weight:700">✓ Completed</span>';
+  else if(isActive)statusHTML=`<span style="display:inline-flex;align-items:center;gap:4px;color:var(--amber);font-weight:700">● Active · ${v.waitMins||0}m at clinic</span>`;
+  else if(isWait)statusHTML=`<span style="display:inline-flex;align-items:center;gap:4px;color:var(--amber);font-weight:700">⏱ Checked in${v.checkedInAt?` · ${v.checkedInAt}`:''}</span>`;
+  else if(isMiss)statusHTML='<span style="display:inline-flex;align-items:center;gap:4px;color:var(--red);font-weight:700">⨯ Missed</span>';
+  else statusHTML='<span style="color:var(--teal-press);font-weight:700">Upcoming</span>';
+  return `<div class="vd-section">
+    <div class="vd-section-title"><span class="it"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span>Visit Summary</div>
+    ${vRow('Status',statusHTML)}
+    ${vRow('Visit type',v.vt)}
+    ${vRow('Scheduled',`${v.time} ${v.ap} · ${v.dur}`)}
+    ${isDone?vRow('Check-in','09:02 AM'):''}
+    ${isDone?vRow('Check-out','09:31 AM'):''}
+    ${isDone?vRow('Outcome','<span style="color:var(--green);font-weight:700">Positive</span>'):''}
+    ${isWait?vRow('Arrived','01:53 PM'):''}
+    ${isMiss?vRow('Reason','Doctor in OT — could not engage'):''}
+  </div>
+  ${(()=>{
+    const tips=(profileOf(v.doc).topics)||[];
+    if(!tips.length) return '';
+    return `<div class="vd-section">
+      <div class="vd-section-title">
+        <span class="it"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7 7 7 0 0 1-4 6.32V17H9v-1.68A7 7 0 0 1 5 9a7 7 0 0 1 7-7z"/></svg></span>
+        Pre-visit briefing
+        <span class="vd-section-ai-tag"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>AI</span>
+      </div>
+      ${tips.map((t,i)=>`<div class="tips-item"><span class="tips-item-num">${i+1}</span><span class="tips-item-text">${t}</span></div>`).join('')}
+    </div>`;
+  })()}
+  <div class="vd-section">
+    <div class="vd-section-title"><span class="it"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>Notes</div>
+    <div style="font-size:13px;color:var(--ink-2);line-height:1.55;">${isDone?'Engaging discussion on Phase-III outcomes. Doctor receptive to the pipeline overview and requested a follow-up summary PDF for her MDT colleagues.':isMiss?'Visit was missed — clinic confirmed OPD was overbooked. Reschedule with admin coordinator.':'Bring updated data pack, address pending dosage queries, and circulate KOL webinar invite.'}</div>
+  </div>
+  ${renderVisitHistory(v)}`;
+}
+
+/* ── Visit history — audit log for THIS visit only ──
+   Generates a chronological event list (scheduled → reached → checked in → ...
+   → checked out / missed) using the merged visit state plus a few sample
+   timestamps so the log feels real for completed/waiting visits. */
+const VH_SAMPLES={
+  "Dr. M. Krishnamurthy Iyengar":{
+    reached:"08:52 AM",checkIn:"09:02 AM",waitMins:10,checkOut:"09:31 AM",
+    outcome:"Positive",remark:"Engaging discussion on Phase-III outcomes. Doctor requested a follow-up summary PDF for her MDT colleagues.",
+    briefingViewedAt:"07:38 AM", reminderSentAt:"08:00 AM",
+    sampleDropAt:"09:18 AM", sampleDropDetail:"2 sample boxes (Batch RX-7821) handed over to clinic pharmacy.",
+    followupCreatedAt:"09:33 AM", followupDetail:"Task #1239 created: <strong>Share Phase-III deck for MDT review</strong>",
+    prevCalls:[
+      {time:"Yesterday 06:30 PM",duration:"1m 04s",intent:"Confirm 9 AM nephrology slot",outcome:"Doctor confirmed availability and asked to keep it brief."},
+      {time:"07:48 AM",duration:"3m 22s",intent:"Align on Phase-III data deep-dive scope",outcome:"Doctor wanted the CREDENCE primary endpoints covered first."},
+    ],
+  },
+  "Dr. Aarya":{
+    reached:"09:54 AM",checkIn:"10:00 AM",waitMins:6,checkOut:"10:21 AM",
+    outcome:"Positive",remark:"Shared HFpEF data deck — agreed to attend Roche Innovator Circle webinar on 25 Jun.",
+    briefingViewedAt:"08:42 AM", reminderSentAt:"09:00 AM",
+    detailingAt:"10:08 AM", detailingDetail:"Detail aid <strong>HFpEF Phase-II walkthrough</strong> shown (4 min).",
+    followupCreatedAt:"10:23 AM", followupDetail:"Task #1240 created: <strong>Send webinar registration link</strong>",
+    prevCalls:[
+      {time:"08:18 AM",duration:"1m 12s",intent:"Confirm visit time and detailing aid topic",outcome:"Doctor preferred HFpEF Phase-II walkthrough over MoA video."},
+    ],
+  },
+  "Dr. Anjali Subramaniam":{
+    missedAt:"12:05 PM",missReason:"Doctor in OT — could not engage",
+    briefingViewedAt:"10:14 AM", reminderSentAt:"11:00 AM",
+    receptionCheckedAt:"11:35 AM", receptionDetail:"Reception confirmed Dr. would be in OT for another 90+ min.",
+    rescheduleTaskAt:"12:06 PM", rescheduleTaskDetail:"Task #1241 auto-created: <strong>Reschedule with admin coordinator</strong>",
+    prevCalls:[
+      {time:"10:55 AM",duration:"0m 36s",intent:"Confirm 11:30 AM availability",outcome:"Line busy — no answer, queued a retry."},
+      {time:"11:48 AM",duration:"1m 48s",intent:"Reception fallback — verify if doctor is on site",outcome:"Reception confirmed doctor is mid-procedure in OT."},
+    ],
+  },
+  "Dr. Vikram Nair":{
+    reached:"01:46 PM",checkIn:"01:53 PM",autoCheckedIn:true,
+    briefingViewedAt:"12:42 PM", reminderSentAt:"01:00 PM",
+    geofenceTriggerAt:"01:53 PM", geofenceDetail:"Geofence entered (radius 50m). Auto-check-in triggered.",
+    prevCalls:[
+      {time:"11:42 AM",duration:"0m 48s",intent:"Confirm sample restock requirement",outcome:"Doctor confirmed batch RX-7821 is sufficient — no fresh drop needed."},
+      {time:"12:18 PM",duration:"2m 14s",intent:"Align on dosage-range discussion topic",outcome:"Agreed to walk through the v2.1 label insert during the 2 PM visit."},
+    ],
+  },
+  "Dr. Sneha Rao":{
+    briefingViewedAt:"10:42 AM", calendarInviteAt:"Mon, 15 Jun · 06:43 PM",
+    reminderQueued:"02:30 PM today", reminderQueuedDetail:"WhatsApp reminder template queued by system.",
+    prevCalls:[
+      {time:"10:15 AM",duration:"0m 54s",intent:"Confirm 3:30 PM HCG visit window",outcome:"Doctor confirmed and asked to collect MDT case IDs beforehand."},
+    ],
+  },
+  "Dr. Lakshminarayanan Subramanian":{
+    briefingViewedAt:"11:18 AM", calendarInviteAt:"Mon, 15 Jun · 06:43 PM",
+    reminderQueued:"04:00 PM today", reminderQueuedDetail:"SMS reminder template queued by system.",
+    prevCalls:[
+      {time:"11:08 AM",duration:"1m 22s",intent:"Confirm 5 PM video visit + agree on IBD pipeline focus",outcome:"Doctor agreed; asked for biologics evidence pack to be queued."},
+    ],
+  },
+};
+
+function auditEventsFor(v){
+  const s=VH_SAMPLES[v.doc]||{};
+  const events=[];
+
+  /* 1. Scheduled */
+  events.push({
+    type:"create",
+    label:"Visit scheduled",
+    time:"Mon, 15 Jun · 06:42 PM",
+    sub:`Added to today's beat plan · ${v.spec} touchpoint at ${v.clinic}.`,
+  });
+
+  /* 2. Calendar invite sent (mainly for upcoming visits) */
+  if(s.calendarInviteAt){
+    events.push({
+      type:"system",
+      label:"Calendar invite sent",
+      time:s.calendarInviteAt,
+      sub:"Doctor's MedCal calendar received the visit slot.",
+    });
+  }
+
+  /* 3. Rescheduled (only if the rep changed the time) */
+  if(v.rescheduledFrom){
+    events.push({
+      type:"edit",
+      label:"Visit rescheduled",
+      time:nowTimeStr(),
+      sub:`Moved from <strong>${v.rescheduledFrom}</strong> to <strong>${v.time} ${v.ap}</strong> · ${v.rescheduleReason}`,
+    });
+  }
+
+  /* 4. Pre-visit briefing viewed (Tips sheet opened by rep) */
+  if(s.briefingViewedAt){
+    events.push({
+      type:"system",
+      label:"Pre-visit briefing viewed",
+      time:s.briefingViewedAt,
+      sub:"You opened the AI-generated talking points for this visit.",
+    });
+  }
+
+  /* 5. Pre-visit reminder sent (automated by system) */
+  if(s.reminderSentAt){
+    events.push({
+      type:"system",
+      label:"Pre-visit reminder sent",
+      time:s.reminderSentAt,
+      sub:"WhatsApp reminder template auto-dispatched to doctor (1 hour before).",
+    });
+  }
+  /* 5b. Pre-visit reminder queued (for upcoming visits not yet sent) */
+  if(s.reminderQueued){
+    events.push({
+      type:"system",
+      label:"Pre-visit reminder queued",
+      time:s.reminderQueued,
+      sub:s.reminderQueuedDetail||"Reminder scheduled by system.",
+    });
+  }
+
+  /* 5c. Pre-visit calls placed (logged by the rep before the visit) */
+  (s.prevCalls||[]).forEach(c=>{
+    events.push({
+      type:"call",
+      label:"Call placed",
+      time:c.time,
+      sub:`<strong>Duration ${c.duration}</strong> · Intent: ${c.intent}${c.outcome?` · ${c.outcome}`:''}`,
+    });
+  });
+
+  /* 6. Reception checked (missed scenario — rep called clinic before giving up) */
+  if(s.receptionCheckedAt){
+    events.push({
+      type:"system",
+      label:"Reception checked",
+      time:s.receptionCheckedAt,
+      sub:s.receptionDetail,
+    });
+  }
+
+  /* 7. Reached location (waiting or done) */
+  if((v.status==='waiting'||v.status==='done'||v.status==='active') && (s.reached||s.checkIn||v.reachedAt)){
+    events.push({
+      type:"reached",
+      label:"Reached location",
+      time:s.reached||"—",
+      sub:`${v.clinic} · Geo verified ✓`,
+    });
+  }
+
+  /* 8. Geofence trigger (auto-check-in) */
+  if(s.geofenceTriggerAt && (v.autoCheckedIn ?? s.autoCheckedIn)){
+    events.push({
+      type:"system",
+      label:"Geofence entered",
+      time:s.geofenceTriggerAt,
+      sub:s.geofenceDetail||"Geofence triggered auto-check-in.",
+    });
+  }
+
+  /* 9. Checked in */
+  if(v.status==='waiting'||v.status==='done'){
+    const checkInTime=v.checkedInAt||s.checkIn||"—";
+    const auto=(v.autoCheckedIn ?? s.autoCheckedIn);
+    events.push({
+      type:"checkin",
+      label:auto?"Auto-checked in":"Checked in",
+      time:checkInTime,
+      sub:auto
+        ? "Triggered automatically by geofence on clinic entry."
+        : "Manual check-in by you from the plan card.",
+    });
+  }
+
+  /* 10. Detailing aid shown (done scenario) */
+  if(v.status==='done' && s.detailingAt){
+    events.push({
+      type:"system",
+      label:"Detailing aid shown",
+      time:s.detailingAt,
+      sub:s.detailingDetail,
+    });
+  }
+
+  /* 11. Sample drop logged (done scenario) */
+  if(v.status==='done' && s.sampleDropAt){
+    events.push({
+      type:"system",
+      label:"Sample drop logged",
+      time:s.sampleDropAt,
+      sub:s.sampleDropDetail,
+    });
+  }
+
+  /* 12. Live waiting (only while currently waiting) */
+  if(v.status==='waiting'){
+    events.push({
+      type:"waiting",
+      label:`Waiting · ${v.waitMins||0}m`,
+      time:"Now",
+      sub:"Awaiting doctor availability. Timer counts up until check-out.",
+    });
+  }
+
+  /* 13. Checked out + outcome + remark (done) */
+  if(v.status==='done'){
+    const outcome=v.outcome||s.outcome||"Positive";
+    const checkoutTime=v.checkedOutAt||s.checkOut||"—";
+    events.push({
+      type:"checkout",
+      label:"Checked out",
+      time:checkoutTime,
+      sub:`Outcome: <strong>${outcome}</strong> at ${v.checkOutLocation||v.clinic}.`,
+    });
+    /* Wrap-up details captured during check-out */
+    const mats=v.materialsShared;
+    if(mats && mats.length){
+      events.push({type:"system",label:"Materials shared",time:checkoutTime,sub:mats.map(x=>`<strong>${x}</strong>`).join(' · ')});
+    }
+    if(v.samplesDropped && v.samplesDropped!=="None"){
+      events.push({type:"system",label:"Samples dropped",time:checkoutTime,sub:`Quantity bucket: <strong>${v.samplesDropped}</strong>.`});
+    }
+    if(v.engagement){
+      events.push({type:"system",label:"Doctor engagement",time:checkoutTime,sub:`Rep rated as <strong>${v.engagement}</strong> on this touchpoint.`});
+    }
+    if(v.followupCadence){
+      events.push({type:"system",label:"Follow-up cadence set",time:checkoutTime,sub:`Recommended next visit: <strong>${v.followupCadence}</strong>.`});
+    }
+    const remark=v.nextAction||s.remark;
+    if(remark){
+      events.push({
+        type:"remark",
+        label:v.nextAction?"Next action logged":"Remark added",
+        time:checkoutTime,
+        sub:`"${remark}"`,
+        quote:true,
+      });
+    }
+  }
+
+  /* 14. Missed */
+  if(v.status==='miss'){
+    events.push({
+      type:"miss",
+      label:"Marked as missed",
+      time:s.missedAt||"—",
+      sub:s.missReason||"Visit could not be completed.",
+    });
+  }
+
+  /* 15. Reschedule task auto-created (missed scenario) */
+  if(v.status==='miss' && s.rescheduleTaskAt){
+    events.push({
+      type:"system",
+      label:"Reschedule task auto-created",
+      time:s.rescheduleTaskAt,
+      sub:s.rescheduleTaskDetail,
+    });
+  }
+
+  /* 16. Follow-up task auto-created (done scenario) */
+  if(v.status==='done' && s.followupCreatedAt){
+    events.push({
+      type:"system",
+      label:"Follow-up task created",
+      time:s.followupCreatedAt,
+      sub:s.followupDetail,
+    });
+  }
+
+  /* 17. User-triggered events — calls and template messages */
+  (v.userEvents||[]).forEach(u=>{
+    if(u.type==='call'){
+      events.push({type:"call",label:"Call placed",time:u.time,sub:`Dialed ${u.phone} via native dialer.`});
+    } else if(u.type==='message'){
+      const att=(u.attachments||[]).length;
+      const attLine=att?` · ${att} attachment${att!==1?'s':''} (${(u.attachments||[]).join(', ')})`:'';
+      events.push({type:"message",label:`${u.channel} message sent`,time:u.time,sub:`Template: <strong>${u.template}</strong>${attLine}`});
+    }
+  });
+
+  return events;
+}
+
+function renderVisitHistory(v){
+  /* Reverse chronological — latest event on top. */
+  const events=auditEventsFor(v).slice().reverse();
+  if(!events.length) return '';
+  const dotClass={create:'',system:'',edit:'edit',reached:'',checkin:'',waiting:'cur',checkout:'done',remark:'done',miss:'miss',call:'edit',message:'edit'};
+  return `<div class="vh-card">
+    <div class="vh-h-row">
+      <span class="vh-h">Visit history</span>
+      <span class="vh-h-count">${events.length} event${events.length!==1?'s':''}</span>
+    </div>
+    <div class="vh-audit">
+      ${events.map(e=>`
+        <div class="vh-evt ${dotClass[e.type]||''}">
+          <div class="vh-evt-rail">
+            <div class="vh-evt-dot"></div>
+            <div class="vh-evt-line"></div>
+          </div>
+          <div class="vh-evt-body">
+            <div class="vh-evt-head">
+              <span class="vh-evt-label">${e.label}</span>
+              <span class="vh-evt-time">${e.time}</span>
+            </div>
+            <div class="vh-evt-sub ${e.quote?'quote':''}">${e.sub}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderDoctorProfile(docName,p){
+  return `<div class="acc ${plan.acc.demo?'open':''}" data-key="demo">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Demographics</div><div class="acc-sub">Identity, registration & contact</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">
+      ${vRow('Role',p.role)}
+      ${vRow('MyRefNo',p.refNo)}
+      ${vRow('Mobile',p.mob)}
+      ${vRow('Email',p.email)}
+      ${vRow('Reg. No',p.regNo)}
+      ${vRow('Date of Birth',p.dob)}
+      ${vRow('Experience',p.exp)}
+      ${vRow('Area',p.area)}
+      ${vRow('City',p.city)}
+      ${vRow('Education',p.education)}
+    </div>
+  </div>
+  <div class="acc ${plan.acc.recent?'open':''}" data-key="recent">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Recent Interactions</div><div class="acc-sub">Frequency & latest engagements</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">
+      <div class="ri-grid">
+        <div class="ri-stat"><div class="ri-stat-lbl">Visit Freq</div><div class="ri-stat-val">${p.visitFreq}</div><div class="ri-stat-sub">${p.visitFreqSub||''}</div></div>
+        <div class="ri-stat"><div class="ri-stat-lbl">Next Visit</div><div class="ri-stat-val">${p.nextVisit}</div><div class="ri-stat-sub">${p.nextVisitSub||''}</div></div>
+        <div class="ri-stat" style="grid-column:span 2;"><div class="ri-stat-lbl">Previous Visit</div><div class="ri-stat-val">${p.prevVisit}</div><div class="ri-stat-sub">${p.prevVisitSub||''}</div></div>
+      </div>
+      <div class="ri-recent-h">Recent activity</div>
+      ${(p.recent||[]).map(r=>`
+        <div class="ri-recent-row">
+          <span class="ri-recent-dot" style="background:${r.dot==='pos'?'var(--green)':r.dot==='neg'?'var(--red)':'var(--amber)'}"></span>
+          <div class="ri-recent-info"><div class="ri-recent-title">${r.title}</div><div class="ri-recent-sub">${r.sub}</div></div>
+          <span class="ri-recent-date">${r.date}</span>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="acc ${plan.acc.beh?'open':''}" data-key="beh">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 3-3 5"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Behavior & Preferences</div><div class="acc-sub">How they engage & what works</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">
+      <div class="beh-list">
+        ${(p.behavior||[]).map((b,i)=>{
+          const icons=[
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM8 8h7M8 12h7M8 16h5"/></svg>',
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M6 8l6-4 6 4M6 16l6-4 6 4"/></svg>',
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M8 3v6M16 3v6"/></svg>',
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>',
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+          ];
+          return `<div class="beh-item">
+            <div class="beh-icon">${icons[i]||icons[0]}</div>
+            <div class="beh-content"><div class="beh-label">${b.l}</div><div class="beh-val">${b.v}</div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="acc ${plan.acc.topics?'open':''}" data-key="topics">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7 7 7 0 0 1-4 6.32V17H9v-1.68A7 7 0 0 1 5 9a7 7 0 0 1 7-7z"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Suggested Topics</div><div class="acc-sub">Talking points for this visit</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">
+      ${(p.topics||[]).map((t,i)=>`<div class="tp-item"><span class="tp-num">${i+1}</span><span class="tp-text">${t}</span></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function bindAccordions(){
+  document.querySelectorAll('#vd-content .acc').forEach(acc=>{
+    acc.querySelector('.acc-head').addEventListener('click',()=>{
+      const k=acc.dataset.key;
+      plan.acc[k]=!plan.acc[k];
+      acc.classList.toggle('open',plan.acc[k]);
+    });
+  });
+}
+
+function renderPastVisits(docName){
+  const p=profileOf(docName);
+  const data=(p.recent||[]).map(r=>({date:`${r.date} '26`,outcome:r.title.includes('Positive')?'Positive':r.title.includes('Negative')?'Negative':'Neutral',type:r.title.split(' · ')[0],detail:r.sub}));
+  if(!data.length) return '<div class="empty"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18"/></svg></div><div class="et">No past visits yet</div><div class="ed">Visit records will appear here as they happen.</div></div>';
+  return `<div class="tl-card">
+    <div class="tl-card-h">${data.length} visit${data.length!==1?'s':''} recorded</div>
+    <div class="tl-list">
+      ${data.map(v=>{const cls=v.outcome==='Positive'?'pos':v.outcome==='Negative'?'neg':'neu';return `<div class="tl-item">
+          <div class="tl-left"><div class="tl-dot ${cls}"></div><div class="tl-line"></div></div>
+          <div class="tl-body">
+            <div class="tl-row"><div class="tl-title">${v.type}</div><span class="tl-pill ${cls}">${v.outcome}</span></div>
+            <div class="tl-meta"><span>${v.date}</span></div>
+            <div class="tl-detail">${v.detail}</div>
+            <div class="tl-by"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Raj (You)</div>
+          </div>
+        </div>`;}).join('')}
+    </div>
+  </div>`;
+}
+
+function renderActivity(docName){
+  const p=profileOf(docName);
+  const acts=[];
+  (p.recent||[]).forEach(r=>{
+    acts.push({date:`${r.date} '26, ${r.title.includes('Video')?'04:02 PM':'10:48 AM'}`,label:'Visit Completed',detail:`Outcome: ${r.title.includes('Positive')?'Positive':r.title.includes('Negative')?'Negative':'Neutral'} · ${r.sub}`,by:'Raj (You)'});
+    acts.push({date:`${r.date} '26, ${r.title.includes('Video')?'03:55 PM':'09:32 AM'}`,label:'Checked In',detail:'Geo Match: ✓ verified',by:'System'});
+  });
+  if(!acts.length) return '<div class="empty"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="et">No activity yet</div><div class="ed">Check-ins and visits will appear here.</div></div>';
+  return `<div class="tl-card">
+    <div class="tl-card-h">${acts.length} event${acts.length!==1?'s':''}</div>
+    <div class="tl-list">
+      ${acts.map(a=>`<div class="tl-item">
+        <div class="tl-left"><div class="tl-dot act"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-row"><div class="tl-title">${a.label}</div></div>
+          <div class="tl-meta"><span>${a.date}</span></div>
+          <div class="tl-detail">${a.detail}</div>
+          <div class="tl-by"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>${a.by}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* Tips sheet */
+function openTipsSheet(docName){
+  const p=profileOf(docName);
+  const tips=p.topics||["No pre-visit tips available for this contact."];
+  document.getElementById('tips-doc-name').textContent=docName;
+  document.getElementById('tips-list').innerHTML=tips.map((t,i)=>`<div class="tips-item"><span class="tips-item-num">${i+1}</span><span class="tips-item-text">${t}</span></div>`).join('');
+  openSheet('tips');
+}
+
+/* Router */
+function showView(name){
+  document.getElementById('view-list').classList.toggle('active',name==='list');
+  document.getElementById('view-detail').classList.toggle('active',name==='detail');
+}
+
+bucketRoute('/beat-plan',{
+  list(){ showView('list'); renderPlan(); },
+  detail(slug){ showView('detail'); renderDetail(slug); },
+});
+</script>
+</body>
+</html>

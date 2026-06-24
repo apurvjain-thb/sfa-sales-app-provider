@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Profile · Roche SFA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <!-- LIST -->
+    <div class="screen-view" id="view-list">
+      <div class="pf-topbar">
+        <a class="pf-back" href="/beat-plan">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="pf-title">Profile</div>
+      </div>
+      <div class="pf-divider"></div>
+      <div class="screen"><div style="padding:0 0 32px;">
+        <div class="pf-hero">
+          <div class="pf-avatar">RH</div>
+          <div class="pf-info">
+            <div class="pf-name">Raj Hussain</div>
+            <div class="pf-meta">+971 839 234020 | Central team</div>
+            <div class="pf-role">Field Agent</div>
+          </div>
+        </div>
+        <div class="pf-divider"></div>
+        <div class="pf-list">
+          <a class="pf-item" href="/profile/my-profile" onclick="event.preventDefault();bucketGo('/profile/my-profile');">
+            <span class="pf-item-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+            <span class="pf-item-t">My Profile</span>
+            <svg class="pf-item-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+          <a class="pf-item" href="javascript:void(0)" onclick="openEvalSheet()">
+            <span class="pf-item-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></span>
+            <span class="pf-item-t">Evaluate Sales Reps</span>
+            <svg class="pf-item-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+          <a class="pf-item" href="/profile/reset-password" onclick="event.preventDefault();bucketGo('/profile/reset-password');">
+            <span class="pf-item-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+            <span class="pf-item-t">Reset Password</span>
+            <svg class="pf-item-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+          <a class="pf-item" href="javascript:void(0)" onclick="openSheet('logout')">
+            <span class="pf-item-ic" style="background:var(--red-tint);color:var(--red);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
+            <span class="pf-item-t">Logout</span>
+            <svg class="pf-item-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- MY PROFILE -->
+    <div class="screen-view" id="view-my-profile">
+      <div class="pf-topbar">
+        <a class="pf-back" href="/profile" onclick="event.preventDefault();bucketGo('/profile');">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="pf-title">My Profile</div>
+      </div>
+      <div class="pf-divider"></div>
+      <div class="screen"><div style="padding:0 0 32px;">
+        <div class="mp-hero">
+          <div class="mp-hero-avatar">RH</div>
+          <div class="mp-hero-name">Raj Hussain</div>
+          <div class="mp-hero-role">Field Agent</div>
+        </div>
+        <div class="pf-divider"></div>
+        <div style="padding:0 18px;">
+          <div class="vd-section">
+            <div class="vd-section-title"><span class="it"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>Personal info</div>
+            <div class="vd-row"><span class="vd-row-label">Name</span><span class="vd-row-value">Raj Hussain</span></div>
+            <div class="vd-row"><span class="vd-row-label">Mobile</span><span class="vd-row-value">+971 839 234020</span></div>
+          </div>
+          <div class="vd-section">
+            <div class="vd-section-title"><span class="it"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>Work details</div>
+            <div class="vd-row"><span class="vd-row-label">Role</span><span class="vd-row-value">Field Agent</span></div>
+            <div class="vd-row"><span class="vd-row-label">Workspace</span><span class="vd-row-value">Roche SFA</span></div>
+            <div class="vd-row"><span class="vd-row-label">Team</span><span class="vd-row-value">Central team</span></div>
+            <div class="vd-row"><span class="vd-row-label">Branch mapped</span><span class="vd-row-value">Dubai — Healthcare City</span></div>
+          </div>
+          <div style="font-size:11.5px;color:var(--ink-3);text-align:center;margin-top:18px;padding:0 12px;line-height:1.5;">
+            To update any of these details, please contact your administrator.
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- RESET PASSWORD -->
+    <div class="screen-view" id="view-reset-password">
+      <div class="pf-topbar">
+        <a class="pf-back" id="rp-back" href="/profile" onclick="event.preventDefault();onResetBack();">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="pf-title">Reset Password</div>
+      </div>
+      <div class="pf-divider"></div>
+      <div class="pf-sub-screen">
+        <div class="screen"><div class="pf-sub-body">
+          <div class="pf-step-indicator">
+            <span id="rp-step-text">Step 1 of 3</span>
+            <span class="pf-step-dots" id="rp-step-dots"></span>
+          </div>
+          <div id="rp-step-body"></div>
+        </div></div>
+        <div class="pf-sub-footer">
+          <button class="btn btn-primary" id="rp-cta" onclick="onResetCta()">Continue</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Evaluate Sales Reps — dropdown + info card -->
+  <div class="sheet-backdrop" id="eval-pick-backdrop" onclick="closeSheet('eval-pick')"></div>
+  <div class="bottom-sheet" id="eval-pick-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Evaluate sales rep</span>
+      <button class="sheet-close" onclick="closeSheet('eval-pick')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="ropt-section" style="padding:0 0 6px;">
+      <label class="tke-label">Sales rep <span class="req" style="color:var(--red)">*</span></label>
+      <select class="tke-select" id="eval-rep" onchange="onPickEvalRep(this.value)">
+        <option value="">Select a rep</option>
+      </select>
+    </div>
+    <div id="eval-info" style="display:none;margin-top:14px;"></div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('eval-pick')">Cancel</button>
+      <button class="btn btn-primary" id="eval-continue-btn" onclick="continueToEvaluate()" disabled style="opacity:.55;">Continue</button>
+    </div>
+  </div>
+
+  <!-- Floating "Ask FieldIQ" agent — only visible on the /profile root view.
+       Sits at device level (outside any screen-view) so it can't accidentally
+       collide with menu-item touch events. Click handler bound in JS to make
+       sure no inline-event mis-parsing can leak through. -->
+  <button class="fiq-fab" id="fiq-fab" type="button" aria-label="Ask FieldIQ">
+    <span class="fiq-fab-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg></span>
+    <span class="fiq-fab-t">Ask FieldIQ</span>
+  </button>
+
+  <!-- FieldIQ AI assistant — full-screen overlay -->
+  <div class="fiq-overlay" id="fiq-overlay">
+    <div class="fiq-header">
+      <div class="fiq-header-l">
+        <span class="fiq-logo"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg></span>
+        <div>
+          <div class="fiq-h-title">FieldIQ</div>
+          <div class="fiq-h-sub">AI agent · Internal repository</div>
+        </div>
+      </div>
+      <button class="fiq-close" onclick="closeFieldIQ()" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="fiq-body" id="fiq-body"></div>
+    <div class="fiq-suggest" id="fiq-suggest"></div>
+    <div class="fiq-input-row">
+      <input class="fiq-input" id="fiq-input" placeholder="Ask FieldIQ anything…" onkeydown="if(event.key==='Enter')sendFIQ()"/>
+      <button class="fiq-send" onclick="sendFIQ()" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Logout confirm sheet -->
+  <div class="sheet-backdrop" id="logout-backdrop" onclick="closeSheet('logout')"></div>
+  <div class="bottom-sheet" id="logout-sheet">
+    <div class="sheet-handle"></div>
+    <div class="lo-sheet-body" style="padding-top:20px;">
+      <div class="lo-icon-wrap">
+        <div class="lo-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></div>
+      </div>
+      <div class="lo-title">Log out?</div>
+      <div class="lo-sub">You'll need to log in again to access the app.</div>
+      <div class="lo-actions">
+        <button class="btn secondary" onclick="closeSheet('logout')">Cancel</button>
+        <button class="btn danger" onclick="doLogout()">Log out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/shell.js"></script>
+<script>
+/* Profile bucket: no bottom nav. Inject status bar + snackbar. */
+document.getElementById('device').insertAdjacentHTML('afterbegin',STATUS_BAR_HTML);
+document.getElementById('device').insertAdjacentHTML('beforeend','<div class="snackbar" id="snackbar"></div>');
+
+/* ════ STATIC AUTH FOR DEMO ════ */
+const CURRENT_PWD="Thb@1234";
+const STATIC_OTP="321564";
+
+/* ════ ROUTING ════ */
+function showView(name){
+  document.getElementById('view-list').classList.toggle('active',name==='list');
+  document.getElementById('view-my-profile').classList.toggle('active',name==='my-profile');
+  document.getElementById('view-reset-password').classList.toggle('active',name==='reset-password');
+  /* FAB lives at device level — show it only on the profile root */
+  document.getElementById('fiq-fab').style.display=(name==='list')?'inline-flex':'none';
+}
+
+/* Hide the FAB whenever any sheet (including the Evaluate Sales Rep picker)
+   is open — it visually collides with the bottom sheet. Restore only if no
+   sheets remain open AND the user is on the profile list view. */
+const __origOpenSheet=openSheet;
+openSheet=function(id){
+  __origOpenSheet(id);
+  const fab=document.getElementById('fiq-fab');
+  if(fab) fab.style.display='none';
+};
+const __origCloseSheet=closeSheet;
+closeSheet=function(id){
+  __origCloseSheet(id);
+  setTimeout(()=>{
+    const anyOpen=document.querySelector('.bottom-sheet.open');
+    const onList=document.getElementById('view-list').classList.contains('active');
+    const fab=document.getElementById('fiq-fab');
+    if(fab && !anyOpen && onList) fab.style.display='inline-flex';
+  },50);
+};
+
+/* ════ RESET PASSWORD ════ */
+const rp={step:1,currentPwd:'',otp:'',newPwd:'',confirmPwd:'',resendT:null};
+
+function renderResetStep(){
+  document.getElementById('rp-step-text').textContent=`Step ${rp.step} of 3`;
+  document.getElementById('rp-step-dots').innerHTML=[1,2,3].map(n=>{
+    const cls=n<rp.step?'done':(n===rp.step?'active':'');
+    return `<span class="pf-step-dot ${cls}"></span>`;
+  }).join('');
+
+  const body=document.getElementById('rp-step-body');
+  const cta=document.getElementById('rp-cta');
+
+  if(rp.step===1){
+    body.innerHTML=`
+      <h2 class="pf-form-h">Confirm current password</h2>
+      <p class="pf-form-sub">For your security, please enter your current password to continue.</p>
+      <div class="pwd-field" id="rp-cur-field">
+        <span class="pwd-field-label">Current password</span>
+        <input class="pwd-input" id="rp-cur" type="password" autocomplete="current-password" oninput="rp.currentPwd=this.value;updateCtaState();" onfocus="document.getElementById('rp-cur-field').classList.add('focus')" onblur="document.getElementById('rp-cur-field').classList.remove('focus')"/>
+        <button class="pwd-eye" onclick="togglePwd('rp-cur',this)" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="pwd-msg" id="rp-cur-msg"></div>`;
+    cta.textContent='Continue';
+    setTimeout(()=>document.getElementById('rp-cur').focus(),60);
+  } else if(rp.step===2){
+    body.innerHTML=`
+      <h2 class="pf-form-h">Verify it's you</h2>
+      <p class="pf-form-sub">We've sent a 6-digit code to <strong>+971 839 234020</strong>. Enter it below to continue.</p>
+      <div class="otp-boxes" id="rp-otp-boxes">
+        ${[0,1,2,3,4,5].map(()=>'<input class="otp-box" maxlength="1" inputmode="numeric"/>').join('')}
+      </div>
+      <div class="otp-resend-row">
+        <span>Didn't receive it?</span>
+        <button class="otp-resend" id="rp-resend" onclick="resendResetOTP()" disabled>Resend in <span id="rp-timer">30s</span></button>
+      </div>
+      <div class="pwd-msg" id="rp-otp-msg"></div>`;
+    cta.textContent='Verify & continue';
+    setupOTPBoxes();
+    startResendTimer();
+  } else if(rp.step===3){
+    body.innerHTML=`
+      <h2 class="pf-form-h">Set a new password</h2>
+      <p class="pf-form-sub">Choose a password with at least 6 characters. You'll use this to log in next time.</p>
+      <div class="pwd-field" id="rp-new-field">
+        <span class="pwd-field-label">New password</span>
+        <input class="pwd-input" id="rp-new" type="password" autocomplete="new-password" oninput="rp.newPwd=this.value;updateCtaState();" onfocus="document.getElementById('rp-new-field').classList.add('focus')" onblur="document.getElementById('rp-new-field').classList.remove('focus')"/>
+        <button class="pwd-eye" onclick="togglePwd('rp-new',this)" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="pwd-msg" id="rp-new-msg"></div>
+      <div class="pwd-field" id="rp-conf-field">
+        <span class="pwd-field-label">Re-enter new password</span>
+        <input class="pwd-input" id="rp-conf" type="password" autocomplete="new-password" oninput="rp.confirmPwd=this.value;updateCtaState();" onfocus="document.getElementById('rp-conf-field').classList.add('focus')" onblur="document.getElementById('rp-conf-field').classList.remove('focus')"/>
+        <button class="pwd-eye" onclick="togglePwd('rp-conf',this)" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="pwd-msg" id="rp-conf-msg"></div>`;
+    cta.textContent='Save new password';
+    setTimeout(()=>document.getElementById('rp-new').focus(),60);
+  }
+  updateCtaState();
+}
+
+function updateCtaState(){
+  const cta=document.getElementById('rp-cta');
+  let ok=false;
+  if(rp.step===1) ok=rp.currentPwd.length>0;
+  else if(rp.step===2){
+    const boxes=document.querySelectorAll('#rp-otp-boxes .otp-box');
+    ok=[...boxes].every(b=>b.value);
+  } else if(rp.step===3){
+    ok=rp.newPwd.length>=6 && rp.confirmPwd.length>=6;
+  }
+  cta.disabled=!ok; cta.style.opacity=ok?'1':'.55';
+}
+
+function togglePwd(id,btn){
+  const inp=document.getElementById(id);
+  if(inp.type==='password'){
+    inp.type='text';
+    btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
+  } else {
+    inp.type='password';
+    btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  }
+}
+
+function setupOTPBoxes(){
+  const boxes=document.querySelectorAll('#rp-otp-boxes .otp-box');
+  boxes.forEach((box,i)=>{
+    box.oninput=()=>{
+      box.value=box.value.replace(/\D/g,'').slice(0,1);
+      if(box.value){box.classList.add('filled');if(boxes[i+1]) boxes[i+1].focus();}
+      else box.classList.remove('filled');
+      updateCtaState();
+    };
+    box.onkeydown=e=>{
+      if(e.key==='Backspace'&&!box.value&&boxes[i-1]) boxes[i-1].focus();
+    };
+    box.onpaste=e=>{
+      const data=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      if(!data) return; e.preventDefault();
+      [...data].forEach((d,j)=>{if(boxes[j]){boxes[j].value=d;boxes[j].classList.add('filled');}});
+      updateCtaState();
+      (boxes[Math.min(data.length,5)]||boxes[5]).focus();
+    };
+  });
+  setTimeout(()=>boxes[0].focus(),60);
+}
+
+function startResendTimer(){
+  let s=30;
+  if(rp.resendT) clearInterval(rp.resendT);
+  const btn=document.getElementById('rp-resend');
+  btn.disabled=true; btn.innerHTML='Resend in <span id="rp-timer">'+s+'s</span>';
+  rp.resendT=setInterval(()=>{
+    s--;
+    if(s<=0){clearInterval(rp.resendT);btn.disabled=false;btn.textContent='Resend OTP';}
+    else {const t=document.getElementById('rp-timer'); if(t) t.textContent=s+'s';}
+  },1000);
+}
+function resendResetOTP(){snack('OTP resent.');startResendTimer();}
+
+function onResetBack(){
+  if(rp.step>1){
+    rp.step--; renderResetStep();
+  } else {
+    bucketGo('/profile');
+  }
+}
+
+function onResetCta(){
+  if(rp.step===1){
+    if(rp.currentPwd!==CURRENT_PWD){
+      document.getElementById('rp-cur-field').classList.add('error');
+      document.getElementById('rp-cur-msg').textContent='Incorrect password. Please try again.';
+      document.getElementById('rp-cur-msg').className='pwd-msg error';
+      return;
+    }
+    document.getElementById('rp-cur-field').classList.remove('error');
+    rp.step=2; renderResetStep();
+  } else if(rp.step===2){
+    const boxes=document.querySelectorAll('#rp-otp-boxes .otp-box');
+    const entered=[...boxes].map(b=>b.value).join('');
+    if(entered!==STATIC_OTP){
+      boxes.forEach(b=>b.classList.add('error'));
+      document.getElementById('rp-otp-msg').textContent='Incorrect OTP. Please try again.';
+      document.getElementById('rp-otp-msg').className='pwd-msg error';
+      setTimeout(()=>boxes.forEach(b=>b.classList.remove('error')),1200);
+      return;
+    }
+    rp.step=3; renderResetStep();
+  } else if(rp.step===3){
+    if(rp.newPwd.length<6){
+      document.getElementById('rp-new-field').classList.add('error');
+      document.getElementById('rp-new-msg').textContent='Password must be at least 6 characters.';
+      document.getElementById('rp-new-msg').className='pwd-msg error';
+      return;
+    }
+    document.getElementById('rp-new-field').classList.remove('error');
+    document.getElementById('rp-new-msg').textContent='';
+    if(rp.newPwd!==rp.confirmPwd){
+      document.getElementById('rp-conf-field').classList.add('error');
+      document.getElementById('rp-conf-msg').textContent="Passwords don't match.";
+      document.getElementById('rp-conf-msg').className='pwd-msg error';
+      return;
+    }
+    snack('Password updated.');
+    setTimeout(()=>{
+      /* reset state and return to /profile */
+      rp.step=1; rp.currentPwd=''; rp.otp=''; rp.newPwd=''; rp.confirmPwd='';
+      bucketGo('/profile');
+    },700);
+  }
+}
+
+/* ════ EVALUATE SALES REPS ════ */
+const SALES_REPS=[
+  "Aarti Menon — South 1",
+  "Vikas Bhandari — South 2",
+  "Priya Iyer — North 1",
+  "Saurabh Mehta — West 1",
+  "Karthik Subramaniam — East 1",
+  "Neha Kulkarni — Central",
+  "Rohit Jaiswal — North 2",
+  "Sneha Pillai — South 3",
+];
+/* Per-rep monthly profile. Keyed by display name used in the dropdown. */
+const SALES_REP_PROFILES={
+  "Saurabh Mehta — West 1":      {role:"Field Sr Rep · West 1",  visits:24,connect:"88%",p1:11,samples:32,score:"4.4 / 5"},
+  "Karthik Subramaniam — East 1":{role:"Field Rep · East 1",     visits:18,connect:"79%",p1:7, samples:21,score:"3.9 / 5"},
+  "Neha Kulkarni — Central":     {role:"Field Sr Rep · Central", visits:21,connect:"91%",p1:13,samples:26,score:"4.6 / 5"},
+  "Rohit Jaiswal — North 2":     {role:"Field Rep · North 2",    visits:14,connect:"68%",p1:5, samples:14,score:"3.5 / 5"},
+  "Sneha Pillai — South 3":      {role:"Field Sr Rep · South 3", visits:26,connect:"84%",p1:12,samples:30,score:"4.2 / 5"},
+};
+function evalInitials(s){const parts=s.split(/\s+/);return ((parts[0]||'')[0]||'').toUpperCase()+((parts[parts.length-1]||'')[0]||'').toUpperCase();}
+
+function openEvalSheet(){
+  const sel=document.getElementById('eval-rep');
+  sel.innerHTML='<option value="">Select a rep</option>'+SALES_REPS.map(r=>`<option>${r}</option>`).join('');
+  sel.value='';
+  document.getElementById('eval-info').style.display='none';
+  document.getElementById('eval-info').innerHTML='';
+  setEvalContinue(false);
+  openSheet('eval-pick');
+}
+function onPickEvalRep(name){
+  const info=document.getElementById('eval-info');
+  if(!name){ info.style.display='none'; info.innerHTML=''; setEvalContinue(false); return; }
+  const p=SALES_REP_PROFILES[name]||{role:'—',visits:'—',connect:'—',p1:'—',samples:'—',score:'—'};
+  const displayName=name.split(' — ')[0];
+  info.style.display='block';
+  info.innerHTML=`<div class="eval-card-period">Last month · snapshot</div>
+    <div class="eval-card">
+      <div class="eval-card-head">
+        <div class="eval-card-avatar">${evalInitials(displayName)}</div>
+        <div class="eval-card-info">
+          <div class="eval-card-name">${displayName}</div>
+          <div class="eval-card-role">${p.role}</div>
+        </div>
+      </div>
+      <div class="eval-stats">
+        <div class="eval-stat"><div class="eval-stat-v">${p.visits}</div><div class="eval-stat-l">Visits</div></div>
+        <div class="eval-stat"><div class="eval-stat-v">${p.connect}</div><div class="eval-stat-l">Connect rate</div></div>
+        <div class="eval-stat"><div class="eval-stat-v">${p.p1}</div><div class="eval-stat-l">P1 doctors met</div></div>
+        <div class="eval-stat"><div class="eval-stat-v">${p.samples}</div><div class="eval-stat-l">Samples dropped</div></div>
+        <div class="eval-stat" style="grid-column:span 2;"><div class="eval-stat-v">${p.score}</div><div class="eval-stat-l">Last evaluation score</div></div>
+      </div>
+    </div>`;
+  setEvalContinue(true);
+}
+function setEvalContinue(on){
+  const b=document.getElementById('eval-continue-btn');
+  b.disabled=!on; b.style.opacity=on?'1':'.55';
+}
+function continueToEvaluate(){
+  const rep=document.getElementById('eval-rep').value;
+  if(!rep){ snack('Please select a sales rep.'); return; }
+  closeSheet('eval-pick');
+  sessionStorage.setItem('evalRep',rep);
+  setTimeout(()=>location.href=`/evaluate?rep=${encodeURIComponent(rep)}`,200);
+}
+
+/* ════ FIELDIQ AI AGENT ════ */
+/* Agent-productivity prompts — sales, compliance, RCPA gaps, target history. */
+const FIQ_SUGGESTIONS=[
+  "What was my total primary sales last month, and did I hit my target?",
+  "What is my visit compliance and average visits per day for the last month?",
+  "Which of my doctors have the largest gap between prescription potential and actual RCPA — where am I leaving money on the table?",
+  "Which months in the past year did I miss my primary sales target, and for which brands?",
+];
+let __fiqHistory=[];
+function openFieldIQ(){
+  /* Hard guard — close any sheets that may be open so we can't end up with a
+     stacked logout / eval-pick modal sitting behind the chat. Belt and braces
+     against ghost-click events that can fire on touch devices. */
+  document.querySelectorAll('.sheet-backdrop.open,.bottom-sheet.open').forEach(el=>el.classList.remove('open'));
+  __fiqHistory=[{
+    role:'agent',
+    text:"Hi Raj — I'm FieldIQ, your personal field copilot. I can help you plan your day, prep for the next doctor, surface pending follow-ups, or pull the right talking points. Try a prompt below or ask anything.",
+  }];
+  renderFIQ();
+  document.getElementById('fiq-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('fiq-input').focus(),120);
+}
+function closeFieldIQ(){
+  document.getElementById('fiq-overlay').classList.remove('open');
+}
+function renderFIQ(){
+  const body=document.getElementById('fiq-body');
+  body.innerHTML=__fiqHistory.map(m=>`
+    <div class="fiq-msg ${m.role}">
+      ${m.role==='agent'?'<span class="fiq-msg-avatar"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg></span>':''}
+      <div class="fiq-msg-bubble">${m.text}</div>
+    </div>`).join('');
+  body.scrollTop=body.scrollHeight;
+  const sug=document.getElementById('fiq-suggest');
+  sug.innerHTML=__fiqHistory.length<=1
+    ? FIQ_SUGGESTIONS.map(s=>`<button class="fiq-chip" onclick="sendFIQ('${s.replace(/'/g,"\\'")}')">${s}</button>`).join('')
+    : '';
+}
+function sendFIQ(preset){
+  const inp=document.getElementById('fiq-input');
+  const text=(preset||inp.value||'').trim();
+  if(!text) return;
+  inp.value='';
+  __fiqHistory.push({role:'user',text});
+  renderFIQ();
+  /* Typing indicator */
+  __fiqHistory.push({role:'agent',text:'<span class="fiq-typing"><span></span><span></span><span></span></span>'});
+  renderFIQ();
+  setTimeout(()=>{
+    __fiqHistory.pop();
+    __fiqHistory.push({role:'agent',text:mockFIQReply(text)});
+    renderFIQ();
+  },900);
+}
+function mockFIQReply(q){
+  const lc=q.toLowerCase();
+
+  /* 1. Primary sales last month + target */
+  if(lc.includes('primary sales')||(lc.includes('hit')&&lc.includes('target'))){
+    return "Primary sales — <strong>May 2026</strong>:<br>• Achieved: <strong>₹48.6 L</strong><br>• Target: ₹52.0 L<br>• Attainment: <strong>93.5%</strong> · <span style=\"color:#DD8A2A;font-weight:700;\">missed by ₹3.4 L</span><br><br>Brand-wise gap:<br>• <strong>Herceptin</strong> — ₹19.2 L vs ₹19.0 L · <span style=\"color:#2FA56C;font-weight:700;\">+1%</span><br>• <strong>Avastin</strong> — ₹14.8 L vs ₹16.0 L · −7.5%<br>• <strong>Tecentriq</strong> — ₹8.1 L vs ₹10.0 L · <span style=\"color:#EF4A45;font-weight:700;\">−19%</span><br>• <strong>MabThera</strong> — ₹6.5 L vs ₹7.0 L · −7%<br>Tecentriq is the main drag — want me to surface the top 3 prescribers to recover?";
+  }
+
+  /* 2. Visit compliance + avg visits/day */
+  if(lc.includes('compliance')||(lc.includes('average')&&lc.includes('visits'))||(lc.includes('visits per day'))){
+    return "Last 30 days · visit metrics:<br>• <strong>VF compliance:</strong> 84% (target 80%) · <span style=\"color:#2FA56C;font-weight:700;\">on track</span><br>• <strong>Avg visits/day:</strong> 5.7 (target 6.0) · slightly under<br>• Total completed calls: 142<br>• Doctor coverage: 79% (22/28)<br><br>Where compliance dropped:<br>• <strong>P3 tier</strong> — only 50% covered (3/6) — pulled the overall avg down<br>• <strong>Tue 27 May & Thu 5 Jun</strong> — only 2 visits each (admin/CME days)<br>Lift suggestion: book one extra P3 call next Wed to bring avg to 6.0/day.";
+  }
+
+  /* 3. Prescription potential vs RCPA gap */
+  if(lc.includes('rcpa')||lc.includes('potential')||lc.includes('leaving money')||lc.includes('gap')){
+    return "Top 5 doctors with the largest <strong>Rx potential vs RCPA gap</strong>:<br>1. <strong>Dr. Padmavathi K-R</strong> · Nephrology · gap <strong>₹4.2 L</strong> (potential ₹6.8 L, actual ₹2.6 L) — Tecentriq under-prescribed<br>2. <strong>Dr. Rohan Bhat</strong> · Oncology · gap <strong>₹3.6 L</strong> — Herceptin steady, Kadcyla untouched<br>3. <strong>Dr. Rajesh Kumar</strong> · Oncology · gap <strong>₹2.9 L</strong> — Avastin trending down, competitor share rising<br>4. <strong>Dr. Sneha Rao</strong> · Oncology · gap <strong>₹2.1 L</strong> — strong on MabThera, weak on Perjeta<br>5. <strong>Dr. Mallika</strong> · CTVS · gap <strong>₹1.4 L</strong> — RoActemra missed despite high-volume practice<br><br>Combined recoverable opportunity: <strong>~₹14.2 L</strong>. Want me to draft a brand-wise pitch for #1?";
+  }
+
+  /* 4. Missed-target months past year, by brand */
+  if(lc.includes('past year')||lc.includes('last year')||lc.includes('12 month')||lc.includes('miss')||lc.includes('which month')){
+    return "Months you missed your primary sales target — <strong>Jun '25 to May '26</strong>:<br><br>• <strong>Jul '25</strong> — 88% · brands: <strong>Tecentriq, Esbriet</strong><br>• <strong>Sep '25</strong> — 91% · brands: <strong>Avastin, Tarceva</strong><br>• <strong>Dec '25</strong> — 86% · brands: <strong>Herceptin</strong> (festive lull), <strong>Tecentriq</strong><br>• <strong>Feb '26</strong> — 94% · brands: <strong>MabThera</strong><br>• <strong>May '26</strong> — 93.5% · brands: <strong>Tecentriq, Avastin</strong><br><br><strong>Tecentriq</strong> is the recurring miss (4 of 5 months). Want me to pull the prescribing trend &amp; the doctors who slowed down?";
+  }
+
+  /* Fallback */
+  return "I can pull data on your sales, visit compliance, doctor potential vs RCPA, target history, or anything specific to a doctor or brand. Try one of the chips below — or ask me directly.";
+}
+
+/* ════ LOGOUT ════ */
+function doLogout(){
+  closeSheet('logout');
+  sessionStorage.removeItem('rocheLogin');
+  setTimeout(()=>location.href='/login',150);
+}
+
+/* ════ FIELDIQ FAB — bind in JS, capture phase, kill propagation.
+   Inline onclick was unreliable on touch — a tap on the FAB could also fire a
+   synthetic click on the Logout link beneath after the slide-up animation.
+   By using `pointerdown` in the capture phase + stopImmediatePropagation we
+   make sure NO other handler can run from the same gesture. ════ */
+(function(){
+  const fab=document.getElementById('fiq-fab');
+  if(!fab) return;
+  const handler=(e)=>{
+    e.stopImmediatePropagation();
+    e.stopPropagation();
+    e.preventDefault();
+    openFieldIQ();
+  };
+  /* pointerdown fires once per tap on both mouse + touch; passive:false lets
+     us call preventDefault to short-circuit any synthetic click that follows. */
+  fab.addEventListener('pointerdown',handler,{capture:true,passive:false});
+  /* Click is also bound as a fallback (e.g. keyboard activation). */
+  fab.addEventListener('click',handler,{capture:true});
+})();
+
+/* ════ ROUTER ════ */
+bucketRoute('/profile',{
+  list(){ showView('list'); },
+  detail(slug){
+    if(slug==='my-profile'){ showView('my-profile'); }
+    else if(slug==='reset-password'){
+      /* fresh state every entry */
+      rp.step=1; rp.currentPwd=''; rp.otp=''; rp.newPwd=''; rp.confirmPwd='';
+      showView('reset-password'); renderResetStep();
+    } else {
+      bucketGo('/profile');
+    }
+  },
+});
+</script>
+</body>
+</html>
