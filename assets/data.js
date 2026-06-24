@@ -299,8 +299,88 @@ function rangeLabel(f,t){return f.toDateString()===t.toDateString()?fmtDate(f):`
 function initials(name){const parts=name.replace(/^Dr\.?\s*/,'').trim().split(/\s+/);return ((parts[0]||'')[0]||'').toUpperCase()+((parts[parts.length-1]||'')[0]||'').toUpperCase();}
 function profileOf(name){return DOCTOR_PROFILES[name]||PROFILE_FALLBACK;}
 
+/* ════════════════════════════════════════
+   ACCOUNTS — provider/hospital sales model
+   The primary entity. Contacts, visits, tasks,
+   leads & deals all hang off an Account.
+
+   type drives app behaviour:
+     referral  → doctor/clinic patient referrals
+     venue     → health camps (societies, malls, schools)
+     corporate → employee health tie-ups (MOUs)
+   ════════════════════════════════════════ */
+const ACCOUNT_TYPE_META={
+  referral:{label:"Referral Source",sub:"Patient referrals",chip:"Referral",
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z"/><circle cx="12" cy="9" r="3"/></svg>'},
+  venue:{label:"Venue",sub:"Health camps & activities",chip:"Venue",
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>'},
+  corporate:{label:"Corporate",sub:"Employee tie-ups",chip:"Corporate",
+    icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h2M13 8h2M9 12h2M13 12h2M9 16h6"/></svg>'},
+};
+
+/* Account status atoms */
+const ACC_STATUS_CLASS={Prospect:"up",Active:"done",["On-hold"]:"wait"};
+
+const ACCOUNTS=[
+  /* ── Referral sources (clinics, nursing homes, doctor practices) ── */
+  {id:"AC-1001",name:"Dr. Jain's Nursing Home",type:"referral",sub:"Nursing Home",status:"Prospect",
+    addr:"A-1, Ring Road, Sector 43, Gurugram",lastVisit:"3 days ago",created:1,
+    contacts:[{n:"Dr. Apurv Jain",role:"Chief Medical Officer",spec:"Cardiologist",phone:"+91 97155 53344",email:"apurv.jain@thb.co.in"}],
+    tier:1,specialties:"Cardiology, Internal Medicine",referralsMTD:4,referralTarget:6,competing:"Medanta, Fortis"},
+  {id:"AC-1002",name:"Aradhya Clinics",type:"referral",sub:"Polyclinic",status:"Active",
+    addr:"2nd Cross, Indiranagar 100-Feet Road, Bengaluru",lastVisit:"Yesterday",created:5,
+    contacts:[{n:"Dr. Ananya Devika Sharma",role:"Consultant",spec:"General Physician",phone:"+91 97155 53311",email:"ananya.sharma@aradhya.in"}],
+    tier:1,specialties:"General Medicine, Pediatrics",referralsMTD:9,referralTarget:8,competing:"Apollo"},
+  {id:"AC-1003",name:"Sunrise Multispecialty Clinic",type:"referral",sub:"Clinic",status:"Active",
+    addr:"HSR Layout 7th Sector, Bengaluru",lastVisit:"1 week ago",created:8,
+    contacts:[{n:"Dr. Rohit Deshmukh",role:"Owner & Physician",spec:"General Physician",phone:"+91 97155 53345",email:"rohit.d@sunrise.in"}],
+    tier:2,specialties:"General Medicine, Orthopaedics",referralsMTD:2,referralTarget:5,competing:"—"},
+  {id:"AC-1004",name:"Lotus Children's Clinic",type:"referral",sub:"Pediatric Clinic",status:"Prospect",
+    addr:"Jayanagar 4th Block, Bengaluru",lastVisit:"No visits yet",created:12,
+    contacts:[{n:"Dr. Shubham Sharma",role:"Pediatrician",spec:"Pediatrics",phone:"+91 97155 53112",email:"shubham.s@lotus.in"}],
+    tier:2,specialties:"Pediatrics, Neonatology",referralsMTD:0,referralTarget:4,competing:"Cloudnine"},
+
+  /* ── Venues (housing societies, malls, schools) for camps ── */
+  {id:"AC-2001",name:"Prestige Lakeside Habitat",type:"venue",sub:"Housing Society",status:"Active",
+    addr:"Varthur Road, Whitefield, Bengaluru",lastVisit:"2 weeks ago",created:3,
+    contacts:[{n:"Mr. Ramesh Gowda",role:"RWA Secretary",phone:"+91 98860 11223",email:"secretary@prestigelakeside.org"}],
+    households:3200,footfall:"250–400",pastCamps:2,preferredTiming:"Weekend mornings"},
+  {id:"AC-2002",name:"Phoenix Marketcity",type:"venue",sub:"Mall",status:"Prospect",
+    addr:"Whitefield Main Road, Mahadevapura, Bengaluru",lastVisit:"No visits yet",created:14,
+    contacts:[{n:"Ms. Priya Nair",role:"Mall Operations Manager",phone:"+91 98860 22334",email:"priya.nair@phoenixmarketcity.in"}],
+    households:0,footfall:"2,000+/day",pastCamps:0,preferredTiming:"Weekend, 11 AM–7 PM"},
+  {id:"AC-2003",name:"Delhi Public School, Whitefield",type:"venue",sub:"School",status:"Active",
+    addr:"Sarjapur Road, Bengaluru",lastVisit:"1 month ago",created:9,
+    contacts:[{n:"Mrs. Anita Rao",role:"Administrator",phone:"+91 98860 33445",email:"admin@dpswhitefield.edu.in"}],
+    households:0,footfall:"1,800 students",pastCamps:1,preferredTiming:"Weekday, post-assembly"},
+  {id:"AC-2004",name:"Brigade Gateway RWA",type:"venue",sub:"Housing Society",status:"On-hold",
+    addr:"Rajajinagar, Bengaluru",lastVisit:"6 weeks ago",created:18,
+    contacts:[{n:"Mr. Suresh Menon",role:"RWA President",phone:"+91 98860 44556",email:"president@brigadegateway.org"}],
+    households:1250,footfall:"120–200",pastCamps:3,preferredTiming:"Sunday mornings"},
+
+  /* ── Corporates (employee health tie-ups) ── */
+  {id:"AC-3001",name:"Infosys Ltd",type:"corporate",sub:"IT / ITES",status:"Active",
+    addr:"Electronics City Phase 1, Bengaluru",lastVisit:"4 days ago",created:6,
+    contacts:[{n:"Ms. Kavita Reddy",role:"Head – Employee Wellness",phone:"+91 99000 11223",email:"kavita.reddy@infosys.com"}],
+    employees:42000,insurer:"Star Health",renewal:"31 Mar '27",packageTier:"Premium (OPD + IPD)"},
+  {id:"AC-3002",name:"Wipro Technologies",type:"corporate",sub:"IT / ITES",status:"Prospect",
+    addr:"Sarjapur Road, Bengaluru",lastVisit:"1 week ago",created:11,
+    contacts:[{n:"Mr. Arjun Pillai",role:"HR – Benefits",phone:"+91 99000 22334",email:"arjun.pillai@wipro.com"}],
+    employees:38000,insurer:"ICICI Lombard",renewal:"30 Jun '26",packageTier:"Under discussion"},
+  {id:"AC-3003",name:"Aravali Power Company Pvt Ltd",type:"corporate",sub:"PSU",status:"Active",
+    addr:"A-1, Senapati Road, Sector 12, Gurugram",lastVisit:"1 week ago",created:4,
+    contacts:[{n:"Mr. Rohit Deshmukh",role:"General Manager",phone:"+91 97155 53345",email:"rohit.d@aravalipower.in"}],
+    employees:6500,insurer:"New India Assurance",renewal:"31 Dec '26",packageTier:"Standard (IPD)"},
+  {id:"AC-3004",name:"Toyota Kirloskar Motor",type:"corporate",sub:"Manufacturing",status:"On-hold",
+    addr:"Bidadi Industrial Area, Ramanagara",lastVisit:"3 weeks ago",created:16,
+    contacts:[{n:"Mr. Karthik Subramaniam",role:"Admin – Medical Services",phone:"+91 99000 44556",email:"karthik.s@toyota-kirloskar.in"}],
+    employees:6000,insurer:"Bajaj Allianz",renewal:"31 Mar '27",packageTier:"Premium (OPD + IPD)"},
+];
+
 /* ── URL slug helpers ── */
 function slugify(name){return name.replace(/^Dr\.?\s*/i,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
 function findTodayVisitBySlug(slug){return TODAY_VISITS.find(v=>slugify(v.doc)===slug);}
 function findDoctorBySlug(slug){return DOCTORS.find(d=>slugify(d.n)===slug);}
 function findTaskById(id){return TASKS.find(t=>String(t.id)===String(id));}
+function findAccountBySlug(slug){return ACCOUNTS.find(a=>slugify(a.name)===slug);}
+function accInitials(name){const p=name.replace(/^(Dr|Mr|Mrs|Ms)\.?\s*/i,'').trim().split(/\s+/);return ((p[0]||'')[0]||'').toUpperCase()+((p[1]||'')[0]||'').toUpperCase();}

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sfa",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["/Users/thb/Downloads/sfa-sales-app-main/serve.py"],
+      "port": 8080
+    }
+  ]
+}

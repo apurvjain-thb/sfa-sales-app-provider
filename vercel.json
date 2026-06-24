@@ -5,6 +5,7 @@
     { "source": "/login/:slug", "destination": "/login" },
     { "source": "/profile/:slug", "destination": "/profile" },
     { "source": "/beat-plan/:slug", "destination": "/beat-plan" },
+    { "source": "/accounts/:slug", "destination": "/accounts" },
     { "source": "/contacts/:slug", "destination": "/contacts" },
     { "source": "/tasks/:slug", "destination": "/tasks" }
   ],

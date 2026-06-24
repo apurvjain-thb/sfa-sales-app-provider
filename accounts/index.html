@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Accounts · Sakra Sales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+
+    <!-- LIST -->
+    <div class="screen-view" id="view-list">
+      <div class="appheader">
+        <div class="header-row">
+          <h1 class="page-title">Accounts</h1>
+          <div class="avatar" onclick="location.href='/profile'">RH</div>
+        </div>
+      </div>
+      <div class="chiprow" id="account-chips"></div>
+      <div class="searchwrap"><div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="account-search" placeholder="Search by account name, area" oninput="renderAccounts()">
+      </div></div>
+      <div class="toolsrow">
+        <span class="count" id="account-count">— accounts</span>
+        <div class="tools">
+          <button class="iconbtn" onclick="openSheet('a-filter')" title="Filter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button>
+        </div>
+      </div>
+      <div class="screen"><div class="pad" id="account-list" style="padding-top:0;"></div></div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="screen-view" id="view-detail">
+      <div class="vd-topbar">
+        <a class="vd-back" href="/accounts" onclick="event.preventDefault();bucketGo('/accounts');">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="vd-topbar-title">
+          <div class="vd-visit-id">Account</div>
+          <div class="vd-follow-up" id="ad-sub"></div>
+        </div>
+        <button class="vd-topbar-action" onclick="snack('More actions — built next.')"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+      </div>
+      <div class="screen"><div style="padding:0 0 32px;">
+        <div class="vd-hero-wrap">
+          <div class="vd-hero">
+            <div class="vd-hero-avatar" id="ad-avatar">AC</div>
+            <div class="vd-hero-body">
+              <div class="vd-hero-top">
+                <div style="min-width:0;flex:1;">
+                  <div class="vd-hero-name" id="ad-name">Account</div>
+                  <div class="vd-hero-spec" id="ad-type">Type</div>
+                </div>
+                <span class="pill up" id="ad-status" style="margin-top:2px;">Status</span>
+              </div>
+              <div class="vd-hero-clinic">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z"/><circle cx="12" cy="9" r="3"/></svg>
+                <span class="ct" id="ad-addr"></span>
+              </div>
+              <div class="vd-hero-actions">
+                <button class="vd-hero-action" onclick="addVisit()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+                  Add Visit
+                </button>
+                <button class="vd-hero-action" onclick="snack('Send report — built next.')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+                  Send Report
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 18px 32px;" id="ad-content"></div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- Filter sheet -->
+  <div class="sheet-backdrop" id="a-filter-backdrop" onclick="closeSheet('a-filter')"></div>
+  <div class="bottom-sheet" id="a-filter-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Filters</span>
+      <button class="sheet-close" onclick="closeSheet('a-filter')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-h">Status</div>
+      <div class="sf-chips" id="a-filter-status"></div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="resetAccountsFilter()">Reset</button>
+      <button class="btn btn-primary" onclick="applyAccountsFilter()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/data.js"></script>
+<script src="/assets/shell.js"></script>
+<script>
+initShell('accounts');
+
+const as_={type:"All",filter:{status:[]},filterDraft:{status:[]}};
+
+function renderChips(){
+  const chips=[["All","All"],["referral","Referral"],["venue","Venue"],["corporate","Corporate"]];
+  document.getElementById('account-chips').innerHTML=chips.map(([k,l])=>`<button class="chip ${as_.type===k?'active':''}" onclick="setType('${k}')">${l}</button>`).join('');
+}
+function setType(t){as_.type=t;renderChips();renderAccounts();}
+
+/* ── Filter sheet ── */
+const _openSheetOrig=openSheet;
+openSheet=function(id){ if(id==='a-filter') populateAccountsFilterSheet(); _openSheetOrig(id); };
+function populateAccountsFilterSheet(){
+  as_.filterDraft={status:[...as_.filter.status]};
+  document.getElementById('a-filter-status').innerHTML=["Prospect","Active","On-hold"].map(s=>`<button class="sf-chip-multi ${as_.filterDraft.status.includes(s)?'sel':''}" onclick="toggleAFilter('${s}',this)">${s}</button>`).join('');
+}
+function toggleAFilter(val,btn){
+  const list=as_.filterDraft.status;const i=list.indexOf(val);
+  if(i>=0) list.splice(i,1); else list.push(val);
+  btn.classList.toggle('sel');
+}
+function applyAccountsFilter(){as_.filter={status:[...as_.filterDraft.status]};closeSheet('a-filter');renderAccounts();}
+function resetAccountsFilter(){as_.filterDraft={status:[]};populateAccountsFilterSheet();}
+
+function statusClass(s){return ACC_STATUS_CLASS[s]||'up';}
+
+function renderAccounts(){
+  const q=(document.getElementById('account-search').value||'').toLowerCase();
+  let rows=ACCOUNTS.filter(a=>{
+    const typeOk=as_.type==='All'||a.type===as_.type;
+    const statusOk=!as_.filter.status.length||as_.filter.status.includes(a.status);
+    const qOk=!q||a.name.toLowerCase().includes(q)||a.addr.toLowerCase().includes(q)||(a.sub||'').toLowerCase().includes(q);
+    return typeOk&&statusOk&&qOk;
+  });
+  rows=[...rows].sort((x,y)=>x.created-y.created);
+  document.getElementById('account-count').textContent=`${rows.length} account${rows.length!==1?'s':''}`;
+  const list=document.getElementById('account-list');
+  if(!rows.length){list.innerHTML='<div class="empty"><div class="et">No accounts found</div><div class="ed">Try a different name, type, or status.</div></div>';return;}
+  list.innerHTML=rows.map(a=>{
+    const slug=slugify(a.name);
+    const meta=ACCOUNT_TYPE_META[a.type];
+    const noVisit=/no visits/i.test(a.lastVisit);
+    const foot=noVisit
+      ?`<span class="foot-meta no-visits"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>No visits yet</span>`
+      :`<span class="foot-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Last visit ${a.lastVisit}</span>`;
+    return `<div class="card" onclick="bucketGo('/accounts/${slug}')">
+      <div class="card-top">
+        <span class="card-title">${a.name}</span>
+        <div class="card-top-right"><span class="pill ${statusClass(a.status)}">${a.status}</span></div>
+      </div>
+      <div class="inner"><div class="line"><span style="color:var(--ink-2)">${meta.chip}:</span> ${a.sub}</div><div class="line sub">${a.addr}</div></div>
+      <div class="card-foot">${foot}<button class="btn btn-primary" style="padding:7px 14px;font-size:var(--f-body);" onclick="event.stopPropagation();addVisitFor('${slug}')">Add Visit</button></div>
+    </div>`;
+  }).join('');
+}
+
+function vRow(label,val){return `<div class="vd-row"><span class="vd-row-label">${label}</span><span class="vd-row-value">${val||'—'}</span></div>`;}
+
+const ad={current:null,acc:{info:true,contacts:true}};
+
+function renderDetail(slug){
+  const a=findAccountBySlug(slug);
+  const content=document.getElementById('ad-content');
+  if(!a){
+    document.getElementById('ad-name').textContent='Account not found';
+    document.getElementById('ad-type').textContent='';
+    document.getElementById('ad-addr').textContent='';
+    document.getElementById('ad-status').style.display='none';
+    document.getElementById('ad-avatar').textContent='?';
+    content.innerHTML='<div class="empty" style="margin-top:24px;"><div class="et">Account not found</div><div class="ed">This link doesn\'t match any account.</div></div>';
+    return;
+  }
+  const meta=ACCOUNT_TYPE_META[a.type];
+  document.getElementById('ad-status').style.display='';
+  document.getElementById('ad-avatar').textContent=accInitials(a.name);
+  document.getElementById('ad-name').textContent=a.name;
+  document.getElementById('ad-type').textContent=`${meta.label} · ${a.sub}`;
+  document.getElementById('ad-status').textContent=a.status;
+  document.getElementById('ad-status').className=`pill ${statusClass(a.status)}`;
+  document.getElementById('ad-addr').textContent=a.addr;
+  document.getElementById('ad-sub').textContent=`${a.id} · Last visit ${a.lastVisit}`;
+  ad.current=a; ad.acc={info:true,contacts:true};
+
+  content.innerHTML=renderTypeInfo(a)+renderContacts(a);
+  bindAccordions();
+  document.querySelector('#view-detail .screen').scrollTop=0;
+}
+
+/* Type-specific info block */
+function renderTypeInfo(a){
+  let rows='';
+  if(a.type==='referral'){
+    rows=vRow('Priority Tier',`P${a.tier}`)
+        +vRow('Aligned Specialties',a.specialties)
+        +vRow('Referrals (MTD)',`${a.referralsMTD} of ${a.referralTarget} target`)
+        +vRow('Competing Hospitals',a.competing);
+  } else if(a.type==='venue'){
+    rows=(a.households?vRow('Households',a.households.toLocaleString('en-IN')):'')
+        +vRow('Footfall Potential',a.footfall)
+        +vRow('Past Camps',a.pastCamps)
+        +vRow('Preferred Timing',a.preferredTiming);
+  } else if(a.type==='corporate'){
+    rows=vRow('Employees',a.employees.toLocaleString('en-IN'))
+        +vRow('Current Insurer',a.insurer)
+        +vRow('Package Tier',a.packageTier)
+        +vRow('Renewal Date',a.renewal);
+  }
+  const meta=ACCOUNT_TYPE_META[a.type];
+  return `<div class="acc ${ad.acc.info?'open':''}" data-key="info">
+    <div class="acc-head">
+      <div class="acc-icon">${meta.icon}</div>
+      <div class="acc-title"><div class="acc-name">${meta.label} details</div><div class="acc-sub">${meta.sub}</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">${rows}</div>
+  </div>`;
+}
+
+/* Linked contacts */
+function renderContacts(a){
+  const rows=(a.contacts||[]).map(c=>`
+    <div class="vd-row" style="align-items:flex-start;">
+      <span class="vd-row-label">${c.role}</span>
+      <span class="vd-row-value" style="text-align:right;">
+        <div style="font-weight:700;color:var(--ink);">${c.n}</div>
+        ${c.spec?`<div style="color:var(--ink-2);">${c.spec}</div>`:''}
+        <div style="color:var(--teal-press);">${c.phone}</div>
+        ${c.email?`<div style="color:var(--ink-3);font-size:var(--f-cap);">${c.email}</div>`:''}
+      </span>
+    </div>`).join('');
+  return `<div class="acc ${ad.acc.contacts?'open':''}" data-key="contacts">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.5a4.5 4.5 0 0 1 5 4"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Contacts</div><div class="acc-sub">${(a.contacts||[]).length} linked to this account</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">${rows||'<div class="vd-row"><span class="vd-row-value">No contacts assigned yet</span></div>'}</div>
+  </div>`;
+}
+
+function bindAccordions(){
+  document.querySelectorAll('#ad-content .acc').forEach(acc=>{
+    acc.querySelector('.acc-head').addEventListener('click',()=>{
+      const k=acc.dataset.key;
+      ad.acc[k]=!ad.acc[k];
+      acc.classList.toggle('open',ad.acc[k]);
+    });
+  });
+}
+
+function addVisit(){ if(ad.current) snack(`Visit added to beat plan · ${ad.current.name} (pending approval)`); }
+function addVisitFor(slug){ const a=findAccountBySlug(slug); if(a) snack(`Visit added to beat plan · ${a.name} (pending approval)`); }
+
+function showView(name){
+  document.getElementById('view-list').classList.toggle('active',name==='list');
+  document.getElementById('view-detail').classList.toggle('active',name==='detail');
+}
+
+bucketRoute('/accounts',{
+  list(){ showView('list'); renderChips(); renderAccounts(); },
+  detail(slug){ showView('detail'); renderDetail(slug); },
+});
+</script>
+</body>
+</html>
