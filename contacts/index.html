@@ -156,10 +156,9 @@ function renderContacts(){
   const list=document.getElementById('contact-list');
   if(!rows.length){list.innerHTML='<div class="empty"><div class="et">No contacts found</div><div class="ed">Try a different name, role, or account.</div></div>';return;}
   list.innerHTML=rows.map(c=>{
-    const slug=slugify(c.n);
     const meta=ACCOUNT_TYPE_META[c.type];
     const line2=c.spec?`${c.role} · ${c.spec}`:c.role;
-    return `<div class="card" onclick="bucketGo('/contacts/${slug}')">
+    return `<div class="card" onclick="bucketGo('/contacts/${c.id}')">
       <div class="card-top">
         <span class="card-title">${c.n}</span>
         <div class="card-top-right"><span class="pill ${typeClass(c.type)}">${meta.chip}</span></div>
@@ -174,8 +173,8 @@ function vRow(label,val){return `<div class="vd-row"><span class="vd-row-label">
 
 const cd={current:null,acc:{info:true}};
 
-function renderDetail(slug){
-  const c=findContactBySlug(slug);
+function renderDetail(id){
+  const c=CONTACTS.find(x=>x.id===id)||findContactBySlug(id);
   const content=document.getElementById('cd-content');
   if(!c){
     document.getElementById('cd-name').textContent='Contact not found';
@@ -195,9 +194,10 @@ function renderDetail(slug){
   document.getElementById('cd-type').className=`pill ${typeClass(c.type)}`;
   document.getElementById('cd-account').textContent=c.accountName;
   document.getElementById('cd-sub').textContent=c.role;
-  cd.current=c; cd.acc={info:true};
+  const isRefDoc=c.isDoctor&&c.type==='referral';
+  cd.current=c; cd.acc={info:true,ref:isRefDoc};
 
-  content.innerHTML=renderInfo(c)+renderAccountLink(c);
+  content.innerHTML=renderInfo(c)+(isRefDoc?renderReferralProfile(c):'')+renderAccountLink(c);
   bindAccordions();
   document.querySelector('#view-detail .screen').scrollTop=0;
 }
@@ -213,6 +213,37 @@ function renderInfo(c){
       <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
     </div>
     <div class="acc-body">${rows}</div>
+  </div>`;
+}
+
+/* Provider referral-doctor profile — referral behaviour, timing & talking points */
+function renderReferralProfile(c){
+  const first=c.n.replace(/^Dr\.?\s*/,'').split(/\s+/)[0];
+  const behavior=[
+    {l:"Referral orientation",v:`${first} refers complex cases readily when fast-track admission and a coordinator line are assured.`},
+    {l:"Specialty alignment",v:`Strongest fit: ${c.spec||'General Medicine'}. Align referrals to Sakra's matching departments.`},
+    {l:"Preferred visit window",v:"Tue & Thu · 11 AM – 1 PM (post-OPD)"},
+    {l:"Preferred channel",v:"WhatsApp for quick coordination; calls for urgent referrals."},
+  ];
+  const topics=[
+    "Confirm the dedicated referral-coordinator contact and fast-track admission SLA.",
+    `Share Sakra's ${c.spec?c.spec.split(',')[0]:'specialty'} outcomes one-pager.`,
+    "Discuss this month's referral count vs potential and remove any friction.",
+    "Invite to the next Sakra CME / specialist meet.",
+  ];
+  return `<div class="acc ${cd.acc.ref?'open':''}" data-key="ref" style="margin-top:14px;">
+    <div class="acc-head">
+      <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Referral profile</div><div class="acc-sub">Behaviour, timing &amp; talking points</div></div>
+      <svg class="acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="acc-body">
+      <div class="beh-list">
+        ${behavior.map(b=>`<div class="beh-item"><div class="beh-content"><div class="beh-label">${b.l}</div><div class="beh-val">${b.v}</div></div></div>`).join('')}
+      </div>
+      <div class="ri-recent-h" style="margin-top:10px;">Suggested talking points</div>
+      ${topics.map((t,i)=>`<div class="tp-item"><span class="tp-num">${i+1}</span><span class="tp-text">${t}</span></div>`).join('')}
+    </div>
   </div>`;
 }
 
