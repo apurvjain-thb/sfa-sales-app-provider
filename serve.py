@@ -35,7 +35,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         clean = path.rstrip("/")
 
         # Top-level section routes -> serve that section's index.html
-        for s in SECTIONS + ("dashboards", "profile", "evaluate"):
+        for s in SECTIONS + ("dashboards", "profile", "evaluate", "more"):
             if clean == "/" + s:
                 self.path = "/" + s + "/index.html"
                 return super().do_GET()

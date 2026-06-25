@@ -48,6 +48,16 @@
             <span class="pf-item-t">Reset Password</span>
             <svg class="pf-item-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
           </a>
+          <a class="pf-item" href="javascript:void(0)" onclick="togglePauseShift()">
+            <span class="pf-item-ic" id="shift-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></span>
+            <span class="pf-item-t" id="shift-label">Pause Shift</span>
+            <svg class="pf-item-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+          <a class="pf-item" href="javascript:void(0)" onclick="openSheet('workspace')">
+            <span class="pf-item-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/></svg></span>
+            <span class="pf-item-t">Select Workspace</span>
+            <svg class="pf-item-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
           <a class="pf-item" href="javascript:void(0)" onclick="openSheet('logout')">
             <span class="pf-item-ic" style="background:var(--red-tint);color:var(--red);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
             <span class="pf-item-t">Logout</span>
@@ -188,6 +198,21 @@
       </div>
     </div>
   </div>
+
+  <!-- Select workspace sheet -->
+  <div class="sheet-backdrop" id="workspace-backdrop" onclick="closeSheet('workspace')"></div>
+  <div class="bottom-sheet" id="workspace-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">Select workspace</span>
+      <button class="sheet-close" onclick="closeSheet('workspace')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sf-list" id="workspace-list"></div>
+    <div class="sheet-footer">
+      <button class="btn secondary" onclick="closeSheet('workspace')">Cancel</button>
+      <button class="btn btn-primary" onclick="applyWorkspace()">Switch</button>
+    </div>
+  </div>
 </div>
 
 <script src="/assets/shell.js"></script>
@@ -214,6 +239,7 @@ function showView(name){
    sheets remain open AND the user is on the profile list view. */
 const __origOpenSheet=openSheet;
 openSheet=function(id){
+  if(id==='workspace') populateWorkspaceSheet();
   __origOpenSheet(id);
   const fab=document.getElementById('fiq-fab');
   if(fab) fab.style.display='none';
@@ -552,6 +578,38 @@ function mockFIQReply(q){
   return "I can pull data on referrals &amp; conversions, corporate MOU renewals, cold referral doctors, camp localities, or anything specific to an account. Try one of the chips below — or ask me directly.";
 }
 
+/* ════ SHIFT + WORKSPACE ════ */
+function syncShiftUI(){
+  const paused=sessionStorage.getItem('shiftPaused')==='1';
+  const lbl=document.getElementById('shift-label');
+  const ic=document.getElementById('shift-ic');
+  if(!lbl) return;
+  lbl.textContent=paused?'Resume Shift':'Pause Shift';
+  ic.style.background=paused?'var(--amber-tint)':'';
+  ic.style.color=paused?'var(--amber)':'';
+}
+function togglePauseShift(){
+  const paused=sessionStorage.getItem('shiftPaused')==='1';
+  sessionStorage.setItem('shiftPaused',paused?'0':'1');
+  syncShiftUI();
+  snack(paused?'Shift resumed — you will receive leads & tasks.':'Shift paused — you will not receive new leads/tasks.');
+}
+const WORKSPACES=["Sakra Sales CRM","Referral Desk — Bengaluru","Corporate Tie-ups — South","Camps & Activities"];
+let __wsDraft=null;
+function applyWorkspace(){
+  if(__wsDraft){ sessionStorage.setItem('workspace',__wsDraft); snack(`Switched to ${__wsDraft}`); }
+  closeSheet('workspace');
+}
+function populateWorkspaceSheet(){
+  const cur=sessionStorage.getItem('workspace')||'Sakra Sales CRM';
+  __wsDraft=cur;
+  document.getElementById('workspace-list').innerHTML=WORKSPACES.map(w=>`
+    <div class="sf-option ${cur===w?'sel':''}" onclick="pickWorkspace('${w.replace(/'/g,"\\'")}',this)">
+      <span class="sf-option-t">${w}</span><span class="sf-radio"></span>
+    </div>`).join('');
+}
+function pickWorkspace(w,el){ __wsDraft=w; document.querySelectorAll('#workspace-list .sf-option').forEach(o=>o.classList.toggle('sel',o.querySelector('.sf-option-t').textContent===w)); }
+
 /* ════ LOGOUT ════ */
 function doLogout(){
   closeSheet('logout');
@@ -582,7 +640,7 @@ function doLogout(){
 
 /* ════ ROUTER ════ */
 bucketRoute('/profile',{
-  list(){ showView('list'); },
+  list(){ showView('list'); syncShiftUI(); },
   detail(slug){
     if(slug==='my-profile'){ showView('my-profile'); }
     else if(slug==='reset-password'){

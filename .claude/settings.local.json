@@ -20,7 +20,9 @@
       "Bash(node --check assets/data.js)",
       "Bash(node -e \"new Function\\(require\\('fs'\\).readFileSync\\('accounts/index.html','utf8'\\).match\\(/<script>\\\\n\\([\\\\s\\\\S]*?\\)<\\\\/script>/\\)[1]\\); console.log\\('accounts inline JS parses'\\)\")",
       "Bash(node -e \"new Function\\(require\\('fs'\\).readFileSync\\('contacts/index.html','utf8'\\).match\\(/<script>\\\\n\\([\\\\s\\\\S]*?\\)<\\\\/script>/\\)[1]\\); console.log\\('contacts inline JS parses'\\)\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(sed -i '' \"s/initShell\\('contacts'\\)/initShell\\('more'\\)/\" contacts/index.html)",
+      "Bash(sed -i '' \"s/initShell\\(''\\)/initShell\\('more'\\)/\" leads/index.html deals/index.html activity/index.html)"
     ]
   }
 }

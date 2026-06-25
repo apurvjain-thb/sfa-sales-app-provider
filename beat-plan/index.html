@@ -243,12 +243,22 @@ const PLAN_TABS=[
 ];
 
 function typeClass(t){return t==='referral'?'up':t==='venue'?'wait':'done';}
+function getAddedVisits(){ try{ return JSON.parse(sessionStorage.getItem('addedVisits')||'[]'); }catch(e){ return []; } }
+function rawVisits(){ return PLAN_VISITS.concat(getAddedVisits()); }
 function mergedVisit(v){const o=bp.overrides[v.id];return o?{...v,...o}:v;}
-function allVisits(){return PLAN_VISITS.map(mergedVisit);}
+function allVisits(){return rawVisits().map(mergedVisit);}
+function findVisitById(id){return rawVisits().find(v=>v.id===id);}
 
 /* ── Maker-checker banner ── */
 function renderMCBanner(){
   const el=document.getElementById('mc-banner');
+  /* Queued "Add Visit" additions put the plan into a pending-approval state
+     until a manager approves (then they stay, as an approved edit). */
+  const added=getAddedVisits();
+  const addedApproved=sessionStorage.getItem('addedVisitsApproved')==='1';
+  if(added.length && !addedApproved && (!bp.pending || bp.pending.status!=='pending')){
+    bp.pending={date:"Today (edited)",source:"manual",status:"pending",submittedBy:"Raj Hussain",submittedAt:"just now",note:`${added.length} visit${added.length!==1?'s':''} added: ${added.map(a=>a.accountName).join(', ')}`,visitCount:PLAN_VISITS.length+added.length};
+  }
   const tmeta=PLAN_STATUS_META[bp.today.status];
   let html=`<div class="mc-today">
     <span class="mc-today-l">Today's plan</span>
@@ -284,8 +294,12 @@ function openApproval(){
 }
 function reviewPlan(decision){
   bp.pending.status=decision;
+  /* approving keeps queued additions in the plan; rejecting drops them */
+  if(decision==='approved'){ sessionStorage.setItem('addedVisitsApproved','1'); }
+  else { sessionStorage.removeItem('addedVisits'); sessionStorage.removeItem('addedVisitsApproved'); }
   closeSheet('approval');
   renderMCBanner();
+  renderPlan();
   snack(decision==='approved'?'Plan approved.':'Plan rejected — rep notified.');
 }
 function createPlan(source){
@@ -341,7 +355,7 @@ function visitCardHTML(v){
       <span>${statusBadge}</span>
     </div>
     <div class="vc-body">
-      <div class="vc-name">${v.accountName}${tierBadge}</div>
+      <div class="vc-name">${v.accountName}${tierBadge}${v.added?'<span class="vc-resched-tag" style="background:var(--teal-tint);color:var(--teal-deep);"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Added</span>':''}</div>
       <div class="vc-sub"><span class="sp">${meta.chip} · ${v.purpose}</span></div>
       <div class="vc-sub"><span class="cl">${v.contact}</span></div>
     </div>
@@ -407,7 +421,7 @@ const CO_FIELDS={
 let coState={};
 
 function openCheckout(id){
-  const v=mergedVisit(findPlanVisit(id)); if(!v) return;
+  const v=mergedVisit(findVisitById(id)); if(!v) return;
   bp.checkoutId=id; coState={};
   const meta=ACCOUNT_TYPE_META[v.type];
   document.getElementById('co-acc-name').textContent=v.accountName;
@@ -469,7 +483,7 @@ function outcomeClass(o){return o==='Positive'?'pos':o==='Negative'?'neg':o==='N
 /* ── Detail ── */
 function vRow(label,val){return `<div class="vd-row"><span class="vd-row-label">${label}</span><span class="vd-row-value">${val||'—'}</span></div>`;}
 function renderDetail(id){
-  const v=mergedVisit(findPlanVisit(id));
+  const v=mergedVisit(findVisitById(id));
   const content=document.getElementById('vd-content');
   const footer=document.getElementById('vd-footer');
   if(!v){

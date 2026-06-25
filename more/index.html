@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>More · Sakra Sales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+    <div class="screen-view active">
+      <div class="appheader">
+        <div class="header-row">
+          <h1 class="page-title">More</h1>
+          <div class="avatar" onclick="location.href='/profile'">RH</div>
+        </div>
+      </div>
+      <div class="screen"><div style="padding:14px 18px 32px;">
+        <div class="dash-action" id="more-menu"></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+<script src="/assets/shell.js"></script>
+<script>
+initShell('more');
+const MORE_ITEMS=[
+  {t:"Contacts",s:"Doctors, RWA & HR contacts",href:"/contacts",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.5a4.5 4.5 0 0 1 5 4"/></svg>'},
+  {t:"Leads",s:"Referral, camp & corporate leads",href:"/leads",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18M6 5v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5M10 10h4M10 14h4"/></svg>'},
+  {t:"Deals",s:"Pipeline & MOUs",href:"/deals",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'},
+  {t:"Activity",s:"Health camps & events",href:"/activity",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>'},
+  {t:"Approvals",s:"Plans & activities awaiting review",href:"/beat-plan",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'},
+  {t:"Profile",s:"Account, shift & settings",href:"/profile",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>'},
+];
+document.getElementById('more-menu').innerHTML=MORE_ITEMS.map(m=>`
+  <a class="dash-action-item" href="${m.href}">
+    <span class="dash-action-ic">${m.ic}</span>
+    <span class="dash-action-t" style="display:flex;flex-direction:column;gap:2px;">
+      <span>${m.t}</span>
+      <span style="font-size:11px;font-weight:500;color:var(--ink-3);">${m.s}</span>
+    </span>
+    <svg class="dash-action-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+  </a>`).join('');
+</script>
+</body>
+</html>

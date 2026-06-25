@@ -277,8 +277,22 @@ function bindAccordions(){
   });
 }
 
-function addVisit(){ if(ad.current) snack(`Visit added to beat plan · ${ad.current.name} (pending approval)`); }
-function addVisitFor(slug){ const a=findAccountBySlug(slug); if(a) snack(`Visit added to beat plan · ${a.name} (pending approval)`); }
+const ADD_PURPOSE={referral:"Referral discussion",venue:"Camp recce",corporate:"Intro meeting"};
+function queueVisit(a){
+  if(!a) return;
+  let added=[];
+  try{ added=JSON.parse(sessionStorage.getItem('addedVisits')||'[]'); }catch(e){ added=[]; }
+  const contact=(a.contacts&&a.contacts[0])?a.contacts[0].n:'—';
+  added.push({
+    id:'AV-'+(added.length+1)+'-'+slugify(a.name).slice(0,6),
+    time:"TBD",ap:"",accountSlug:slugify(a.name),accountName:a.name,accountSub:a.sub,
+    type:a.type,tier:a.tier,purpose:ADD_PURPOSE[a.type]||"Visit",contact,vt:"In person",status:"up",added:true
+  });
+  sessionStorage.setItem('addedVisits',JSON.stringify(added));
+  snack(`Visit added to beat plan · ${a.name} (pending approval)`);
+}
+function addVisit(){ queueVisit(ad.current); }
+function addVisitFor(slug){ queueVisit(findAccountBySlug(slug)); }
 
 function showView(name){
   document.getElementById('view-list').classList.toggle('active',name==='list');
