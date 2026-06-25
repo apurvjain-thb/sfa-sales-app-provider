@@ -558,8 +558,8 @@ body{
 .dash-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 14px;box-shadow:var(--shadow-card);display:flex;align-items:center;gap:12px;}
 .dash-stat-ic{width:36px;height:36px;border-radius:10px;background:#F1F4F6;color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex:0 0 36px;}
 .dash-stat-body{flex:1;min-width:0;}
-.dash-stat-v{font-size:19px;font-weight:700;letter-spacing:-.4px;line-height:1;color:var(--ink);}
-.dash-stat-l{font-size:11px;font-weight:700;color:var(--ink-2);margin-top:5px;text-transform:uppercase;letter-spacing:.4px;}
+.dash-stat-v{display:block;font-size:19px;font-weight:700;letter-spacing:-.4px;line-height:1;color:var(--ink);}
+.dash-stat-l{display:block;font-size:11px;font-weight:700;color:var(--ink-2);margin-top:5px;text-transform:uppercase;letter-spacing:.4px;}
 
 /* Keep legacy dash-* classes for back-compat — superseded by above */
 .dash-sec-h{display:flex;align-items:center;justify-content:space-between;margin:20px 0 8px;}
@@ -901,6 +901,8 @@ body{
 .view-toggle{display:inline-flex;background:#EEF1F4;border-radius:9px;padding:3px;height:34px;}
 .view-toggle-btn{border:none;background:transparent;width:34px;height:28px;font-family:'Inter',sans-serif;color:var(--ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;transition:background .15s,color .15s,box-shadow .15s;}
 .view-toggle-btn.sel{background:var(--surface);color:var(--teal-deep);box-shadow:0 1px 3px rgba(27,42,58,.12);}
+/* Text-labelled toggle (Today's plan / Visit history) — wider than icon toggles */
+#vt-plan,#vt-hist{width:auto;padding:0 13px;white-space:nowrap;font-size:12px;font-weight:700;}
 .tool-sep{width:1px;height:20px;background:var(--border-strong);margin:0 4px;flex:0 0 1px;}
 .plan-toolbar .tools{display:inline-flex;align-items:center;gap:6px;}
 .iconbtn.ghost{border-color:transparent;background:transparent;}

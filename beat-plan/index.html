@@ -302,6 +302,7 @@ const PLAN_TABS=[
 ];
 
 function typeClass(t){return t==='referral'?'up':t==='venue'?'wait':'done';}
+function timeOf(v){ if(!v.time||v.time==='TBD') return 9999; const [h,m]=v.time.split(':').map(Number); const hh=(v.ap==='PM'&&h!==12)?h+12:(v.ap==='AM'&&h===12?0:h); return hh*60+(m||0); }
 function getAddedVisits(){ try{ return JSON.parse(sessionStorage.getItem('addedVisits')||'[]'); }catch(e){ return []; } }
 /* Approved, not-yet-run activities show in the plan as camp visits */
 function activityVisits(){
@@ -320,12 +321,16 @@ function findVisitById(id){return rawVisits().find(v=>v.id===id);}
 /* ── Maker-checker banner ── */
 function renderMCBanner(){
   const el=document.getElementById('mc-banner');
-  /* Queued "Add Visit" additions put the plan into a pending-approval state
-     until a manager approves (then they stay, as an approved edit). */
+  /* The banner reflects ONE pending edit, kept in sync with the Approvals inbox:
+     queued "Add Visit" additions take priority; otherwise the seeded plan edit. */
   const added=getAddedVisits();
   const addedApproved=sessionStorage.getItem('addedVisitsApproved')==='1';
-  if(added.length && !addedApproved && (!bp.pending || bp.pending.status!=='pending')){
+  if(added.length && !addedApproved){
+    bp.pendingKind='added';
     bp.pending={date:"Today (edited)",source:"manual",status:"pending",submittedBy:"Raj Hussain",submittedAt:"just now",note:`${added.length} visit${added.length!==1?'s':''} added: ${added.map(a=>a.accountName).join(', ')}`,visitCount:PLAN_VISITS.length+added.length};
+  } else {
+    bp.pendingKind='seed';
+    bp.pending={...BEAT_PLAN_STATE.pending,status:seedPlanStatus()};
   }
   const tmeta=PLAN_STATUS_META[bp.today.status];
   let html=`<div class="mc-today">
@@ -363,10 +368,13 @@ function openApproval(){
   openSheet('approval');
 }
 function reviewPlan(decision){
-  bp.pending.status=decision;
-  /* approving keeps queued additions in the plan; rejecting drops them */
-  if(decision==='approved'){ sessionStorage.setItem('addedVisitsApproved','1'); }
-  else { sessionStorage.removeItem('addedVisits'); sessionStorage.removeItem('addedVisitsApproved'); }
+  if(bp.pendingKind==='added'){
+    /* approving keeps queued additions in the plan; rejecting drops them */
+    if(decision==='approved'){ sessionStorage.setItem('addedVisitsApproved','1'); }
+    else { sessionStorage.removeItem('addedVisits'); sessionStorage.removeItem('addedVisitsApproved'); }
+  } else {
+    setSeedPlanDecision(decision);
+  }
   closeSheet('approval');
   renderMCBanner();
   renderPlan();
@@ -475,14 +483,21 @@ function backupHTML(){
   </div>`;
 }
 
-/* Simple map view using mx/my (defaults for visits lacking coords) */
+/* Simple map view using mx/my (defaults for visits lacking coords).
+   Pins numbered by time order; overlapping coords nudged apart so none stack. */
 function renderPlanMap(visits){
   const map=document.getElementById('plan-map');
   if(!visits.length){ map.innerHTML='<div class="empty"><div class="et">Nothing to map</div><div class="ed">No visits for this view.</div></div>'; return; }
+  const ordered=[...visits].sort((a,b)=>timeOf(a)-timeOf(b));
+  const numOf={}; ordered.forEach((v,i)=>numOf[v.id]=i+1);
+  const used=[];
   const pins=visits.map((v,i)=>{
-    const x=v.mx!=null?v.mx:15+((i*27)%70), y=v.my!=null?v.my:20+((i*23)%60);
+    let x=v.mx!=null?v.mx:15+((i*27)%70), y=v.my!=null?v.my:20+((i*23)%60);
+    /* spread pins sharing the same spot */
+    while(used.some(u=>Math.abs(u.x-x)<7&&Math.abs(u.y-y)<7)){ x=(x+9)%88+6; y=(y+7)%80+10; }
+    used.push({x,y});
     const cls=(v.status==='active'||v.status==='waiting')?'wait':v.status;
-    return `<button class="plan-pin ${cls}" style="left:${x}%;top:${y}%;" onclick="bucketGo('/beat-plan/${v.id}')" title="${v.accountName}"><span class="plan-pin-num">${i+1}</span><span class="plan-pin-label">${v.time} · ${v.accountName.slice(0,16)}</span></button>`;
+    return `<button class="plan-pin ${cls}" style="left:${x}%;top:${y}%;" onclick="bucketGo('/beat-plan/${v.id}')" title="${v.accountName}"><span class="plan-pin-num">${numOf[v.id]}</span><span class="plan-pin-label">${v.time} · ${v.accountName.slice(0,14)}</span></button>`;
   }).join('');
   map.innerHTML=`<div class="plan-map-wrap"><div class="plan-map-canvas">
     <svg class="plan-map-bg" viewBox="0 0 100 100" preserveAspectRatio="none"><rect width="100" height="100" fill="#EAF1F4"/><path d="M0 50H100M50 0V100M0 20L100 30M0 80L100 70" stroke="#94A6B0" stroke-width="1" opacity=".5"/></svg>

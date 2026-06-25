@@ -5,7 +5,8 @@
       "name": "sfa",
       "runtimeExecutable": "python3",
       "runtimeArgs": ["/Users/thb/Downloads/sfa-sales-app-main/serve.py"],
-      "port": 8080
+      "port": 8080,
+      "autoPort": true
     }
   ]
 }

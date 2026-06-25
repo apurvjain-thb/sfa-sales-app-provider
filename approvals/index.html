@@ -40,6 +40,10 @@ function planPending(){ return addedVisits().length && sessionStorage.getItem('a
 function render(){
   document.getElementById('ap-role').textContent=isManager()?'Acting as Manager':'Acting as Rep (read-only)';
   const items=[];
+  if(seedPlanStatus()==='pending'){
+    const p=BEAT_PLAN_STATE.pending;
+    items.push({kind:'seedplan',title:`Beat plan edit — ${p.date}`,sub:p.note,by:p.submittedBy});
+  }
   if(planPending()){
     const av=addedVisits();
     items.push({kind:'plan',title:"Beat plan edit — today",sub:`${av.length} visit${av.length!==1?'s':''} added: ${av.map(a=>a.accountName).join(', ')}`,by:'Raj Hussain'});
@@ -50,7 +54,7 @@ function render(){
   const el=document.getElementById('ap-list');
   if(!items.length){ el.innerHTML='<div class="empty" style="margin-top:40px;"><div class="et">Nothing to approve</div><div class="ed">Pending beat-plan edits and activities will appear here.</div></div>'; return; }
   const actions=(it)=>{
-    if(!isManager()) return `<span class="pill wait">Pending</span>`;
+    if(!isManager()) return '';
     return `<span style="display:inline-flex;gap:8px;">
       <button class="btn secondary" style="padding:8px 14px;" onclick="decide('${it.kind}','${it.id||''}','rejected')">Reject</button>
       <button class="btn btn-primary" style="padding:8px 14px;" onclick="decide('${it.kind}','${it.id||''}','approved')">Approve</button>
@@ -60,11 +64,13 @@ function render(){
     <div class="card">
       <div class="card-top"><span class="card-title">${it.title}</span><span class="pill wait">Pending</span></div>
       <div class="inner"><div class="line sub">${it.sub}</div><div class="line sub">Submitted by ${it.by}</div></div>
-      <div class="card-foot" style="justify-content:flex-end;">${actions(it)}</div>
+      ${isManager()?`<div class="card-foot" style="justify-content:flex-end;">${actions(it)}</div>`:''}
     </div>`).join('');
 }
 function decide(kind,id,decision){
-  if(kind==='plan'){
+  if(kind==='seedplan'){
+    setSeedPlanDecision(decision);
+  } else if(kind==='plan'){
     if(decision==='approved') sessionStorage.setItem('addedVisitsApproved','1');
     else { sessionStorage.removeItem('addedVisits'); sessionStorage.removeItem('addedVisitsApproved'); }
   } else if(kind==='activity'){

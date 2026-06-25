@@ -268,9 +268,14 @@ function setActivityApproval(id,decision){
 (function applyActivityApprovals(){
   try{ const ov=JSON.parse(sessionStorage.getItem('activityApprovals')||'{}'); ACTIVITIES.forEach(a=>{ if(ov[a.id]) a.approval=ov[a.id]; }); }catch(e){}
 })();
+/* Seeded beat-plan edit (BEAT_PLAN_STATE.pending) — decision persists across pages */
+function seedPlanStatus(){ try{ return sessionStorage.getItem('seedPlanDecision')||BEAT_PLAN_STATE.pending.status; }catch(e){ return BEAT_PLAN_STATE.pending.status; } }
+function setSeedPlanDecision(d){ try{ sessionStorage.setItem('seedPlanDecision',d); }catch(e){} }
+function addedVisitsPending(){ try{ const a=JSON.parse(sessionStorage.getItem('addedVisits')||'[]'); return a.length>0 && sessionStorage.getItem('addedVisitsApproved')!=='1'; }catch(e){ return false; } }
 function pendingApprovalCount(){
   let n=0;
-  try{ const added=JSON.parse(sessionStorage.getItem('addedVisits')||'[]'); if(added.length && sessionStorage.getItem('addedVisitsApproved')!=='1') n+=1; }catch(e){}
+  if(seedPlanStatus()==='pending') n+=1;
+  if(addedVisitsPending()) n+=1;
   n+=ACTIVITIES.filter(a=>a.approval==='pending').length;
   return n;
 }
