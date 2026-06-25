@@ -548,6 +548,11 @@ body{
 .ld-step.on .ld-step-l{color:var(--teal-press);}
 .ld-step-line{flex:1;height:2px;background:#D7DEE3;margin-top:6px;min-width:8px;}
 
+/* Beat-plan day switcher */
+.plan-day-nav{width:30px;height:30px;flex:0 0 30px;border:1px solid var(--border-strong);background:var(--surface);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;}
+.plan-day-nav:active{background:#F1F4F6;}
+.plan-date-label{font-size:var(--f-body);font-weight:700;color:var(--ink);}
+
 /* Stats grid — icon-led, single value + label */
 .dash-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .dash-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 14px;box-shadow:var(--shadow-card);display:flex;align-items:center;gap:12px;}

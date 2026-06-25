@@ -22,6 +22,17 @@
         </div>
       </div>
 
+      <!-- Date switcher -->
+      <div class="plan-date-bar" id="plan-date-bar">
+        <button class="plan-day-nav" onclick="shiftDay(-1)" aria-label="Previous day"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <span class="plan-date-label" id="plan-date-label">Today · Tue, 16 Jun</span>
+        <button class="plan-day-nav" onclick="shiftDay(1)" aria-label="Next day"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="plan-reopt-btn" style="margin-left:auto;" onclick="openSheet('reopt')" title="Re-optimise plan">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
+          Re-optimise
+        </button>
+      </div>
+
       <!-- Maker-checker banner -->
       <div class="pad" id="mc-banner" style="padding-top:0;padding-bottom:0;"></div>
 
@@ -40,9 +51,18 @@
       <div class="plan-statusbar" id="plan-statusbar"></div>
       <div class="toolsrow">
         <span class="count" id="plan-count">— visits</span>
+        <div class="tools">
+          <div class="view-toggle" role="tablist" style="margin-right:4px;">
+            <button id="pv-list" class="view-toggle-btn sel" onclick="setPlanView('list')" title="List"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+            <button id="pv-map" class="view-toggle-btn" onclick="setPlanView('map')" title="Map"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 6l7-3 8 3 7-3v15l-7 3-8-3-7 3z"/><path d="M8 3v18M16 6v18"/></svg></button>
+          </div>
+          <button class="iconbtn" onclick="openSheet('plan-sort')" title="Sort"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h12M3 12h9M3 18h6M17 7v12M17 19l3-3M17 19l-3-3"/></svg></button>
+          <button class="iconbtn" onclick="openSheet('plan-filter')" title="Filter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button>
+        </div>
       </div>
       <div class="screen">
         <div class="pad" id="plan-list" style="padding-top:2px;"></div>
+        <div class="pad" id="plan-map" style="padding-top:2px;display:none;"></div>
         <div class="pad" id="hist-list" style="padding-top:2px;display:none;"></div>
       </div>
     </div>
@@ -218,6 +238,40 @@
       <button class="btn btn-primary" onclick="submitReschedule()">Save &amp; send for approval</button>
     </div>
   </div>
+
+  <!-- Sort sheet -->
+  <div class="sheet-backdrop" id="plan-sort-backdrop" onclick="closeSheet('plan-sort')"></div>
+  <div class="bottom-sheet" id="plan-sort-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">Sort visits by</span>
+      <button class="sheet-close" onclick="closeSheet('plan-sort')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="sf-list" id="plan-sort-list"></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="closeSheet('plan-sort')">Cancel</button><button class="btn btn-primary" onclick="applyPlanSort()">Apply</button></div>
+  </div>
+
+  <!-- Filter sheet -->
+  <div class="sheet-backdrop" id="plan-filter-backdrop" onclick="closeSheet('plan-filter')"></div>
+  <div class="bottom-sheet" id="plan-filter-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">Filter by type</span>
+      <button class="sheet-close" onclick="closeSheet('plan-filter')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="sf-section"><div class="sf-chips" id="plan-filter-type"></div></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="bp.filterType=[];applyPlanFilter()">Reset</button><button class="btn btn-primary" onclick="applyPlanFilter()">Apply</button></div>
+  </div>
+
+  <!-- Re-optimise sheet -->
+  <div class="sheet-backdrop" id="reopt-backdrop" onclick="closeSheet('reopt')"></div>
+  <div class="bottom-sheet" id="reopt-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><div><span class="sheet-title">Re-optimise plan</span><div class="msg-doctor-line">AI re-orders today's remaining visits</div></div>
+      <button class="sheet-close" onclick="closeSheet('reopt')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="co-mode-grid">
+      <button class="co-mode-card" onclick="doReopt('route')"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></span>
+        <div class="co-mode-card-body"><div class="co-mode-card-t">Shortest route</div><div class="co-mode-card-s">Minimise travel between visits.</div></div></button>
+      <button class="co-mode-card" onclick="doReopt('priority')"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V4h11l-2 4 2 4H5"/></svg></span>
+        <div class="co-mode-card-body"><div class="co-mode-card-t">Priority-first</div><div class="co-mode-card-s">High-tier referrals & corporates first.</div></div></button>
+    </div>
+  </div>
 </div>
 
 <script src="/assets/data.js"></script>
@@ -230,6 +284,7 @@ const bp={
   overrides:{},      /* visit id -> {status, outcome, ...} */
   current:null,      /* current visit in detail */
   checkoutId:null,
+  dayOffset:0,view:"list",sort:"time",sortDraft:"time",filterType:[],filterDraft:[],reordered:null,
   pending:JSON.parse(JSON.stringify(BEAT_PLAN_STATE.pending)),
   today:JSON.parse(JSON.stringify(BEAT_PLAN_STATE.today)),
 };
@@ -325,26 +380,112 @@ function setMainView(v){
   bp.main=v;
   document.getElementById('vt-plan').classList.toggle('sel',v==='plan');
   document.getElementById('vt-hist').classList.toggle('sel',v==='hist');
-  document.getElementById('plan-list').style.display=v==='plan'?'':'none';
+  const planMode=v==='plan';
+  document.getElementById('plan-list').style.display=(planMode&&bp.view==='list')?'':'none';
+  document.getElementById('plan-map').style.display=(planMode&&bp.view==='map')?'':'none';
   document.getElementById('hist-list').style.display=v==='hist'?'':'none';
-  document.getElementById('plan-statusbar').style.display=v==='plan'?'':'none';
-  document.querySelector('#view-list .toolsrow').style.display=v==='plan'?'':'none';
+  document.getElementById('plan-statusbar').style.display=planMode?'':'none';
+  document.querySelector('#view-list .toolsrow').style.display=planMode?'':'none';
+  document.getElementById('plan-date-bar').style.display=planMode?'':'none';
   if(v==='hist') renderHistory(); else renderPlan();
 }
 function setPlanStatus(k){bp.status=k;renderPlan();}
 
-/* ── Plan list ── */
+/* ── Date switcher (DOW & MONTHS come from data.js) ── */
+function shiftDay(d){
+  bp.dayOffset+=d;
+  const base=new Date(2026,5,16); base.setDate(base.getDate()+bp.dayOffset);
+  const lbl=bp.dayOffset===0?'Today · ':bp.dayOffset===1?'Tomorrow · ':bp.dayOffset===-1?'Yesterday · ':'';
+  document.getElementById('plan-date-label').textContent=`${lbl}${DOW[base.getDay()]}, ${base.getDate()} ${MONTHS[base.getMonth()]}`;
+  renderPlan();
+}
+
+/* ── List / Map view ── */
+function setPlanView(v){
+  bp.view=v;
+  document.getElementById('pv-list').classList.toggle('sel',v==='list');
+  document.getElementById('pv-map').classList.toggle('sel',v==='map');
+  document.getElementById('plan-list').style.display=v==='list'?'':'none';
+  document.getElementById('plan-map').style.display=v==='map'?'':'none';
+  renderPlan();
+}
+
+/* ── Sort & filter sheets ── */
+const PLAN_SORTS=[{k:"time",l:"Time — earliest first"},{k:"type",l:"By account type"},{k:"status",l:"By status"}];
+const _openBP=openSheet;
+openSheet=function(id){ if(id==='plan-sort') popSort(); if(id==='plan-filter') popFilter(); _openBP(id); };
+function popSort(){ bp.sortDraft=bp.sort; document.getElementById('plan-sort-list').innerHTML=PLAN_SORTS.map(s=>`<div class="sf-option ${bp.sortDraft===s.k?'sel':''}" onclick="bp.sortDraft='${s.k}';popSort();"><span class="sf-option-t">${s.l}</span><span class="sf-radio"></span></div>`).join(''); }
+function applyPlanSort(){ bp.sort=bp.sortDraft; closeSheet('plan-sort'); renderPlan(); }
+function popFilter(){ bp.filterDraft=[...bp.filterType]; document.getElementById('plan-filter-type').innerHTML=['referral','venue','corporate'].map(t=>`<button class="sf-chip-multi ${bp.filterDraft.includes(t)?'sel':''}" onclick="toggleFType('${t}',this)">${ACCOUNT_TYPE_META[t].chip}</button>`).join(''); }
+function toggleFType(t,btn){ const i=bp.filterDraft.indexOf(t); if(i>=0)bp.filterDraft.splice(i,1); else bp.filterDraft.push(t); btn.classList.toggle('sel'); }
+function applyPlanFilter(){ bp.filterType=[...(bp.filterDraft||[])]; closeSheet('plan-filter'); renderPlan(); }
+
+/* ── Re-optimise ── */
+function doReopt(mode){ bp.reordered=mode; closeSheet('reopt'); renderPlan(); snack(mode==='route'?'Plan re-optimised for shortest route.':'Plan re-optimised — priority first.'); }
+function sortVisits(arr){
+  let v=[...arr];
+  if(bp.reordered==='priority'||bp.sort==='type'){ const o={referral:0,corporate:1,venue:2}; v.sort((a,b)=>(o[a.type]-o[b.type])||0); }
+  else if(bp.sort==='status'){ const o={active:0,waiting:0,up:1,done:2,miss:3}; v.sort((a,b)=>(o[a.status]??9)-(o[b.status]??9)); }
+  return v;
+}
+
+/* ── Plan list / map ── */
 function renderPlan(){
   const all=allVisits();
   const counts={};PLAN_TABS.forEach(t=>counts[t.k]=all.filter(t.m).length);
   document.getElementById('plan-statusbar').innerHTML=PLAN_TABS.map(t=>`
     <button class="plan-stat-chip ${bp.status===t.k?'sel':''}" onclick="setPlanStatus('${t.k}')">${t.k}<span class="ct">${counts[t.k]}</span></button>`).join('');
   const tab=PLAN_TABS.find(t=>t.k===bp.status);
-  const visits=all.filter(tab.m);
-  document.getElementById('plan-count').textContent=`${visits.length} visit${visits.length!==1?'s':''} · Today`;
+  let visits=all.filter(tab.m);
+  if(bp.filterType.length) visits=visits.filter(v=>bp.filterType.includes(v.type));
+  visits=sortVisits(visits);
+  const dayLabel=bp.dayOffset===0?'Today':'this day';
+  /* Non-today demo: only "today" carries seeded visits */
+  if(bp.dayOffset!==0) visits=[];
+  document.getElementById('plan-count').textContent=`${visits.length} visit${visits.length!==1?'s':''} · ${dayLabel}`;
+
+  if(bp.view==='map'){ renderPlanMap(visits); return; }
   const list=document.getElementById('plan-list');
-  if(!visits.length){list.innerHTML='<div class="empty"><div class="et">No visits match</div><div class="ed">Adjust the status filter to see what else is here.</div></div>';return;}
-  list.innerHTML=visits.map(visitCardHTML).join('');
+  if(!visits.length){
+    list.innerHTML=`<div class="empty"><div class="et">${bp.dayOffset!==0?'No plan for this day':'No visits match'}</div><div class="ed">${bp.dayOffset!==0?'Create a plan or switch back to Today.':'Adjust the status/type filter.'}</div></div>`;
+    return;
+  }
+  list.innerHTML=visits.map(visitCardHTML).join('')+(bp.dayOffset===0?backupHTML():'');
+}
+
+/* Backup standby accounts */
+const BACKUP=[
+  {name:"Apollo Spectra (HSR)",type:"referral",contact:"Dr. Anand Pawar",window:"2:00 – 4:30 PM",reason:"Walk-in slot confirmed"},
+  {name:"Sobha Dream Acres RWA",type:"venue",contact:"Mr. Verghese",window:"4:00 – 6:00 PM",reason:"Open to a quick camp recce"},
+];
+function backupHTML(){
+  return `<div class="plan-backup-block" style="margin-top:18px;">
+    <div class="plan-backup-h"><span class="plan-backup-h-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg></span>
+      <div><div class="plan-backup-h-t">Backup plan · ${BACKUP.length} standby</div><div class="plan-backup-h-s">If a visit cancels</div></div></div>
+    ${BACKUP.map(b=>`<div class="plan-backup-card">
+      <div class="plan-backup-top"><span class="plan-backup-window"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${b.window}</span><span class="pill ${typeClass(b.type)}">${ACCOUNT_TYPE_META[b.type].chip}</span></div>
+      <div class="plan-backup-name">${b.name}</div>
+      <div class="vc-sub"><span class="cl">${b.contact}</span></div>
+      <div class="plan-backup-foot"><span class="plan-backup-reason">${b.reason}</span></div>
+    </div>`).join('')}
+  </div>`;
+}
+
+/* Simple map view using mx/my (defaults for visits lacking coords) */
+function renderPlanMap(visits){
+  const map=document.getElementById('plan-map');
+  if(!visits.length){ map.innerHTML='<div class="empty"><div class="et">Nothing to map</div><div class="ed">No visits for this view.</div></div>'; return; }
+  const pins=visits.map((v,i)=>{
+    const x=v.mx!=null?v.mx:15+((i*27)%70), y=v.my!=null?v.my:20+((i*23)%60);
+    const cls=(v.status==='active'||v.status==='waiting')?'wait':v.status;
+    return `<button class="plan-pin ${cls}" style="left:${x}%;top:${y}%;" onclick="bucketGo('/beat-plan/${v.id}')" title="${v.accountName}"><span class="plan-pin-num">${i+1}</span><span class="plan-pin-label">${v.time} · ${v.accountName.slice(0,16)}</span></button>`;
+  }).join('');
+  map.innerHTML=`<div class="plan-map-wrap"><div class="plan-map-canvas">
+    <svg class="plan-map-bg" viewBox="0 0 100 100" preserveAspectRatio="none"><rect width="100" height="100" fill="#EAF1F4"/><path d="M0 50H100M50 0V100M0 20L100 30M0 80L100 70" stroke="#94A6B0" stroke-width="1" opacity=".5"/></svg>
+    <div class="plan-map-pins">${pins}</div></div>
+    <div class="plan-map-legend"><div class="lg-row"><span class="lg-sw up"></span>Upcoming</div><div class="lg-row"><span class="lg-sw wait"></span>Active</div><div class="lg-row"><span class="lg-sw done"></span>Done</div></div>
+    <div class="plan-map-hint">${visits.length} mapped</div>
+  </div>`;
 }
 
 function visitCardHTML(v){
