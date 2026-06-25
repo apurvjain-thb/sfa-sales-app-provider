@@ -248,7 +248,9 @@ function renderDetail(id){
 
   /* footer CTA by state */
   if(a.approval==='pending'){
-    footer.innerHTML=`<button class="btn btn-primary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="openActApproval()">Review approval</button>`;
+    footer.innerHTML=currentRole()==='manager'
+      ?`<button class="btn btn-primary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="openActApproval()">Review approval</button>`
+      :`<button class="btn secondary" style="flex:1;padding:14px;font-size:var(--f-sub);opacity:.7;" disabled>Awaiting manager approval</button>`;
   } else if(a.approval==='approved'&&a.exec==='planned'){
     footer.innerHTML=`<button class="btn btn-primary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="openSheet('report')">Run camp &amp; log report</button>`;
   } else {
@@ -269,7 +271,7 @@ function openActApproval(){
   openSheet('aapprove');
 }
 function reviewActivity(decision){
-  if(at.current) at.current.approval=decision;
+  if(at.current) setActivityApproval(at.current.id,decision);
   closeSheet('aapprove');
   renderDetail(at.current.id);
   snack(decision==='approved'?'Activity approved.':'Activity rejected — rep notified.');

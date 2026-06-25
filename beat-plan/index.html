@@ -142,7 +142,7 @@
       <button class="sheet-close" onclick="closeSheet('approval')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div id="approval-body" style="padding:0 4px;"></div>
-    <div class="sheet-footer">
+    <div class="sheet-footer" id="approval-footer">
       <button class="btn secondary" onclick="reviewPlan('rejected')">Reject</button>
       <button class="btn btn-primary" onclick="reviewPlan('approved')">Approve</button>
     </div>
@@ -298,7 +298,9 @@ function openApproval(){
     <div class="vd-row"><span class="vd-row-label">Source</span><span class="vd-row-value">${p.source==='auto'?'Auto-generated':'Manually built'}</span></div>
     <div class="vd-row"><span class="vd-row-label">Visits</span><span class="vd-row-value">${p.visitCount} planned</span></div>
     <div class="vd-row"><span class="vd-row-label">Submitted</span><span class="vd-row-value">${p.submittedAt}</span></div>
-    <div class="vd-row" style="align-items:flex-start;"><span class="vd-row-label">Change note</span><span class="vd-row-value" style="text-align:right;">${p.note}</span></div>`;
+    <div class="vd-row" style="align-items:flex-start;"><span class="vd-row-label">Change note</span><span class="vd-row-value" style="text-align:right;">${p.note}</span></div>
+    ${currentRole()!=='manager'?'<div class="mc-note" style="margin-top:10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Awaiting your manager. Switch role to Manager (Profile) to review.</div>':''}`;
+  document.getElementById('approval-footer').style.display=currentRole()==='manager'?'':'none';
   openSheet('approval');
 }
 function reviewPlan(decision){

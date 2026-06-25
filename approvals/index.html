@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Approvals · Sakra Sales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="device" id="device">
+  <div class="stage">
+    <div class="screen-view active">
+      <div class="vd-topbar">
+        <a class="vd-back" href="/more" onclick="event.preventDefault();location.href='/more';">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </a>
+        <div class="vd-topbar-title">
+          <div class="vd-visit-id">Approvals</div>
+          <div class="vd-follow-up" id="ap-role">—</div>
+        </div>
+        <span style="width:36px;"></span>
+      </div>
+      <div class="screen"><div style="padding:14px 18px 32px;" id="ap-list"></div></div>
+    </div>
+  </div>
+</div>
+<script src="/assets/data.js"></script>
+<script src="/assets/shell.js"></script>
+<script>
+document.getElementById('device').insertAdjacentHTML('afterbegin',STATUS_BAR_HTML);
+document.getElementById('device').insertAdjacentHTML('beforeend','<div class="snackbar" id="snackbar"></div>');
+
+function isManager(){ return currentRole()==='manager'; }
+function addedVisits(){ try{ return JSON.parse(sessionStorage.getItem('addedVisits')||'[]'); }catch(e){ return []; } }
+function planPending(){ return addedVisits().length && sessionStorage.getItem('addedVisitsApproved')!=='1'; }
+
+function render(){
+  document.getElementById('ap-role').textContent=isManager()?'Acting as Manager':'Acting as Rep (read-only)';
+  const items=[];
+  if(planPending()){
+    const av=addedVisits();
+    items.push({kind:'plan',title:"Beat plan edit — today",sub:`${av.length} visit${av.length!==1?'s':''} added: ${av.map(a=>a.accountName).join(', ')}`,by:'Raj Hussain'});
+  }
+  ACTIVITIES.filter(a=>a.approval==='pending').forEach(a=>{
+    items.push({kind:'activity',id:a.id,title:`Activity — ${a.name}`,sub:`${a.venueName} · ${a.date}`,by:a.submittedBy||'Raj Hussain'});
+  });
+  const el=document.getElementById('ap-list');
+  if(!items.length){ el.innerHTML='<div class="empty" style="margin-top:40px;"><div class="et">Nothing to approve</div><div class="ed">Pending beat-plan edits and activities will appear here.</div></div>'; return; }
+  const actions=(it)=>{
+    if(!isManager()) return `<span class="pill wait">Pending</span>`;
+    return `<span style="display:inline-flex;gap:8px;">
+      <button class="btn secondary" style="padding:8px 14px;" onclick="decide('${it.kind}','${it.id||''}','rejected')">Reject</button>
+      <button class="btn btn-primary" style="padding:8px 14px;" onclick="decide('${it.kind}','${it.id||''}','approved')">Approve</button>
+    </span>`;
+  };
+  el.innerHTML=`<div class="plan-count" style="margin:0 0 10px;">${items.length} awaiting approval</div>`+items.map(it=>`
+    <div class="card">
+      <div class="card-top"><span class="card-title">${it.title}</span><span class="pill wait">Pending</span></div>
+      <div class="inner"><div class="line sub">${it.sub}</div><div class="line sub">Submitted by ${it.by}</div></div>
+      <div class="card-foot" style="justify-content:flex-end;">${actions(it)}</div>
+    </div>`).join('');
+}
+function decide(kind,id,decision){
+  if(kind==='plan'){
+    if(decision==='approved') sessionStorage.setItem('addedVisitsApproved','1');
+    else { sessionStorage.removeItem('addedVisits'); sessionStorage.removeItem('addedVisitsApproved'); }
+  } else if(kind==='activity'){
+    setActivityApproval(id,decision);
+  }
+  snack(decision==='approved'?'Approved.':'Rejected — rep notified.');
+  render();
+}
+render();
+</script>
+</body>
+</html>

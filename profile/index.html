@@ -58,6 +58,11 @@
             <span class="pf-item-t">Select Workspace</span>
             <svg class="pf-item-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
           </a>
+          <a class="pf-item" href="javascript:void(0)" onclick="toggleRole()">
+            <span class="pf-item-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3a4 4 0 0 1 0 8M8 21a4 4 0 0 0 0-8M8 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM16 21a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></span>
+            <span class="pf-item-t" id="role-label">Role: Rep</span>
+            <span class="pill up" id="role-pill" style="margin-left:auto;">Switch</span>
+          </a>
           <a class="pf-item" href="javascript:void(0)" onclick="openSheet('logout')">
             <span class="pf-item-ic" style="background:var(--red-tint);color:var(--red);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
             <span class="pf-item-t">Logout</span>
@@ -578,6 +583,19 @@ function mockFIQReply(q){
   return "I can pull data on referrals &amp; conversions, corporate MOU renewals, cold referral doctors, camp localities, or anything specific to an account. Try one of the chips below — or ask me directly.";
 }
 
+/* ════ ROLE (maker-checker) ════ */
+function syncRoleUI(){
+  const role=sessionStorage.getItem('role')||'rep';
+  const lbl=document.getElementById('role-label');
+  if(lbl) lbl.textContent=role==='manager'?'Role: Manager':'Role: Rep';
+}
+function toggleRole(){
+  const role=(sessionStorage.getItem('role')||'rep')==='manager'?'rep':'manager';
+  sessionStorage.setItem('role',role);
+  syncRoleUI();
+  snack(role==='manager'?'Now acting as Manager — you can approve plans & activities.':'Now acting as Rep.');
+}
+
 /* ════ SHIFT + WORKSPACE ════ */
 function syncShiftUI(){
   const paused=sessionStorage.getItem('shiftPaused')==='1';
@@ -640,7 +658,7 @@ function doLogout(){
 
 /* ════ ROUTER ════ */
 bucketRoute('/profile',{
-  list(){ showView('list'); syncShiftUI(); },
+  list(){ showView('list'); syncShiftUI(); syncRoleUI(); },
   detail(slug){
     if(slug==='my-profile'){ showView('my-profile'); }
     else if(slug==='reset-password'){

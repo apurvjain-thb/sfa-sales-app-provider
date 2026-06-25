@@ -39,14 +39,14 @@
           </span>
         </a>
 
-        <!-- Beat plan pending approval (maker-checker) -->
-        <a class="dash-approval" href="/beat-plan">
+        <!-- Beat plan / activity pending approval (maker-checker) — live count -->
+        <a class="dash-approval" href="/approvals" id="dash-approval-banner">
           <span class="dash-approval-ic">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           </span>
           <span class="dash-approval-body">
-            <span class="dash-approval-t">1 beat plan awaiting approval</span>
-            <span class="dash-approval-s">Your edit to tomorrow's plan is with your manager</span>
+            <span class="dash-approval-t" id="dash-approval-t">— awaiting approval</span>
+            <span class="dash-approval-s" id="dash-approval-s">Plans & activities pending review</span>
           </span>
           <svg class="dash-action-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
         </a>
@@ -218,6 +218,16 @@
 <script src="/assets/shell.js"></script>
 <script>
 initShell('dashboard');
+/* Live maker-checker count */
+(function(){
+  const n=(typeof pendingApprovalCount==='function')?pendingApprovalCount():0;
+  const banner=document.getElementById('dash-approval-banner');
+  if(!banner) return;
+  if(!n){ banner.style.display='none'; return; }
+  document.getElementById('dash-approval-t').textContent=`${n} item${n!==1?'s':''} awaiting approval`;
+  const role=(typeof currentRole==='function')?currentRole():'rep';
+  document.getElementById('dash-approval-s').textContent=role==='manager'?'Tap to review and approve':'Plans & activities pending your manager';
+})();
 </script>
 </body>
 </html>

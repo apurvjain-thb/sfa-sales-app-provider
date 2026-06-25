@@ -258,6 +258,22 @@ const ACTIVITIES=[
     footfall:240,leads:30,conversions:9,created:5},
 ];
 function findActivityById(id){return ACTIVITIES.find(a=>a.id===id);}
+
+/* Maker-checker role + cross-page activity approval overrides (demo persistence) */
+function currentRole(){ try{ return sessionStorage.getItem('role')||'rep'; }catch(e){ return 'rep'; } }
+function setActivityApproval(id,decision){
+  try{ const ov=JSON.parse(sessionStorage.getItem('activityApprovals')||'{}'); ov[id]=decision; sessionStorage.setItem('activityApprovals',JSON.stringify(ov)); }catch(e){}
+  const a=findActivityById(id); if(a) a.approval=decision;
+}
+(function applyActivityApprovals(){
+  try{ const ov=JSON.parse(sessionStorage.getItem('activityApprovals')||'{}'); ACTIVITIES.forEach(a=>{ if(ov[a.id]) a.approval=ov[a.id]; }); }catch(e){}
+})();
+function pendingApprovalCount(){
+  let n=0;
+  try{ const added=JSON.parse(sessionStorage.getItem('addedVisits')||'[]'); if(added.length && sessionStorage.getItem('addedVisitsApproved')!=='1') n+=1; }catch(e){}
+  n+=ACTIVITIES.filter(a=>a.approval==='pending').length;
+  return n;
+}
 function fmtINR(v){
   if(v>=10000000) return '₹'+(v/10000000).toFixed(v%10000000?1:0)+' Cr';
   if(v>=100000) return '₹'+(v/100000).toFixed(v%100000?1:0)+' L';
