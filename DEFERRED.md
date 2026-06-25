@@ -1,67 +1,61 @@
 # Deferred / To-Do Tracker
 
-Running list of everything we've postponed or planned but not yet built, so nothing slips.
-Tied to [UPGRADE_PLAN.md](UPGRADE_PLAN.md). Last updated: 2026-06-24.
+Tied to [UPGRADE_PLAN.md](UPGRADE_PLAN.md). Last updated: 2026-06-25.
 
 ---
 
-## 🔭 Remaining Phases
+## 🎉 Status
 
-_All 5 planned phases are now built._ 🎉 Remaining work is the cleanup + deferred items below.
+All 5 planned phases **and** the full deferred/cleanup backlog are built. The list
+below is now mostly history; only a few genuinely-optional polish items remain open.
 
 ---
 
-## ⏸️ Deferred from completed phases
+## ✅ Done
 
-### Beat Plan (Phase 2)
-- [ ] **Map view** — existed in the old pharma build (doctor coordinates). Re-add on the account-based model (`PLAN_VISITS` already has `mx`/`my`).
-- [ ] **Voice check-out** — AI dictation that auto-fills the check-out form (was pharma-script specific). Re-add type-aware on the new model.
-- [ ] **Re-optimise** (AI re-planner) and **Backup plan** (standby visits) — present in old beat-plan, not yet ported.
-- [ ] **Sort & filter** on the visit list (by time/priority/type) — not yet rebuilt.
-- [ ] **Date switcher** — old plan let you change the plan date; current build is "Today" only.
+### Phases
+- **Phase 1** — Account-centric model, Accounts module, Contacts merge.
+- **Phase 2** — Dashboard provider KPIs; Beat Plan provider conversion (3 types, type-aware check-out, merged history, maker-checker).
+- **Phase 3** — Leads pipeline + Deals pipeline (per-type stage stepper, value/probability, Won/Lost).
+- **Phase 4** — Activity module (camps/events) with maker-checker + post-activity report.
+- **Phase 5** — Tasks merge (provider task types), Evaluate (provider metrics), FieldIQ (provider prompts).
+
+### Cleanup
+- [x] Removed legacy pharma data from `data.js`.
+- [x] Rebrand sweep — no "Roche" references; titles standardized to "Sakra Sales".
+- [x] Account ↔ Leads/Deals/Tasks cross-links (both directions).
+
+### Beat Plan (re-added on the account model)
+- [x] Map view (plots visits by mx/my with status legend).
+- [x] Voice check-out — type-aware AI dictation that fills the form.
+- [x] Re-optimise (shortest route / priority-first) and Backup standby accounts.
+- [x] Sort (time/type/status) + filter by account type.
+- [x] Date switcher (prev/next with empty-state for non-today).
 
 ### Maker-checker
-- [ ] Real **role model** (rep vs manager) — currently the approval sheet shows Approve/Reject to everyone for demo. Gate by role.
-- [ ] **Approvals inbox** (manager view) listing all pending plans/activities across reps.
-- [ ] Dashboard approval counts should be **live** (currently static "1 awaiting approval").
+- [x] Real role model — Rep/Manager toggle (Profile); approve/reject gated to Manager.
+- [x] Approvals inbox (`/approvals`) listing pending plan edits + activities.
+- [x] Live dashboard approval count.
 
-### Contacts (Phase 1)
-- [ ] **Slug collisions** — contacts route by name-slug; `slugify` strips `Dr.` but not `Mr./Mrs./Ms.`. No collisions in current data, but switch to contact `id` routing for safety before adding more contacts.
-- [ ] Rich **referral-doctor profile** (behavior, preferred timing, suggested talking points) — the old pharma doctor profile was dropped; rebuild a provider-flavored version (referral behavior, not detailing).
+### Contacts
+- [x] Route by stable `id` (slug-collision safe).
+- [x] Referral-doctor profile (behaviour, timing, talking points).
 
----
-
-## 🧹 Cleanup / tech debt
-
-- [x] **Remove legacy pharma data** from `assets/data.js` — done (DOCTORS, TODAY_VISITS, BACKUP_VISITS, DOCTOR_PROFILES, PROFILE_FALLBACK, PRODUCTS, visitsForOffset + dead helpers removed).
-- [x] **Rebrand sweep** — no "Roche" references remain anywhere; all page `<title>`s standardized to "Sakra Sales".
-- [x] **Account ↔ Leads/Deals/Tasks cross-links** — account detail now lists Related leads/deals/tasks; task detail links to its account.
-- [ ] **"Add Visit"** (Accounts) currently snackbars "pending approval" — wire it to actually create a Beat Plan visit in pending state.
-- [ ] **Profile / Login pages** — add Pause Shift + Select Workspace from B2B (branding now done).
-- [ ] **Bottom nav** — plan called for a "More" overflow (Leads/Deals/Activity/Contacts); currently flat 5-tab nav + Dashboard tiles. Revisit.
+### Other
+- [x] "More" nav overflow (`/more`) — Contacts, Leads, Deals, Activity, Approvals, Profile.
+- [x] "Add Visit" creates a real pending Beat Plan visit (sessionStorage) → approval flow.
+- [x] Profile: Pause/Resume Shift + Select Workspace.
+- [x] Create-lead / create-deal forms; lead source filter; deal Lost-reason capture.
+- [x] Activity: staff/logistics pickers; completion generates Leads; approved activities show in Beat Plan.
 
 ---
 
-## ✅ Done (for reference)
-- Phase 1 — Account-centric model, Accounts module, Contacts merge.
-- Phase 2 — Dashboard provider KPIs, Beat Plan provider conversion (3 types, type-aware check-out, merged history, maker-checker).
-- Phase 3 — Leads pipeline (4 stages, stage-advance) + Deals pipeline (per-type stage stepper, value/probability, Won/Lost). Accessed via Dashboard "Pipeline" tiles (not yet in bottom nav — see More-overflow item below).
-- Phase 4 — Activity module (camps/events): list by status, maker-checker approval (approve/reject), new-activity creation → pending, post-activity report (footfall/leads/conversions/ROI). Accessed via Dashboard "Activities run" tile.
-- Phase 5 — Tasks merged to account-linked + provider task types (Referral follow-up/Activity execution/MOU follow-up/Lead nurturing/Query); Evaluate criteria reframed to provider metrics; FieldIQ prompts + responses re-pointed (referrals/conversion, MOU renewals, cold referral doctors, camp localities).
+## 🔭 Still open (optional polish)
 
-## 📌 New deferrals from Phase 5
-- [ ] **Tasks → account link** — task detail shows account name but doesn't link to the account page (data has accountSlug ready).
-- [ ] **Task audit history** still uses placeholder "Sales CRM Admin" + Sep'25 sample dates — refresh to provider-realistic stamps.
-- [ ] **Evaluate** numeric scores are demo-only (not persisted); wire submission.
-
-## 📌 New deferrals from Phase 4
-- [ ] **Activities not surfaced inside Beat Plan** — plan said activities should appear as a visit type in the beat plan; currently a separate module only.
-- [ ] **Activity "live mode"** — on-the-spot lead capture during a camp (currently just a footfall/leads report at completion).
-- [ ] **Activity-generated leads → Leads module** auto-flow not wired.
-- [ ] **Activity staff/logistics** are display-only in create flow (defaults applied); add full pickers.
-
-## 📌 New deferrals from Phase 3
-- [ ] **Leads/Deals not in bottom nav** — reachable via Dashboard quick tiles + direct URL only. Fold into "More" overflow when built.
-- [ ] **Account detail** should list its linked Leads, Deals, Tasks (cross-links exist lead→account / deal→account, not yet account→lead/deal).
-- [ ] **Leads:** source date-range filter, activity-generated leads auto-flow, create-lead form.
-- [ ] **Deals:** Lost-reason capture, edit value/close-date, create-deal form.
+- [ ] **Persistence** — all runtime changes are in-memory/sessionStorage (demo). Wire a real backend/API for durable data + true multi-user maker-checker.
+- [ ] **Multi-day plans** — the date switcher shows an empty state for non-today; seed/generate plans per day.
+- [ ] **Task audit history** still uses placeholder "Sales CRM Admin" + Sep'25 sample stamps — refresh to provider-realistic entries.
+- [ ] **Evaluate** submissions aren't persisted.
+- [ ] **Deals** — edit value/close-date inline.
+- [ ] **Login/Cognito SSO** — button is a placeholder.
+- [ ] **Map** — real geo tiles + routing (current map is a stylised mock).
