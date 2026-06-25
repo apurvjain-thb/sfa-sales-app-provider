@@ -26,7 +26,13 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
         <input id="lead-search" placeholder="Search by title, contact, source" oninput="renderLeads()">
       </div></div>
-      <div class="toolsrow"><span class="count" id="lead-count">— leads</span></div>
+      <div class="toolsrow">
+        <span class="count" id="lead-count">— leads</span>
+        <div class="tools">
+          <button class="iconbtn" onclick="openSheet('lead-filter')" title="Filter by source"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button>
+          <button class="plan-reopt-btn" onclick="openSheet('newlead')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>New lead</button>
+        </div>
+      </div>
       <div class="screen"><div class="pad" id="lead-list" style="padding-top:0;"></div></div>
     </div>
 
@@ -50,6 +56,29 @@
     </div>
 
   </div>
+
+  <!-- New lead sheet -->
+  <div class="sheet-backdrop" id="newlead-backdrop" onclick="closeSheet('newlead')"></div>
+  <div class="bottom-sheet" id="newlead-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">New lead</span>
+      <button class="sheet-close" onclick="closeSheet('newlead')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="co-section"><label class="tke-label">Account <span class="req" style="color:var(--red)">*</span></label><select class="tke-select" id="nl-account"></select></div>
+    <div class="co-section"><label class="tke-label">Title <span class="req" style="color:var(--red)">*</span></label><input class="tke-input" id="nl-title" placeholder="e.g. Referral tie-up" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Source</label><select class="tke-select" id="nl-source"><option>Manually Created</option><option>Website</option><option>HIS</option><option>Referral</option><option>Activity</option></select></div>
+    <div class="co-section"><label class="tke-label">Priority</label><select class="tke-select" id="nl-prio"><option>High</option><option>Med</option><option>Low</option></select></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="closeSheet('newlead')">Cancel</button><button class="btn btn-primary" onclick="createLead()">Create lead</button></div>
+  </div>
+
+  <!-- Source filter sheet -->
+  <div class="sheet-backdrop" id="lead-filter-backdrop" onclick="closeSheet('lead-filter')"></div>
+  <div class="bottom-sheet" id="lead-filter-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">Filter by source</span>
+      <button class="sheet-close" onclick="closeSheet('lead-filter')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="sf-section"><div class="sf-chips" id="lead-filter-src"></div></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="ls.source=[];applyLeadFilter()">Reset</button><button class="btn btn-primary" onclick="applyLeadFilter()">Apply</button></div>
+  </div>
 </div>
 
 <script src="/assets/data.js"></script>
@@ -57,7 +86,7 @@
 <script>
 initShell('more');
 
-const ls={stage:"All"};
+const ls={stage:"All",source:[],sourceDraft:[]};
 function typeClass(t){return t==='referral'?'up':t==='venue'?'wait':'done';}
 function prioClass(p){return p==='High'?'high':p==='Med'?'med':'low';}
 
@@ -67,12 +96,37 @@ function renderChips(){
 }
 function setStage(s){ls.stage=s;renderChips();renderLeads();}
 
+/* Source filter + create-lead */
+const _openLead=openSheet;
+openSheet=function(id){ if(id==='lead-filter') populateLeadFilter(); if(id==='newlead') populateNewLead(); _openLead(id); };
+function populateLeadFilter(){
+  ls.sourceDraft=[...ls.source];
+  const sources=[...new Set(LEADS.map(l=>l.source))];
+  document.getElementById('lead-filter-src').innerHTML=sources.map(s=>`<button class="sf-chip-multi ${ls.sourceDraft.includes(s)?'sel':''}" onclick="toggleSrc('${s.replace(/'/g,"\\'")}',this)">${s}</button>`).join('');
+}
+function toggleSrc(s,btn){const i=ls.sourceDraft.indexOf(s);if(i>=0)ls.sourceDraft.splice(i,1);else ls.sourceDraft.push(s);btn.classList.toggle('sel');}
+function applyLeadFilter(){ls.source=[...(ls.sourceDraft||[])];closeSheet('lead-filter');renderLeads();}
+function populateNewLead(){
+  document.getElementById('nl-account').innerHTML=ACCOUNTS.map(a=>`<option value="${slugify(a.name)}">${a.name}</option>`).join('');
+  document.getElementById('nl-title').value='';
+}
+function createLead(){
+  const slug=document.getElementById('nl-account').value;
+  const acc=ACCOUNTS.find(a=>slugify(a.name)===slug);
+  const title=document.getElementById('nl-title').value.trim()||`${acc?acc.name:'New'} — lead`;
+  const id=Math.max(...LEADS.map(l=>l.id))+1;
+  LEADS.push({id,title,type:acc?acc.type:'referral',accountSlug:slug,contact:(acc&&acc.contacts[0])?acc.contacts[0].n:'—',phone:(acc&&acc.contacts[0])?acc.contacts[0].phone:'—',source:document.getElementById('nl-source').value,prio:document.getElementById('nl-prio').value,stage:'New',due:'TBD',created:LEADS.length+1});
+  closeSheet('newlead'); ls.stage='New'; renderChips(); renderLeads();
+  snack('Lead created.');
+}
+
 function renderLeads(){
   const q=(document.getElementById('lead-search').value||'').toLowerCase();
   let rows=LEADS.filter(l=>{
     const stageOk=ls.stage==='All'||l.stage===ls.stage;
+    const srcOk=!ls.source.length||ls.source.includes(l.source);
     const qOk=!q||l.title.toLowerCase().includes(q)||l.contact.toLowerCase().includes(q)||l.source.toLowerCase().includes(q);
-    return stageOk&&qOk;
+    return stageOk&&srcOk&&qOk;
   });
   rows=[...rows].sort((a,b)=>a.created-b.created);
   document.getElementById('lead-count').textContent=`${rows.length} lead${rows.length!==1?'s':''}`;

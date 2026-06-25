@@ -26,7 +26,13 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
         <input id="deal-search" placeholder="Search by deal, account" oninput="renderDeals()">
       </div></div>
-      <div class="toolsrow"><span class="count" id="deal-count">— deals</span><span class="count" id="deal-value" style="color:var(--teal-press);"></span></div>
+      <div class="toolsrow">
+        <span class="count" id="deal-count">— deals</span>
+        <div class="tools">
+          <span class="count" id="deal-value" style="color:var(--teal-press);"></span>
+          <button class="plan-reopt-btn" onclick="openSheet('newdeal')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>New deal</button>
+        </div>
+      </div>
       <div class="screen"><div class="pad" id="deal-list" style="padding-top:0;"></div></div>
     </div>
 
@@ -44,11 +50,36 @@
       </div>
       <div class="screen"><div style="padding:14px 18px 110px;" id="dd-content"></div></div>
       <div class="vd-footer">
-        <button class="btn secondary" style="flex:0 0 auto;padding:14px 18px;" onclick="bucketGo('/deals')">Back</button>
+        <button class="btn secondary" id="dd-lost" style="flex:0 0 auto;padding:14px 16px;" onclick="openSheet('lostreason')">Mark Lost</button>
         <button class="btn btn-primary" id="dd-advance" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="advanceDeal()"></button>
       </div>
     </div>
 
+  </div>
+
+  <!-- New deal sheet -->
+  <div class="sheet-backdrop" id="newdeal-backdrop" onclick="closeSheet('newdeal')"></div>
+  <div class="bottom-sheet" id="newdeal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">New deal</span>
+      <button class="sheet-close" onclick="closeSheet('newdeal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="co-section"><label class="tke-label">Account <span class="req" style="color:var(--red)">*</span></label><select class="tke-select" id="nd-account"></select></div>
+    <div class="co-section"><label class="tke-label">Deal name <span class="req" style="color:var(--red)">*</span></label><input class="tke-input" id="nd-name" placeholder="e.g. Employee health MOU" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Deal type</label><select class="tke-select" id="nd-type"><option>New Contract</option><option>Renewal</option><option>Partnership</option><option>Activity</option></select></div>
+    <div class="co-section"><label class="tke-label">Value (₹)</label><input type="number" class="tke-input" id="nd-value" placeholder="e.g. 1500000" style="font-size:16px;"></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="closeSheet('newdeal')">Cancel</button><button class="btn btn-primary" onclick="createDeal()">Create deal</button></div>
+  </div>
+
+  <!-- Lost reason sheet -->
+  <div class="sheet-backdrop" id="lostreason-backdrop" onclick="closeSheet('lostreason')"></div>
+  <div class="bottom-sheet" id="lostreason-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">Why was this deal lost?</span>
+      <button class="sheet-close" onclick="closeSheet('lostreason')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="co-section"><label class="tke-label">Reason <span class="req" style="color:var(--red)">*</span></label>
+      <select class="tke-select" id="lr-reason"><option value="">Select a reason</option><option>Price / budget</option><option>Chose competitor</option><option>No decision / stalled</option><option>Not a fit</option><option>Lost contact</option></select></div>
+    <div class="co-section"><label class="tke-label">Notes</label><textarea class="tke-textarea" id="lr-notes" placeholder="Optional context"></textarea></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="closeSheet('lostreason')">Cancel</button><button class="btn danger" onclick="markLost()">Mark Lost</button></div>
   </div>
 </div>
 
@@ -148,6 +179,31 @@ function renderDetail(id){
     </div>`;
   if(d.status!=='Open'||idx>=stages.length-1){ adv.textContent=d.status==='Open'?'Mark as Won':'Closed'; adv.disabled=d.status!=='Open'; adv.style.opacity=d.status!=='Open'?'.55':'1'; }
   else { adv.textContent=`Move to ${stages[idx+1]}`; adv.disabled=false; adv.style.opacity='1'; }
+  document.getElementById('dd-lost').style.display=d.status==='Open'?'':'none';
+}
+const _openDeal=openSheet;
+openSheet=function(id){ if(id==='newdeal') populateNewDeal(); _openDeal(id); };
+function populateNewDeal(){
+  document.getElementById('nd-account').innerHTML=ACCOUNTS.map(a=>`<option value="${slugify(a.name)}">${a.name}</option>`).join('');
+  document.getElementById('nd-name').value=''; document.getElementById('nd-value').value='';
+}
+function createDeal(){
+  const slug=document.getElementById('nd-account').value;
+  const acc=ACCOUNTS.find(a=>slugify(a.name)===slug);
+  const name=document.getElementById('nd-name').value.trim()||`${acc?acc.name:'New'} deal`;
+  const type=acc?acc.type:'corporate';
+  const stages=DEAL_STAGES_BY_TYPE[type]||['Discussion'];
+  DEALS.push({id:'D-'+(DEALS.length+1),name,type,accountSlug:slug,accountName:acc?acc.name:'—',dealType:document.getElementById('nd-type').value,value:parseInt(document.getElementById('nd-value').value||'0',10),stage:stages[0],status:'Open',prob:0.3,close:'TBD',created:DEALS.length+1});
+  closeSheet('newdeal'); ds.tab='Open'; renderChips(); renderDeals();
+  snack('Deal created.');
+}
+function markLost(){
+  const reason=document.getElementById('lr-reason').value;
+  if(!reason){ snack('Please select a reason.'); return; }
+  if(ddCurrent){ ddCurrent.status='Lost'; ddCurrent.prob=0; ddCurrent.lostReason=reason; }
+  closeSheet('lostreason');
+  renderDetail(ddCurrent.id);
+  snack(`Deal marked Lost · ${reason}`);
 }
 function advanceDeal(){
   if(!ddCurrent||ddCurrent.status!=='Open') return;
