@@ -244,7 +244,16 @@ const PLAN_TABS=[
 
 function typeClass(t){return t==='referral'?'up':t==='venue'?'wait':'done';}
 function getAddedVisits(){ try{ return JSON.parse(sessionStorage.getItem('addedVisits')||'[]'); }catch(e){ return []; } }
-function rawVisits(){ return PLAN_VISITS.concat(getAddedVisits()); }
+/* Approved, not-yet-run activities show in the plan as camp visits */
+function activityVisits(){
+  if(typeof ACTIVITIES==='undefined') return [];
+  return ACTIVITIES.filter(a=>a.approval==='approved'&&a.exec==='planned').map(a=>({
+    id:'ACT-'+a.id,time:a.time&&a.time!=='TBD'?a.time.split(' ')[0]:'TBD',ap:a.time&&/PM/.test(a.time)?'':'',
+    accountSlug:a.venueSlug,accountName:a.venueName,accountSub:'Camp / event',type:'venue',
+    purpose:a.name,contact:'Camp team',vt:'In person',status:'up',fromActivity:true
+  }));
+}
+function rawVisits(){ return PLAN_VISITS.concat(getAddedVisits(),activityVisits()); }
 function mergedVisit(v){const o=bp.overrides[v.id];return o?{...v,...o}:v;}
 function allVisits(){return rawVisits().map(mergedVisit);}
 function findVisitById(id){return rawVisits().find(v=>v.id===id);}

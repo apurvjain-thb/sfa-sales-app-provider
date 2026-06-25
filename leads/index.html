@@ -120,9 +120,15 @@ function createLead(){
   snack('Lead created.');
 }
 
+/* Fold in leads captured at completed activities (camp → leads) */
+function activityGeneratedLeads(){
+  let src=[]; try{ src=JSON.parse(sessionStorage.getItem('activityLeads')||'[]'); }catch(e){ src=[]; }
+  return src.map((g,i)=>({id:90000+i,title:`${g.venueName} — ${g.count} camp leads`,type:'venue',accountSlug:g.venueSlug,contact:`${g.activity} attendees`,phone:'—',source:'Activity',prio:'Med',stage:'New',due:'TBD',created:1000+i,fromActivity:true}));
+}
 function renderLeads(){
   const q=(document.getElementById('lead-search').value||'').toLowerCase();
-  let rows=LEADS.filter(l=>{
+  const pool=LEADS.concat(activityGeneratedLeads());
+  let rows=pool.filter(l=>{
     const stageOk=ls.stage==='All'||l.stage===ls.stage;
     const srcOk=!ls.source.length||ls.source.includes(l.source);
     const qOk=!q||l.title.toLowerCase().includes(q)||l.contact.toLowerCase().includes(q)||l.source.toLowerCase().includes(q);
@@ -154,7 +160,7 @@ function renderLeads(){
 let ldCurrent=null;
 function vRow(label,val){return `<div class="vd-row"><span class="vd-row-label">${label}</span><span class="vd-row-value">${val||'—'}</span></div>`;}
 function renderDetail(id){
-  const l=findLeadById(id); ldCurrent=l;
+  const l=findLeadById(id)||activityGeneratedLeads().find(g=>String(g.id)===String(id)); ldCurrent=l;
   const content=document.getElementById('ld-content');
   const adv=document.getElementById('ld-advance');
   if(!l){

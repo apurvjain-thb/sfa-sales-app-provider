@@ -78,6 +78,14 @@
       <label class="tke-label">Services to offer</label>
       <div class="sf-chips" id="na-services"></div>
     </div>
+    <div class="co-section">
+      <label class="tke-label">Staff</label>
+      <div class="sf-chips" id="na-staff"></div>
+    </div>
+    <div class="co-section">
+      <label class="tke-label">Logistics</label>
+      <div class="sf-chips" id="na-logistics"></div>
+    </div>
     <div class="mc-note" style="margin:0 4px;">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
       New activities go to your manager for approval before scheduling.
@@ -135,7 +143,9 @@
 initShell('more');
 
 const ALL_SERVICES=["BP","Sugar","BMI","ECG","Vision","Dental","Specialist OPD","Diet counselling"];
-const at={filter:"All",current:null,naServices:[]};
+const ALL_STAFF=["Physician","Pediatrician","Nurse","Dietician","Coordinator","Lab technician"];
+const ALL_LOGISTICS=["Space","Tables","Chairs","Power","Branding","Permissions"];
+const at={filter:"All",current:null,naServices:[],naStaff:[],naLogistics:[]};
 
 const AT_TABS=[
   {k:"All",m:a=>true},
@@ -270,10 +280,12 @@ function openNewAct(){
   document.getElementById('na-venue').innerHTML=ACCOUNTS.filter(a=>a.type==='venue').map(v=>`<option value="${slugify(v.name)}">${v.name}</option>`).join('');
   document.getElementById('na-name').value='';
   document.getElementById('na-date').value='';
-  at.naServices=[];
-  document.getElementById('na-services').innerHTML=ALL_SERVICES.map(s=>`<button class="sf-chip-multi" onclick="toggleNaService('${s.replace(/'/g,"\\'")}',this)">${s}</button>`).join('');
+  at.naServices=[]; at.naStaff=[]; at.naLogistics=[];
+  document.getElementById('na-services').innerHTML=ALL_SERVICES.map(s=>`<button class="sf-chip-multi" onclick="toggleNa('naServices','${s.replace(/'/g,"\\'")}',this)">${s}</button>`).join('');
+  document.getElementById('na-staff').innerHTML=ALL_STAFF.map(s=>`<button class="sf-chip-multi" onclick="toggleNa('naStaff','${s.replace(/'/g,"\\'")}',this)">${s}</button>`).join('');
+  document.getElementById('na-logistics').innerHTML=ALL_LOGISTICS.map(s=>`<button class="sf-chip-multi" onclick="toggleNa('naLogistics','${s.replace(/'/g,"\\'")}',this)">${s}</button>`).join('');
 }
-function toggleNaService(s,btn){const i=at.naServices.indexOf(s);if(i>=0)at.naServices.splice(i,1);else at.naServices.push(s);btn.classList.toggle('sel');}
+function toggleNa(group,s,btn){const arr=at[group];const i=arr.indexOf(s);if(i>=0)arr.splice(i,1);else arr.push(s);btn.classList.toggle('sel');}
 function createActivity(){
   const venueSlug=document.getElementById('na-venue').value;
   const venue=ACCOUNTS.find(a=>slugify(a.name)===venueSlug);
@@ -281,7 +293,7 @@ function createActivity(){
   const date=document.getElementById('na-date').value||'TBD';
   const id='AT-'+(ACTIVITIES.length+1);
   ACTIVITIES.push({id,name,venueSlug,venueName:venue?venue.name:'Venue',date,time:'TBD',
-    services:at.naServices.length?at.naServices:["BP","Sugar","BMI"],staff:["TBD"],logistics:["TBD"],
+    services:at.naServices.length?at.naServices:["BP","Sugar","BMI"],staff:at.naStaff.length?at.naStaff:["TBD"],logistics:at.naLogistics.length?at.naLogistics:["TBD"],
     approval:"pending",exec:"planned",submittedBy:"Raj Hussain",note:"Created from app",expFootfall:venue?venue.footfall:'—',created:ACTIVITIES.length+1});
   closeSheet('newact');
   at.filter='Pending';renderChips();renderList();
@@ -294,9 +306,13 @@ function submitReport(){
   const l=parseInt(document.getElementById('rp-leads').value||'0',10);
   if(!f||!l){snack('Enter footfall and leads.');return;}
   a.exec='completed';a.footfall=f;a.leads=l;a.conversions=Math.round(l*0.3);
+  /* Captured camp leads flow into the Leads pipeline */
+  let added=[]; try{ added=JSON.parse(sessionStorage.getItem('activityLeads')||'[]'); }catch(e){ added=[]; }
+  added.push({venueSlug:a.venueSlug,venueName:a.venueName,count:l,activity:a.name});
+  sessionStorage.setItem('activityLeads',JSON.stringify(added));
   closeSheet('report');
   renderDetail(a.id);
-  snack(`Camp completed · ${f} footfall · ${l} leads captured`);
+  snack(`Camp completed · ${l} leads → Leads pipeline`);
 }
 
 const _openOrig=openSheet;
