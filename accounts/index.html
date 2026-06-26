@@ -30,6 +30,7 @@
         <span class="count" id="account-count">— accounts</span>
         <div class="tools">
           <button class="iconbtn" onclick="openSheet('a-filter')" title="Filter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button>
+          <button class="plan-reopt-btn" onclick="openSheet('newacct')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>New</button>
         </div>
       </div>
       <div class="screen"><div class="pad" id="account-list" style="padding-top:0;"></div></div>
@@ -99,6 +100,24 @@
       <button class="btn btn-primary" onclick="applyAccountsFilter()">Apply</button>
     </div>
   </div>
+
+  <!-- New account sheet -->
+  <div class="sheet-backdrop" id="newacct-backdrop" onclick="closeSheet('newacct')"></div>
+  <div class="bottom-sheet" id="newacct-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">New account</span>
+      <button class="sheet-close" onclick="closeSheet('newacct')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="co-section"><label class="tke-label">Account name <span class="req" style="color:var(--red)">*</span></label><input class="tke-input" id="nac-name" placeholder="e.g. City Care Clinic" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Type</label>
+      <select class="tke-select" id="nac-type"><option value="referral">Referral source</option><option value="venue">Venue</option><option value="corporate">Corporate</option></select></div>
+    <div class="co-section"><label class="tke-label">Sub-type</label><input class="tke-input" id="nac-sub" placeholder="e.g. Nursing Home / Housing Society / IT" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Status</label>
+      <select class="tke-select" id="nac-status"><option>Prospect</option><option>Active</option><option>On-hold</option></select></div>
+    <div class="co-section"><label class="tke-label">Address / area</label><input class="tke-input" id="nac-addr" placeholder="e.g. Indiranagar, Bengaluru" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Primary contact</label><input class="tke-input" id="nac-contact" placeholder="Name" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Contact phone</label><input class="tke-input" id="nac-phone" placeholder="+91 …" style="font-size:16px;"></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="closeSheet('newacct')">Cancel</button><button class="btn btn-primary" onclick="createAccount()">Create account</button></div>
+  </div>
 </div>
 
 <script src="/assets/data.js"></script>
@@ -107,6 +126,27 @@
 initShell('accounts');
 
 const as_={type:"All",filter:{status:[]},filterDraft:{status:[]}};
+
+/* New account */
+function createAccount(){
+  const name=(document.getElementById('nac-name').value||'').trim();
+  if(!name){ snack('Please enter an account name.'); return; }
+  const type=document.getElementById('nac-type').value;
+  const sub=(document.getElementById('nac-sub').value||'').trim()||({referral:'Clinic',venue:'Venue',corporate:'Company'})[type];
+  const status=document.getElementById('nac-status').value;
+  const addr=(document.getElementById('nac-addr').value||'').trim()||'Bengaluru';
+  const cName=(document.getElementById('nac-contact').value||'').trim();
+  const cPhone=(document.getElementById('nac-phone').value||'').trim();
+  const contacts=cName?[{n:cName,role:'Primary contact',phone:cPhone||'—',email:''}]:[];
+  const acct={id:'AC-'+(9000+ACCOUNTS.length),name,type,sub,status,addr,lastVisit:'No visits yet',created:ACCOUNTS.length+1,contacts};
+  if(type==='referral'){ Object.assign(acct,{tier:2,specialties:'—',referralsMTD:0,referralTarget:0,competing:'—'}); }
+  else if(type==='venue'){ Object.assign(acct,{households:0,footfall:'—',pastCamps:0,preferredTiming:'—'}); }
+  else { Object.assign(acct,{employees:0,insurer:'—',packageTier:'—',renewal:'—'}); }
+  ACCOUNTS.push(acct);
+  closeSheet('newacct');
+  as_.type='All'; renderChips(); renderAccounts();
+  snack('Account created.');
+}
 
 function renderChips(){
   const chips=[["All","All"],["referral","Referral"],["venue","Venue"],["corporate","Corporate"]];

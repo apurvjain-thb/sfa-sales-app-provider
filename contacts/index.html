@@ -28,6 +28,9 @@
       </div></div>
       <div class="toolsrow">
         <span class="count" id="contact-count">— contacts</span>
+        <div class="tools">
+          <button class="plan-reopt-btn" onclick="openSheet('newcontact')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>New</button>
+        </div>
       </div>
       <div class="screen"><div class="pad" id="contact-list" style="padding-top:0;"></div></div>
     </div>
@@ -128,6 +131,21 @@
       </button>
     </div>
   </div>
+
+  <!-- New contact sheet -->
+  <div class="sheet-backdrop" id="newcontact-backdrop" onclick="closeSheet('newcontact')"></div>
+  <div class="bottom-sheet" id="newcontact-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">New contact</span>
+      <button class="sheet-close" onclick="closeSheet('newcontact')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="co-section"><label class="tke-label">Account <span class="req" style="color:var(--red)">*</span></label><select class="tke-select" id="nct-account"></select></div>
+    <div class="co-section"><label class="tke-label">Name <span class="req" style="color:var(--red)">*</span></label><input class="tke-input" id="nct-name" placeholder="e.g. Dr. Meera Nair" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Role</label><input class="tke-input" id="nct-role" placeholder="e.g. Consultant / RWA Secretary / HR Head" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Specialty (doctors)</label><input class="tke-input" id="nct-spec" placeholder="e.g. Cardiologist" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Mobile</label><input class="tke-input" id="nct-phone" placeholder="+91 …" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Email</label><input class="tke-input" id="nct-email" placeholder="name@example.com" style="font-size:16px;"></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="closeSheet('newcontact')">Cancel</button><button class="btn btn-primary" onclick="createContact()">Create contact</button></div>
+  </div>
 </div>
 
 <script src="/assets/data.js"></script>
@@ -136,6 +154,34 @@
 initShell('more');
 
 const cs={type:"All"};
+
+/* New contact */
+const _openCt=openSheet;
+openSheet=function(id){ if(id==='newcontact') populateNewContact(); _openCt(id); };
+function populateNewContact(){
+  document.getElementById('nct-account').innerHTML=ACCOUNTS.map(a=>`<option value="${slugify(a.name)}">${a.name}</option>`).join('');
+  ['nct-name','nct-role','nct-spec','nct-phone','nct-email'].forEach(id=>document.getElementById(id).value='');
+}
+function createContact(){
+  const slug=document.getElementById('nct-account').value;
+  const acc=ACCOUNTS.find(a=>slugify(a.name)===slug);
+  const n=(document.getElementById('nct-name').value||'').trim();
+  if(!acc||!n){ snack('Pick an account and enter a name.'); return; }
+  const spec=(document.getElementById('nct-spec').value||'').trim();
+  const c={
+    id:acc.id+'-C'+((acc.contacts?acc.contacts.length:0)+1)+'-n'+CONTACTS.length,
+    n,role:(document.getElementById('nct-role').value||'').trim()||'Contact',spec,
+    phone:(document.getElementById('nct-phone').value||'').trim()||'—',
+    email:(document.getElementById('nct-email').value||'').trim(),
+    type:acc.type,accountName:acc.name,accountSlug:slug,accountSub:acc.sub,
+    isDoctor:/^Dr\.?\s/i.test(n),
+  };
+  CONTACTS.push(c);
+  if(acc.contacts) acc.contacts.push({n:c.n,role:c.role,spec:c.spec,phone:c.phone,email:c.email});
+  closeSheet('newcontact');
+  cs.type='All'; renderChips(); renderContacts();
+  snack('Contact created.');
+}
 
 function renderChips(){
   const chips=[["All","All"],["referral","Referral"],["venue","Venue"],["corporate","Corporate"]];

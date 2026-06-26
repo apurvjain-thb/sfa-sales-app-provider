@@ -38,6 +38,7 @@
         <div class="tools">
           <button class="iconbtn" onclick="openSheet('t-sort')" title="Sort"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h12M3 12h9M3 18h6M17 7v12M17 19l3-3M17 19l-3-3"/></svg></button>
           <button class="iconbtn" onclick="openSheet('t-filter')" title="Filter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button>
+          <button class="plan-reopt-btn" onclick="openSheet('newtask')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>New</button>
         </div>
       </div>
       <div class="screen"><div class="pad" id="task-list" style="padding-top:0;"></div></div>
@@ -123,6 +124,20 @@
       <button class="btn btn-primary" onclick="applyTasksFilter()">Apply</button>
     </div>
   </div>
+
+  <!-- New task sheet -->
+  <div class="sheet-backdrop" id="newtask-backdrop" onclick="closeSheet('newtask')"></div>
+  <div class="bottom-sheet" id="newtask-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">New task</span>
+      <button class="sheet-close" onclick="closeSheet('newtask')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="co-section"><label class="tke-label">Title <span class="req" style="color:var(--red)">*</span></label><input class="tke-input" id="nt-title" placeholder="e.g. Follow up on referral commitment" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Account</label><select class="tke-select" id="nt-account"></select></div>
+    <div class="co-section"><label class="tke-label">Task type</label><select class="tke-select" id="nt-type"></select></div>
+    <div class="co-section"><label class="tke-label">Priority</label><select class="tke-select" id="nt-prio"><option>High</option><option>Med</option><option>Low</option></select></div>
+    <div class="co-section"><label class="tke-label">Due</label><input class="tke-input" id="nt-due" placeholder="e.g. 20 Jun, 10:00 AM" style="font-size:16px;"></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="closeSheet('newtask')">Cancel</button><button class="btn btn-primary" onclick="createTask()">Create task</button></div>
+  </div>
 </div>
 
 <script src="/assets/data.js"></script>
@@ -154,8 +169,29 @@ const _openSheetOrig=openSheet;
 openSheet=function(id){
   if(id==='t-sort') populateTasksSortSheet();
   if(id==='t-filter') populateTasksFilterSheet();
+  if(id==='newtask') populateNewTask();
   _openSheetOrig(id);
 };
+
+/* New task */
+function populateNewTask(){
+  document.getElementById('nt-account').innerHTML=(typeof ACCOUNTS!=='undefined'?ACCOUNTS:[]).map(a=>`<option value="${slugify(a.name)}">${a.name}</option>`).join('');
+  document.getElementById('nt-type').innerHTML=(typeof TASK_TYPES!=='undefined'?TASK_TYPES:['Referral follow-up']).map(t=>`<option>${t}</option>`).join('');
+  document.getElementById('nt-title').value=''; document.getElementById('nt-due').value='';
+}
+function createTask(){
+  const title=(document.getElementById('nt-title').value||'').trim();
+  if(!title){ snack('Please enter a task title.'); return; }
+  const slug=document.getElementById('nt-account').value;
+  const acc=ACCOUNTS.find(a=>slugify(a.name)===slug);
+  const contact=(acc&&acc.contacts&&acc.contacts[0])?acc.contacts[0].n:'—';
+  const id=Math.max(...TASKS.map(t=>t.id))+1;
+  TASKS.unshift({id,title,type:document.getElementById('nt-type').value,status:'Open',prio:document.getElementById('nt-prio').value,
+    doctor:contact,clinic:acc?acc.name:'—',accountSlug:slug,due:(document.getElementById('nt-due').value||'').trim()||'TBD',overdue:false,updated:0});
+  closeSheet('newtask');
+  ts.status='All'; renderChips(); renderTasks();
+  snack('Task created.');
+}
 function populateTasksSortSheet(){
   ts.sortDraft=ts.sort;
   document.getElementById('t-sort-list').innerHTML=T_SORTS.map(s=>`

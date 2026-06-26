@@ -28,7 +28,8 @@
       "mcp__Claude_in_Chrome__computer",
       "mcp__Claude_in_Chrome__browser_batch",
       "Bash(python3 -c \"import ast; ast.parse\\(open\\('serve.py'\\).read\\(\\)\\); print\\('serve.py OK'\\)\")",
-      "Bash(git commit -q -m ' *)"
+      "Bash(git commit -q -m ' *)",
+      "Bash(grep -n 'script src=\"/assets/data.js\"\\\\|</div>$' contacts/index.html)"
     ]
   }
 }
