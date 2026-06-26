@@ -54,6 +54,12 @@ function render(){
   (typeof pendingExpenses==='function'?pendingExpenses():[]).forEach(e=>{
     items.push({kind:'expense',id:e.id,title:`Expense — ${fmtRs(e.amount)} · ${expCatMeta(e.category).l}`,sub:`${e.date}${e.linkLabel?' · '+e.linkLabel:''}`,by:e.submittedBy||'Raj Hussain'});
   });
+  (typeof pendingReports==='function'?pendingReports():[]).forEach(r=>{
+    items.push({kind:'report',id:r.id,title:`Expense report — ${r.title}`,sub:`${r.claimIds.length} claims · ${fmtRs(r.total)}`,by:r.submittedBy||'Raj Hussain'});
+  });
+  (typeof pendingAdvances==='function'?pendingAdvances():[]).forEach(a=>{
+    items.push({kind:'advance',id:a.id,title:`Advance — ${fmtRs(a.amount)}`,sub:`${a.purpose} · ${a.date}`,by:'Raj Hussain'});
+  });
   const el=document.getElementById('ap-list');
   if(!items.length){ el.innerHTML='<div class="empty" style="margin-top:40px;"><div class="et">Nothing to approve</div><div class="ed">Pending beat-plan edits and activities will appear here.</div></div>'; return; }
   const actions=(it)=>{
@@ -80,6 +86,12 @@ function decide(kind,id,decision){
     setActivityApproval(id,decision);
   } else if(kind==='expense'){
     setExpenseStatus(id,decision==='approved'?'Approved':'Rejected');
+  } else if(kind==='advance'){
+    setAdvanceStatus(id,decision==='approved'?'Approved':'Rejected');
+  } else if(kind==='report'){
+    const r=findReportById(id);
+    setReportStatus(id,decision==='approved'?'Approved':'Rejected');
+    if(r) r.claimIds.forEach(cid=>setExpenseStatus(cid,decision==='approved'?'Approved':'Draft'));
   }
   snack(decision==='approved'?'Approved.':'Rejected — rep notified.');
   render();

@@ -278,6 +278,8 @@ function pendingApprovalCount(){
   if(addedVisitsPending()) n+=1;
   n+=ACTIVITIES.filter(a=>a.approval==='pending').length;
   if(typeof pendingExpenses==='function') n+=pendingExpenses().length;
+  if(typeof pendingAdvances==='function') n+=pendingAdvances().length;
+  if(typeof pendingReports==='function') n+=pendingReports().length;
   return n;
 }
 function fmtINR(v){
@@ -308,7 +310,7 @@ const EXPENSE_CATEGORIES=[
   {k:"misc",l:"Miscellaneous",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>'},
 ];
 function expCatMeta(k){ return EXPENSE_CATEGORIES.find(c=>c.k===k)||EXPENSE_CATEGORIES[EXPENSE_CATEGORIES.length-1]; }
-const EXPENSE_STATUS_CLASS={Draft:"up",Submitted:"wait",Approved:"done",Rejected:"miss",Paid:"done"};
+const EXPENSE_STATUS_CLASS={Draft:"up",Submitted:"wait","In report":"wait",Approved:"done",Rejected:"miss",Paid:"done"};
 const PAYMENT_MODES=["Cash","Personal card","Company card","UPI"];
 
 const EXPENSES_SEED=[
@@ -334,6 +336,41 @@ function addExpense(e){
   try{ const list=newExpenses(); list.push(e); sessionStorage.setItem('newExpenses',JSON.stringify(list)); }catch(err){}
 }
 function pendingExpenses(){ return getExpenses().filter(e=>e.status==='Submitted'); }
+
+/* ── E4: rates & policy ── */
+const MILEAGE_RATE=10;                                   /* ₹ per km, own vehicle */
+const PERDIEM_RATES=[{k:"Local",v:500},{k:"Outstation",v:1200},{k:"Overnight halt",v:2000}];
+const POLICY_CAPS={meals:2000,accommodation:6000,collateral:3000,misc:1500}; /* per-claim ₹ caps */
+function expenseViolation(e){
+  if(POLICY_CAPS[e.category]!=null && e.amount>POLICY_CAPS[e.category])
+    return `Over ${expCatMeta(e.category).l} cap (${fmtRs(POLICY_CAPS[e.category])})`;
+  if(e.amount>=1000 && !e.receipt && e.category!=='mileage' && e.category!=='perdiem')
+    return 'Receipt required above ₹1,000';
+  return null;
+}
+
+/* ── E3: advances (request money before spend, settle against actuals) ── */
+const ADVANCE_STATUS_CLASS={Pending:"wait",Approved:"done",Rejected:"miss",Settled:"done"};
+const ADVANCES_SEED=[
+  {id:"ADV-1",purpose:"Brigade Gateway health camp",amount:10000,date:"8 Jun '26",status:"Approved",settled:6230,linkLabel:"Brigade Gateway — Free Health Camp",created:1},
+  {id:"ADV-2",purpose:"Outstation corporate visits — Hosur",amount:6000,date:"15 Jun '26",status:"Pending",settled:0,linkLabel:"",created:2},
+];
+function newAdvances(){ try{ return JSON.parse(sessionStorage.getItem('newAdvances')||'[]'); }catch(e){ return []; } }
+function advanceOverrides(){ try{ return JSON.parse(sessionStorage.getItem('advanceStatus')||'{}'); }catch(e){ return {}; } }
+function getAdvances(){ const ov=advanceOverrides(); return ADVANCES_SEED.concat(newAdvances()).map(a=>ov[a.id]?{...a,status:ov[a.id]}:a); }
+function findAdvanceById(id){ return getAdvances().find(a=>a.id===id); }
+function setAdvanceStatus(id,s){ try{ const ov=advanceOverrides(); ov[id]=s; sessionStorage.setItem('advanceStatus',JSON.stringify(ov)); }catch(e){} }
+function addAdvance(a){ try{ const l=newAdvances(); l.push(a); sessionStorage.setItem('newAdvances',JSON.stringify(l)); }catch(e){} }
+function pendingAdvances(){ return getAdvances().filter(a=>a.status==='Pending'); }
+
+/* ── E3: expense reports (bundle of claims submitted together) ── */
+const REPORTS_SEED=[];
+function getReports(){ try{ return REPORTS_SEED.concat(JSON.parse(sessionStorage.getItem('expReports')||'[]')); }catch(e){ return REPORTS_SEED.slice(); } }
+function findReportById(id){ return getReports().find(r=>r.id===id); }
+function addReport(r){ try{ const l=JSON.parse(sessionStorage.getItem('expReports')||'[]'); l.push(r); sessionStorage.setItem('expReports',JSON.stringify(l)); }catch(e){} }
+function setReportStatus(id,s){ try{ const ov=JSON.parse(sessionStorage.getItem('reportStatus')||'{}'); ov[id]=s; sessionStorage.setItem('reportStatus',JSON.stringify(ov)); }catch(e){} }
+function reportStatus(r){ try{ const ov=JSON.parse(sessionStorage.getItem('reportStatus')||'{}'); return ov[r.id]||r.status; }catch(e){ return r.status; } }
+function pendingReports(){ return getReports().filter(r=>reportStatus(r)==='Submitted'); }
 
 /* Provider message templates — channel + account-type aware.
    {name} → contact short name. */

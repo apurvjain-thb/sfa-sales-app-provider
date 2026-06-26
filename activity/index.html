@@ -209,9 +209,12 @@ function renderDetail(id){
   document.getElementById('ad-id').textContent=a.name;
   document.getElementById('ad-when').textContent=a.date;
   const meta=ACCOUNT_TYPE_META.venue;
+  /* E5: spend linked to this activity (cost & cost-per-lead) */
+  const actCost=(typeof getExpenses==='function'?getExpenses():[]).filter(e=>e.linkType==='activity'&&(e.linkLabel||'').indexOf(a.name)>=0).reduce((s,e)=>s+e.amount,0);
   let report='';
   if(a.exec==='completed'){
     const conv=a.footfall?Math.round((a.conversions/a.leads)*100):0;
+    const cpl=actCost&&a.leads?fmtRs(Math.round(actCost/a.leads)):'—';
     report=`<div class="acc open" style="margin-top:14px;"><div class="acc-head">
       <div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 3 5-6"/></svg></div>
       <div class="acc-title"><div class="acc-name">Post-activity report</div><div class="acc-sub">Outcome &amp; ROI</div></div>
@@ -221,6 +224,8 @@ function renderDetail(id){
         <div class="ri-stat"><div class="ri-stat-lbl">Leads</div><div class="ri-stat-val">${a.leads}</div></div>
         <div class="ri-stat"><div class="ri-stat-lbl">Conversions</div><div class="ri-stat-val">${a.conversions}</div></div>
         <div class="ri-stat"><div class="ri-stat-lbl">Conv. rate</div><div class="ri-stat-val">${conv}%</div></div>
+        <div class="ri-stat"><div class="ri-stat-lbl">Logistics cost</div><div class="ri-stat-val">${actCost?fmtRs(actCost):'—'}</div></div>
+        <div class="ri-stat"><div class="ri-stat-lbl">Cost / lead</div><div class="ri-stat-val">${cpl}</div></div>
       </div>
     </div></div>`;
   }

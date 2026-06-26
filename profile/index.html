@@ -509,6 +509,7 @@ const FIQ_SUGGESTIONS=[
   "Which corporate accounts are up for renewal in the next 90 days?",
   "Which referral doctors have gone cold — no referral in the last 30 days?",
   "What are the best localities for my next health camp?",
+  "How much expense reimbursement is pending, and where did I spend most?",
 ];
 let __fiqHistory=[];
 function openFieldIQ(){
@@ -579,8 +580,13 @@ function mockFIQReply(q){
     return "Best localities for your next <strong>health camp</strong> (by past footfall &amp; conversion):<br>• <strong>Prestige Lakeside Habitat</strong> — 3,200 households · last camp 240 footfall, 9 admissions<br>• <strong>Brigade Gateway RWA</strong> — strong engagement, 180 footfall last time<br>• <strong>Phoenix Marketcity</strong> — 2,000+/day footfall, untapped (no camp yet)<br><br>Highest ROI bet: <strong>Phoenix Marketcity</strong> weekend camp — biggest reach. Want me to create the activity and send it for approval?";
   }
 
+  /* 5. Expenses & reimbursement */
+  if(lc.includes('expense')||lc.includes('reimburs')||lc.includes('spend')||lc.includes('claim')){
+    return "Expenses — <strong>this month</strong>:<br>• Total spent: <strong>₹8,630</strong><br>• Reimbursement pending: <strong>₹6,920</strong> (₹2,420 submitted, ₹4,500 approved)<br><br>Where it went:<br>• <strong>Camp logistics</strong> — ₹4,500 (Brigade Gateway camp)<br>• <strong>Meals</strong> — ₹1,800 (Wipro HR lunch)<br>• <strong>Travel</strong> — ₹960<br>• <strong>Collateral / mileage</strong> — ₹1,370<br><br>⚠ 1 claim is missing a receipt above ₹1,000. Want me to flag it before it goes to your manager?";
+  }
+
   /* Fallback */
-  return "I can pull data on referrals &amp; conversions, corporate MOU renewals, cold referral doctors, camp localities, or anything specific to an account. Try one of the chips below — or ask me directly.";
+  return "I can pull data on referrals &amp; conversions, corporate MOU renewals, cold referral doctors, camp localities, expenses &amp; reimbursement, or anything specific to an account. Try one of the chips below — or ask me directly.";
 }
 
 /* ════ ROLE (maker-checker) ════ */

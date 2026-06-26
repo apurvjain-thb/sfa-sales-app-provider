@@ -28,11 +28,19 @@
         <div class="dash-stat"><span class="dash-stat-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
           <span class="dash-stat-body"><span class="dash-stat-v" id="ex-pending">₹0</span><span class="dash-stat-l">Reimbursement due</span></span></div>
       </div>
-      <div class="chiprow" id="exp-chips"></div>
-      <div class="toolsrow">
-        <span class="count" id="exp-count">— expenses</span>
-        <div class="tools"><button class="plan-reopt-btn" onclick="openSheet('newexp')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>New expense</button></div>
+      <!-- category breakdown (E5) -->
+      <div class="pad" id="ex-breakdown" style="padding:4px 18px 0;"></div>
+      <!-- view switch -->
+      <div class="plan-toolbar">
+        <div class="view-toggle" role="tablist">
+          <button id="xv-claims" class="view-toggle-btn sel" onclick="setMainView('claims')">Claims</button>
+          <button id="xv-reports" class="view-toggle-btn" onclick="setMainView('reports')">Reports</button>
+          <button id="xv-advances" class="view-toggle-btn" onclick="setMainView('advances')">Advances</button>
+        </div>
+        <button class="plan-reopt-btn" id="ex-new-btn" onclick="onNewClick()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg><span id="ex-new-lbl">New expense</span></button>
       </div>
+      <div class="chiprow" id="exp-chips"></div>
+      <div class="toolsrow"><span class="count" id="exp-count">— expenses</span></div>
       <div class="screen"><div class="pad" id="exp-list" style="padding-top:0;"></div></div>
     </div>
 
@@ -57,8 +65,10 @@
     <div class="sheet-handle"></div>
     <div class="sheet-header"><span class="sheet-title">New expense</span>
       <button class="sheet-close" onclick="closeSheet('newexp')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
-    <div class="co-section"><label class="tke-label">Category <span class="req" style="color:var(--red)">*</span></label><select class="tke-select" id="ne-cat"></select></div>
-    <div class="co-section"><label class="tke-label">Amount (₹) <span class="req" style="color:var(--red)">*</span></label><input type="number" class="tke-input" id="ne-amount" placeholder="e.g. 620" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Category <span class="req" style="color:var(--red)">*</span></label><select class="tke-select" id="ne-cat" onchange="onCatChange()"></select></div>
+    <!-- E4: per-category helpers (mileage / per-diem) -->
+    <div id="ne-dynamic"></div>
+    <div class="co-section"><label class="tke-label">Amount (₹) <span class="req" style="color:var(--red)">*</span></label><input type="number" class="tke-input" id="ne-amount" placeholder="e.g. 620" style="font-size:16px;" oninput="checkPolicy()"><div id="ne-policy" style="margin-top:6px;"></div></div>
     <div class="co-section"><label class="tke-label">Date</label><input type="date" class="tke-input" id="ne-date" value="2026-06-16" style="font-size:16px;"></div>
     <div class="co-section"><label class="tke-label">Payment mode</label><select class="tke-select" id="ne-mode"></select></div>
     <div class="co-section"><label class="tke-label">Link to (optional)</label><select class="tke-select" id="ne-link"></select></div>
@@ -77,6 +87,30 @@
       <button class="btn btn-primary" onclick="saveExpense('Submitted')">Submit for approval</button>
     </div>
   </div>
+
+  <!-- New report sheet -->
+  <div class="sheet-backdrop" id="newrpt-backdrop" onclick="closeSheet('newrpt')"></div>
+  <div class="bottom-sheet" id="newrpt-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><div><span class="sheet-title">New expense report</span><div class="msg-doctor-line">Bundle draft claims & submit together</div></div>
+      <button class="sheet-close" onclick="closeSheet('newrpt')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="co-section"><label class="tke-label">Report title</label><input class="tke-input" id="nr-title" placeholder="e.g. Week of 16 Jun" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Include draft claims</label><div id="nr-claims"></div></div>
+    <div class="co-section"><div class="mc-note" style="margin:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Selected claims are submitted as one report for manager approval.</div></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="closeSheet('newrpt')">Cancel</button><button class="btn btn-primary" onclick="createReport()">Submit report</button></div>
+  </div>
+
+  <!-- Request advance sheet -->
+  <div class="sheet-backdrop" id="newadv-backdrop" onclick="closeSheet('newadv')"></div>
+  <div class="bottom-sheet" id="newadv-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><div><span class="sheet-title">Request advance</span><div class="msg-doctor-line">Money up-front, settled against actual claims</div></div>
+      <button class="sheet-close" onclick="closeSheet('newadv')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="co-section"><label class="tke-label">Amount (₹) <span class="req" style="color:var(--red)">*</span></label><input type="number" class="tke-input" id="na-amount" placeholder="e.g. 10000" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Purpose</label><input class="tke-input" id="na-purpose" placeholder="e.g. Health camp logistics" style="font-size:16px;"></div>
+    <div class="co-section"><label class="tke-label">Link to activity (optional)</label><select class="tke-select" id="na-link"></select></div>
+    <div class="sheet-footer"><button class="btn secondary" onclick="closeSheet('newadv')">Cancel</button><button class="btn btn-primary" onclick="createAdvance()">Send request</button></div>
+  </div>
 </div>
 
 <script src="/assets/data.js"></script>
@@ -84,8 +118,18 @@
 <script>
 initShell('more');
 
-const xs={filter:"All",receiptName:""};
+const xs={main:"claims",filter:"All",receiptName:""};
 const EXP_TABS=["All","Draft","Submitted","Approved","Paid"];
+
+/* ── View switch (Claims / Reports / Advances) ── */
+function setMainView(v){
+  xs.main=v;
+  ['claims','reports','advances'].forEach(k=>document.getElementById('xv-'+k).classList.toggle('sel',k===v));
+  document.getElementById('exp-chips').style.display=v==='claims'?'':'none';
+  document.getElementById('ex-new-lbl').textContent=v==='claims'?'New expense':v==='reports'?'New report':'Request advance';
+  if(v==='claims') renderExpenses(); else if(v==='reports') renderReports(); else renderAdvances();
+}
+function onNewClick(){ openSheet(xs.main==='claims'?'newexp':xs.main==='reports'?'newrpt':'newadv'); }
 
 function renderChips(){
   document.getElementById('exp-chips').innerHTML=EXP_TABS.map(t=>`<button class="chip ${xs.filter===t?'active':''}" onclick="setExpFilter('${t}')">${t}</button>`).join('');
@@ -95,9 +139,26 @@ function setExpFilter(t){xs.filter=t;renderChips();renderExpenses();}
 function renderSummary(){
   const all=getExpenses();
   const spent=all.filter(e=>e.status!=='Draft'&&e.status!=='Rejected').reduce((s,e)=>s+e.amount,0);
-  const due=all.filter(e=>e.status==='Submitted'||e.status==='Approved').reduce((s,e)=>s+e.amount,0);
+  const due=all.filter(e=>e.status==='Submitted'||e.status==='Approved'||e.status==='In report').reduce((s,e)=>s+e.amount,0);
   document.getElementById('ex-spent').textContent=fmtRs(spent);
   document.getElementById('ex-pending').textContent=fmtRs(due);
+  renderBreakdown(all);
+}
+/* E5: spend-by-category bar */
+function renderBreakdown(all){
+  const counted=all.filter(e=>e.status!=='Draft'&&e.status!=='Rejected');
+  const total=counted.reduce((s,e)=>s+e.amount,0)||1;
+  const by={}; counted.forEach(e=>by[e.category]=(by[e.category]||0)+e.amount);
+  const top=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const colors=['var(--teal)','var(--amber)','var(--teal-press)','var(--ink-3)'];
+  document.getElementById('ex-breakdown').innerHTML=top.length?`
+    <div class="exp-bar">${top.map(([k,v],i)=>`<span style="width:${Math.round(v/total*100)}%;background:${colors[i]}"></span>`).join('')}</div>
+    <div class="exp-legend">${top.map(([k,v],i)=>`<span><i style="background:${colors[i]}"></i>${expCatMeta(k).l.split(' ')[0]} ${fmtRs(v)}</span>`).join('')}</div>`:'';
+}
+
+function violationBadge(e){
+  const v=expenseViolation(e);
+  return v?`<span class="exp-flag" title="${v}">⚠ ${v}</span>`:'';
 }
 
 function renderExpenses(){
@@ -114,7 +175,7 @@ function renderExpenses(){
         <span class="card-title">${c.l}</span>
         <span class="card-title" style="font-size:var(--f-sub);color:var(--ink);">${fmtRs(e.amount)}</span>
       </div>
-      <div class="inner"><div class="line sub">${e.note||'—'}</div>${e.linkLabel?`<div class="line sub">↳ ${e.linkLabel}</div>`:''}</div>
+      <div class="inner"><div class="line sub">${e.note||'—'}</div>${e.linkLabel?`<div class="line sub">↳ ${e.linkLabel}</div>`:''}${violationBadge(e)}</div>
       <div class="card-foot">
         <span class="foot-meta">${e.date} · ${e.paymentMode}${e.receipt?' · 📎':''}</span>
         <span class="pill ${EXPENSE_STATUS_CLASS[e.status]}">${e.status}</span>
@@ -123,9 +184,42 @@ function renderExpenses(){
   }).join('');
 }
 
+/* ── Reports view ── */
+function renderReports(){
+  renderSummary();
+  const rows=getReports();
+  document.getElementById('exp-count').textContent=`${rows.length} report${rows.length!==1?'s':''}`;
+  const list=document.getElementById('exp-list');
+  if(!rows.length){ list.innerHTML='<div class="empty"><div class="et">No reports yet</div><div class="ed">Bundle draft claims into a report to submit together.</div></div>'; return; }
+  list.innerHTML=rows.map(r=>{
+    const st=reportStatus(r);
+    return `<div class="card" onclick="bucketGo('/expenses/${r.id}')">
+      <div class="card-top"><span class="card-title">${r.title}</span><span class="card-title" style="font-size:var(--f-sub);">${fmtRs(r.total)}</span></div>
+      <div class="inner"><div class="line sub">${r.claimIds.length} claims</div></div>
+      <div class="card-foot"><span class="foot-meta">Submitted ${r.submittedBy}</span><span class="pill ${EXPENSE_STATUS_CLASS[st]||'wait'}">${st}</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Advances view ── */
+function renderAdvances(){
+  renderSummary();
+  const rows=getAdvances().sort((a,b)=>a.created-b.created);
+  document.getElementById('exp-count').textContent=`${rows.length} advance${rows.length!==1?'s':''}`;
+  const list=document.getElementById('exp-list');
+  list.innerHTML=rows.map(a=>{
+    const bal=a.amount-(a.settled||0);
+    return `<div class="card" onclick="bucketGo('/expenses/${a.id}')">
+      <div class="card-top"><span class="card-title">${fmtRs(a.amount)}</span><span class="pill ${ADVANCE_STATUS_CLASS[a.status]}">${a.status}</span></div>
+      <div class="inner"><div class="line sub">${a.purpose}</div>${a.status==='Approved'?`<div class="line sub">Settled ${fmtRs(a.settled||0)} · balance ${fmtRs(bal)}</div>`:''}</div>
+      <div class="card-foot"><span class="foot-meta">${a.date}${a.linkLabel?' · '+a.linkLabel:''}</span></div>
+    </div>`;
+  }).join('');
+}
+
 /* ── New expense ── */
 const _openX=openSheet;
-openSheet=function(id){ if(id==='newexp') populateNewExp(); _openX(id); };
+openSheet=function(id){ if(id==='newexp') populateNewExp(); if(id==='newrpt') populateNewReport(); if(id==='newadv') populateNewAdvance(); _openX(id); };
 function populateNewExp(){
   document.getElementById('ne-cat').innerHTML=EXPENSE_CATEGORIES.map(c=>`<option value="${c.k}">${c.l}</option>`).join('');
   document.getElementById('ne-mode').innerHTML=PAYMENT_MODES.map(m=>`<option>${m}</option>`).join('');
@@ -134,11 +228,72 @@ function populateNewExp(){
   document.getElementById('ne-link').innerHTML=`<option value="">None</option>${accOpts}${actOpts}`;
   document.getElementById('ne-amount').value=''; document.getElementById('ne-note').value='';
   xs.receiptName=''; document.getElementById('ne-receipt-name').textContent='Photo or PDF · optional';
+  onCatChange();
+}
+/* E4: mileage = km × rate; per-diem = tour-type fixed rate; amount auto-fills */
+function onCatChange(){
+  const cat=document.getElementById('ne-cat').value;
+  const dyn=document.getElementById('ne-dynamic');
+  const amt=document.getElementById('ne-amount');
+  if(cat==='mileage'){
+    dyn.innerHTML=`<div class="co-section"><label class="tke-label">Distance (km)</label><input type="number" class="tke-input" id="ne-km" placeholder="e.g. 42" style="font-size:16px;" oninput="calcMileage()"><div class="attach-help">Auto-calculated at ₹${MILEAGE_RATE}/km</div></div>`;
+    amt.readOnly=true; amt.value='';
+  } else if(cat==='perdiem'){
+    dyn.innerHTML=`<div class="co-section"><label class="tke-label">Tour type</label><select class="tke-select" id="ne-tour" onchange="calcPerdiem()">${PERDIEM_RATES.map(p=>`<option value="${p.v}">${p.k} — ${fmtRs(p.v)}/day</option>`).join('')}</select></div>`;
+    amt.readOnly=true; calcPerdiem();
+  } else {
+    dyn.innerHTML=''; amt.readOnly=false;
+  }
+  checkPolicy();
+}
+function calcMileage(){ const km=parseFloat(document.getElementById('ne-km').value||'0'); document.getElementById('ne-amount').value=Math.round(km*MILEAGE_RATE); checkPolicy(); }
+function calcPerdiem(){ const r=parseInt(document.getElementById('ne-tour').value||'0',10); document.getElementById('ne-amount').value=r; checkPolicy(); }
+function checkPolicy(){
+  const cat=document.getElementById('ne-cat').value;
+  const amount=parseInt(document.getElementById('ne-amount').value||'0',10);
+  const v=expenseViolation({category:cat,amount,receipt:xs.receiptName});
+  document.getElementById('ne-policy').innerHTML=v?`<span class="exp-flag">⚠ ${v}</span>`:'';
 }
 function onReceiptPick(e){
   const f=(e.target.files||[])[0];
   xs.receiptName=f?f.name:'';
   document.getElementById('ne-receipt-name').textContent=f?`📎 ${f.name}`:'Photo or PDF · optional';
+  checkPolicy();
+}
+
+/* ── New report (bundle draft claims) ── */
+function populateNewReport(){
+  document.getElementById('nr-title').value='Week of 16 Jun';
+  const drafts=getExpenses().filter(e=>e.status==='Draft');
+  document.getElementById('nr-claims').innerHTML=drafts.length
+    ? drafts.map(e=>`<label class="rpt-claim"><input type="checkbox" value="${e.id}" checked> <span>${expCatMeta(e.category).l} · ${fmtRs(e.amount)} · ${e.date}</span></label>`).join('')
+    : '<div class="attach-help">No draft claims to bundle. Save expenses as drafts first.</div>';
+}
+function createReport(){
+  const ids=[...document.querySelectorAll('#nr-claims input:checked')].map(c=>c.value);
+  if(!ids.length){ snack('Select at least one draft claim.'); return; }
+  const total=ids.reduce((s,id)=>{ const e=findExpenseById(id); return s+(e?e.amount:0); },0);
+  const id='RPT-'+(Date.now()%100000);
+  addReport({id,title:(document.getElementById('nr-title').value||'Expense report').trim(),claimIds:ids,total,status:'Submitted',submittedBy:'Raj Hussain',created:Date.now()%100000});
+  ids.forEach(cid=>setExpenseStatus(cid,'In report'));
+  closeSheet('newrpt'); setMainView('reports');
+  snack('Report submitted for approval.');
+}
+
+/* ── Request advance ── */
+function populateNewAdvance(){
+  document.getElementById('na-amount').value=''; document.getElementById('na-purpose').value='';
+  const actOpts=(typeof ACTIVITIES!=='undefined'?ACTIVITIES:[]).map(a=>`<option value="${a.id}">${a.name} (${a.venueName})</option>`).join('');
+  document.getElementById('na-link').innerHTML=`<option value="">None</option>${actOpts}`;
+}
+function createAdvance(){
+  const amount=parseInt(document.getElementById('na-amount').value||'0',10);
+  if(!amount){ snack('Enter an advance amount.'); return; }
+  const linkId=document.getElementById('na-link').value;
+  const act=linkId?ACTIVITIES.find(a=>a.id===linkId):null;
+  addAdvance({id:'ADV-'+(Date.now()%100000),purpose:(document.getElementById('na-purpose').value||'Advance request').trim(),amount,date:"16 Jun '26",status:'Pending',settled:0,linkLabel:act?`${act.name} (${act.venueName})`:'',created:Date.now()%100000});
+  closeSheet('newadv'); setMainView('advances');
+  snack('Advance request sent for approval.');
 }
 function saveExpense(status){
   const amount=parseInt(document.getElementById('ne-amount').value||'0',10);
@@ -174,6 +329,8 @@ function approvalTrail(e){
     </div></div></div>`;
 }
 function renderDetail(id){
+  if(id.startsWith('RPT-')) return renderReportDetail(id);
+  if(id.startsWith('ADV-')) return renderAdvanceDetail(id);
   const e=findExpenseById(id);
   const content=document.getElementById('ed-content'), footer=document.getElementById('ed-footer');
   if(!e){ document.getElementById('ed-id').textContent='Expense not found'; document.getElementById('ed-status').textContent=''; content.innerHTML='<div class="empty" style="margin-top:24px;"><div class="et">Expense not found</div></div>'; footer.innerHTML=''; return; }
@@ -209,12 +366,65 @@ function renderDetail(id){
 function submitExpense(id){ setExpenseStatus(id,'Submitted'); renderDetail(id); snack('Submitted for approval.'); }
 function decideExpense(id,status){ setExpenseStatus(id,status); renderDetail(id); snack(status==='Approved'?'Expense approved.':status==='Rejected'?'Expense rejected.':'Marked reimbursed.'); }
 
+/* ── Report detail ── */
+function renderReportDetail(id){
+  const r=findReportById(id); const st=r?reportStatus(r):null;
+  const content=document.getElementById('ed-content'), footer=document.getElementById('ed-footer');
+  if(!r){ document.getElementById('ed-id').textContent='Report not found'; content.innerHTML=''; footer.innerHTML=''; return; }
+  document.getElementById('ed-id').textContent=r.title; document.getElementById('ed-status').textContent=st;
+  const claims=r.claimIds.map(findExpenseById).filter(Boolean);
+  content.innerHTML=`
+    <div class="card" style="margin-bottom:14px;"><div class="card-top"><span class="card-title" style="font-size:var(--f-h1);">${fmtRs(r.total)}</span><span class="pill ${EXPENSE_STATUS_CLASS[st]||'wait'}">${st}</span></div>
+      <div class="inner"><div class="line">${r.claimIds.length} claims · submitted by ${r.submittedBy}</div></div></div>
+    <div class="acc open"><div class="acc-head"><div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Claims in this report</div><div class="acc-sub">${r.claimIds.length} items</div></div></div>
+      <div class="acc-body">${claims.map(e=>`<a class="vd-row" style="text-decoration:none;color:inherit;" href="/expenses/${e.id}" onclick="event.preventDefault();bucketGo('/expenses/${e.id}')"><span class="vd-row-label">${expCatMeta(e.category).l}</span><span class="vd-row-value">${fmtRs(e.amount)} · ${e.status} ›</span></a>`).join('')||vRow('—','')}</div></div>`;
+  const mgr=(typeof currentRole==='function'?currentRole():'rep')==='manager';
+  footer.innerHTML=(st==='Submitted'&&mgr)
+    ? `<button class="btn secondary" style="flex:0 0 auto;padding:14px 16px;" onclick="decideReport('${r.id}','Rejected')">Reject</button><button class="btn btn-primary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="decideReport('${r.id}','Approved')">Approve report</button>`
+    : `<button class="btn secondary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="bucketGo('/expenses')">Back</button>`;
+  document.querySelector('#view-detail .screen').scrollTop=0;
+}
+function decideReport(id,decision){
+  const r=findReportById(id);
+  setReportStatus(id,decision==='Approved'?'Approved':'Rejected');
+  if(r) r.claimIds.forEach(cid=>setExpenseStatus(cid,decision==='Approved'?'Approved':'Draft'));
+  renderDetail(id); snack(decision==='Approved'?'Report approved.':'Report rejected.');
+}
+
+/* ── Advance detail ── */
+function renderAdvanceDetail(id){
+  const a=findAdvanceById(id);
+  const content=document.getElementById('ed-content'), footer=document.getElementById('ed-footer');
+  if(!a){ document.getElementById('ed-id').textContent='Advance not found'; content.innerHTML=''; footer.innerHTML=''; return; }
+  document.getElementById('ed-id').textContent=`Advance · ${fmtRs(a.amount)}`; document.getElementById('ed-status').textContent=a.status;
+  const bal=a.amount-(a.settled||0);
+  content.innerHTML=`
+    <div class="card" style="margin-bottom:14px;"><div class="card-top"><span class="card-title" style="font-size:var(--f-h1);">${fmtRs(a.amount)}</span><span class="pill ${ADVANCE_STATUS_CLASS[a.status]}">${a.status}</span></div>
+      <div class="inner"><div class="line">${a.purpose}</div></div></div>
+    <div class="acc open"><div class="acc-head"><div class="acc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="acc-title"><div class="acc-name">Advance details</div><div class="acc-sub">Request & settlement</div></div></div>
+      <div class="acc-body">
+        ${vRow('Requested',fmtRs(a.amount))}
+        ${vRow('Date',a.date)}
+        ${vRow('Linked to',a.linkLabel||'—')}
+        ${a.status==='Approved'||a.status==='Settled'?vRow('Settled against claims',fmtRs(a.settled||0)):''}
+        ${a.status==='Approved'||a.status==='Settled'?vRow('Balance',fmtRs(bal)):''}
+      </div></div>`;
+  const mgr=(typeof currentRole==='function'?currentRole():'rep')==='manager';
+  if(a.status==='Pending'&&mgr) footer.innerHTML=`<button class="btn secondary" style="flex:0 0 auto;padding:14px 16px;" onclick="decideAdvance('${a.id}','Rejected')">Reject</button><button class="btn btn-primary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="decideAdvance('${a.id}','Approved')">Approve</button>`;
+  else if(a.status==='Approved') footer.innerHTML=`<button class="btn btn-primary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="decideAdvance('${a.id}','Settled')">Mark settled</button>`;
+  else footer.innerHTML=`<button class="btn secondary" style="flex:1;padding:14px;font-size:var(--f-sub);" onclick="bucketGo('/expenses')">Back</button>`;
+  document.querySelector('#view-detail .screen').scrollTop=0;
+}
+function decideAdvance(id,status){ setAdvanceStatus(id,status); renderDetail(id); snack(status==='Approved'?'Advance approved.':status==='Rejected'?'Advance rejected.':'Advance settled.'); }
+
 function showView(name){
   document.getElementById('view-list').classList.toggle('active',name==='list');
   document.getElementById('view-detail').classList.toggle('active',name==='detail');
 }
 bucketRoute('/expenses',{
-  list(){ showView('list'); renderChips(); renderExpenses(); },
+  list(){ showView('list'); renderChips(); setMainView(xs.main); },
   detail(id){ showView('detail'); renderDetail(id); },
 });
 </script>
