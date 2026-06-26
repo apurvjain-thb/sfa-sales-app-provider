@@ -51,6 +51,9 @@ function render(){
   ACTIVITIES.filter(a=>a.approval==='pending').forEach(a=>{
     items.push({kind:'activity',id:a.id,title:`Activity — ${a.name}`,sub:`${a.venueName} · ${a.date}`,by:a.submittedBy||'Raj Hussain'});
   });
+  (typeof pendingExpenses==='function'?pendingExpenses():[]).forEach(e=>{
+    items.push({kind:'expense',id:e.id,title:`Expense — ${fmtRs(e.amount)} · ${expCatMeta(e.category).l}`,sub:`${e.date}${e.linkLabel?' · '+e.linkLabel:''}`,by:e.submittedBy||'Raj Hussain'});
+  });
   const el=document.getElementById('ap-list');
   if(!items.length){ el.innerHTML='<div class="empty" style="margin-top:40px;"><div class="et">Nothing to approve</div><div class="ed">Pending beat-plan edits and activities will appear here.</div></div>'; return; }
   const actions=(it)=>{
@@ -75,6 +78,8 @@ function decide(kind,id,decision){
     else { sessionStorage.removeItem('addedVisits'); sessionStorage.removeItem('addedVisitsApproved'); }
   } else if(kind==='activity'){
     setActivityApproval(id,decision);
+  } else if(kind==='expense'){
+    setExpenseStatus(id,decision==='approved'?'Approved':'Rejected');
   }
   snack(decision==='approved'?'Approved.':'Rejected — rep notified.');
   render();

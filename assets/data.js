@@ -277,6 +277,7 @@ function pendingApprovalCount(){
   if(seedPlanStatus()==='pending') n+=1;
   if(addedVisitsPending()) n+=1;
   n+=ACTIVITIES.filter(a=>a.approval==='pending').length;
+  if(typeof pendingExpenses==='function') n+=pendingExpenses().length;
   return n;
 }
 function fmtINR(v){
@@ -285,6 +286,54 @@ function fmtINR(v){
   if(v>=1000) return '₹'+(v/1000).toFixed(0)+'K';
   return '₹'+v;
 }
+/* Exact rupee formatting for expense amounts */
+function fmtRs(v){ return '₹'+Number(v||0).toLocaleString('en-IN'); }
+
+/* ════════════════════════════════════════
+   EXPENSES — field-rep expense management.
+   Maker-checker (rep submits → manager approves),
+   linked to the visit / account / activity where
+   the cost was incurred.
+   status: Draft | Submitted | Approved | Rejected | Paid
+   ════════════════════════════════════════ */
+const EXPENSE_CATEGORIES=[
+  {k:"travel",l:"Travel",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14M6 17l1-5h10l1 5M7 12l1.5-4h7L18 12M8 21v-2M16 21v-2"/></svg>'},
+  {k:"mileage",l:"Mileage",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 12l4-2M12 12v-5"/></svg>'},
+  {k:"perdiem",l:"Daily allowance",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/></svg>'},
+  {k:"meals",l:"Meals & entertainment",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v9a2 2 0 0 0 4 0V2M8 11v11M16 2c-1.5 0-3 1.5-3 4s1.5 4 3 4v11"/></svg>'},
+  {k:"logistics",l:"Camp / activity logistics",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13"/></svg>'},
+  {k:"accommodation",l:"Accommodation",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M3 18h18M7 10V7a2 2 0 0 1 2-2h2"/></svg>'},
+  {k:"comms",l:"Communication",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>'},
+  {k:"collateral",l:"Marketing collateral",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>'},
+  {k:"misc",l:"Miscellaneous",ic:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>'},
+];
+function expCatMeta(k){ return EXPENSE_CATEGORIES.find(c=>c.k===k)||EXPENSE_CATEGORIES[EXPENSE_CATEGORIES.length-1]; }
+const EXPENSE_STATUS_CLASS={Draft:"up",Submitted:"wait",Approved:"done",Rejected:"miss",Paid:"done"};
+const PAYMENT_MODES=["Cash","Personal card","Company card","UPI"];
+
+const EXPENSES_SEED=[
+  {id:"EX-1",date:"16 Jun '26",category:"travel",amount:620,paymentMode:"UPI",note:"Fuel — Gurugram client run",status:"Submitted",linkType:"visit",linkLabel:"Dr. Jain's Nursing Home",accountSlug:"jain-s-nursing-home",receipt:"fuel-receipt.jpg",submittedBy:"Raj Hussain",created:1},
+  {id:"EX-2",date:"11 Jun '26",category:"logistics",amount:4500,paymentMode:"Company card",note:"Tent, tables & banner for camp",status:"Approved",linkType:"activity",linkLabel:"Brigade Gateway — Free Health Camp",accountSlug:"brigade-gateway-rwa",receipt:"camp-logistics.pdf",submittedBy:"Raj Hussain",created:2},
+  {id:"EX-3",date:"14 Jun '26",category:"meals",amount:1800,paymentMode:"Personal card",note:"Lunch with HR head",status:"Submitted",linkType:"account",linkLabel:"Wipro Technologies",accountSlug:"wipro-technologies",receipt:"lunch-bill.jpg",submittedBy:"Raj Hussain",created:3},
+  {id:"EX-4",date:"12 Jun '26",category:"travel",amount:340,paymentMode:"Cash",note:"Auto to Aravali Power",status:"Paid",linkType:"account",linkLabel:"Aravali Power Company Pvt Ltd",accountSlug:"aravali-power-company-pvt-ltd",receipt:"",submittedBy:"Raj Hussain",created:4},
+  {id:"EX-5",date:"10 Jun '26",category:"collateral",amount:950,paymentMode:"UPI",note:"Brochure printing — referral pads",status:"Draft",linkType:"account",linkLabel:"Aradhya Clinics",accountSlug:"aradhya-clinics",receipt:"",submittedBy:"Raj Hussain",created:5},
+  {id:"EX-6",date:"16 Jun '26",category:"mileage",amount:420,paymentMode:"Cash",note:"Own vehicle · 42 km @ ₹10/km",status:"Submitted",linkType:"none",linkLabel:"",accountSlug:"",receipt:"",submittedBy:"Raj Hussain",created:6},
+];
+
+function newExpenses(){ try{ return JSON.parse(sessionStorage.getItem('newExpenses')||'[]'); }catch(e){ return []; } }
+function expenseOverrides(){ try{ return JSON.parse(sessionStorage.getItem('expenseStatus')||'{}'); }catch(e){ return {}; } }
+function getExpenses(){
+  const ov=expenseOverrides();
+  return EXPENSES_SEED.concat(newExpenses()).map(e=>ov[e.id]?{...e,status:ov[e.id]}:e);
+}
+function findExpenseById(id){ return getExpenses().find(e=>e.id===id); }
+function setExpenseStatus(id,status){
+  try{ const ov=expenseOverrides(); ov[id]=status; sessionStorage.setItem('expenseStatus',JSON.stringify(ov)); }catch(e){}
+}
+function addExpense(e){
+  try{ const list=newExpenses(); list.push(e); sessionStorage.setItem('newExpenses',JSON.stringify(list)); }catch(err){}
+}
+function pendingExpenses(){ return getExpenses().filter(e=>e.status==='Submitted'); }
 
 /* Provider message templates — channel + account-type aware.
    {name} → contact short name. */

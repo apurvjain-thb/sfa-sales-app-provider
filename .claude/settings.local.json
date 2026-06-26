@@ -29,7 +29,10 @@
       "mcp__Claude_in_Chrome__browser_batch",
       "Bash(python3 -c \"import ast; ast.parse\\(open\\('serve.py'\\).read\\(\\)\\); print\\('serve.py OK'\\)\")",
       "Bash(git commit -q -m ' *)",
-      "Bash(grep -n 'script src=\"/assets/data.js\"\\\\|</div>$' contacts/index.html)"
+      "Bash(grep -n 'script src=\"/assets/data.js\"\\\\|</div>$' contacts/index.html)",
+      "Bash(git tag *)",
+      "Bash(git checkout *)",
+      "Bash(curl -s -o /dev/null -w \"8080: %{http_code}\\\\n\" http://localhost:8080/expenses)"
     ]
   }
 }

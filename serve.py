@@ -16,7 +16,7 @@ import http.server, socketserver, os, re, urllib.parse, sys
 PORT = int(os.environ.get("PORT", 8080))
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
-SECTIONS = ("beat-plan", "accounts", "leads", "deals", "activity", "contacts", "tasks", "login")
+SECTIONS = ("beat-plan", "accounts", "leads", "deals", "activity", "expenses", "contacts", "tasks", "login")
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):
@@ -46,7 +46,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return super().do_GET()
 
         # Dynamic detail routes under each section
-        m = re.match(r"^/(beat-plan|accounts|leads|deals|activity|contacts|tasks|login|profile)/([^/]+)/?$", path)
+        m = re.match(r"^/(beat-plan|accounts|leads|deals|activity|expenses|contacts|tasks|login|profile)/([^/]+)/?$", path)
         if m:
             section, slug = m.group(1), m.group(2)
             file_path = os.path.join(ROOT, section, slug)
